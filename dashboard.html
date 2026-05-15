@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PotenciaIA · Dashboard HR</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --azul: #1a5fa8; --azul-dark: #0d3d70;
+  --azul-light: #e8f0fb; --azul-soft: #b8d1ed; --azul-mid: #6fa3d8;
+  --bg: #f4f7fb; --surface: #ffffff;
+  --border: #d0dcea; --border-dark: #a8bcd4;
+  --text: #0d1b2e; --text-dim: #3d5470; --text-muted: #7a96b8;
+  --yellow: #f39c12; --yellow-light: #fef9e7;
+  --rojo: #e74c3c; --rojo-light: #fdf0ee;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; }
+
+/* NAV */
+.topbar { background:var(--surface); border-bottom:1px solid var(--border); padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:60px; }
+.topbar-logo { display:flex; align-items:center; gap:12px; }
+.topbar-logo .icon { width:36px; height:36px; background:var(--azul); border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:800; font-size:16px; color:white; }
+.topbar-logo span { font-family:'Syne',sans-serif; font-size:17px; font-weight:700; color:var(--azul); }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+.btn-refresh { background:var(--azul); color:white; border:none; padding:8px 18px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:opacity .15s; }
+.btn-refresh:hover { opacity:.85; }
+.hr-badge { font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--azul); background:var(--azul-light); border:1px solid var(--azul-soft); padding:5px 12px; border-radius:20px; }
+
+/* LAYOUT */
+.main { padding:28px 32px; }
+.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+.stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 24px; }
+.stat-label { font-size:12px; color:var(--text-muted); font-weight:500; margin-bottom:6px; }
+.stat-value { font-size:28px; font-weight:700; font-family:'Syne',sans-serif; color:var(--azul); }
+.stat-sub { font-size:11px; color:var(--text-muted); margin-top:4px; }
+
+/* TABLA */
+.table-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.table-header { display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-bottom:1px solid var(--border); }
+.table-title { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; color:var(--text); }
+.table-sub { font-size:12px; color:var(--text-muted); margin-top:2px; }
+table { width:100%; border-collapse:collapse; }
+thead tr { background:var(--azul-light); }
+th { text-align:left; padding:11px 20px; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--azul-dark); }
+tbody tr { border-bottom:1px solid var(--border); cursor:pointer; transition:background .1s; }
+tbody tr:last-child { border-bottom:none; }
+tbody tr:hover { background:var(--azul-light); }
+td { padding:14px 20px; font-size:13px; color:var(--text-dim); vertical-align:middle; }
+td.candidato-cell { font-weight:600; color:var(--text); }
+
+/* BADGES */
+.estrato-pill { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; padding:4px 12px; border-radius:20px; }
+.e1 { background:#fef9e7; color:#8a6000; border:1px solid #f5d87a; }
+.e2 { background:var(--azul-light); color:var(--azul-dark); border:1px solid var(--azul-soft); }
+.e3 { background:#eaf7f0; color:#0a5c35; border:1px solid #7dd4aa; }
+.e4 { background:#f3eeff; color:#4a2080; border:1px solid #c4a0f0; }
+.e0 { background:var(--rojo-light); color:#8b0000; border:1px solid #f0b8b4; }
+
+.conf-bar { height:5px; background:var(--border); border-radius:3px; overflow:hidden; width:80px; }
+.conf-fill { height:100%; background:var(--azul); border-radius:3px; }
+
+/* MODAL */
+.modal-bg { display:none; position:fixed; inset:0; background:rgba(13,27,46,0.45); z-index:200; align-items:center; justify-content:center; padding:24px; }
+.modal-bg.active { display:flex; }
+.modal { background:var(--surface); border-radius:16px; max-width:680px; width:100%; max-height:90vh; overflow-y:auto; animation:slideUp .25s ease; }
+@keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.modal-top { position:relative; padding:28px 32px 20px; border-bottom:1px solid var(--border); }
+.modal-close { position:absolute; top:20px; right:20px; background:var(--bg); border:1px solid var(--border); border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:16px; color:var(--text-muted); display:flex; align-items:center; justify-content:center; }
+.modal-close:hover { color:var(--text); }
+.modal-body { padding:24px 32px 32px; }
+
+.modal-estrato { display:inline-flex; flex-direction:column; align-items:center; padding:20px 40px; border:2px solid var(--azul); border-radius:12px; margin-bottom:20px; position:relative; overflow:hidden; }
+.modal-estrato::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--azul); }
+.modal-estrato-num { font-family:'Syne',sans-serif; font-size:64px; font-weight:800; color:var(--azul); line-height:1; }
+.modal-estrato-name { font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-top:6px; }
+.modal-modo { font-size:13px; font-weight:600; color:var(--azul); background:var(--azul-light); border:1px solid var(--azul-soft); padding:4px 14px; border-radius:20px; margin-top:10px; }
+.modal-sub { font-size:12px; color:var(--text-muted); margin-top:6px; }
+
+.info-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+.info-item { background:var(--bg); border-radius:8px; padding:12px 16px; }
+.info-item-label { font-size:11px; color:var(--text-muted); font-weight:500; margin-bottom:3px; }
+.info-item-value { font-size:13px; font-weight:600; color:var(--text); }
+
+.section-block { margin-bottom:16px; }
+.section-title { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--azul); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.resumen-text { font-size:14px; line-height:1.7; color:var(--text-dim); }
+
+.evidence-list { list-style:none; }
+.evidence-list li { font-size:13px; color:var(--text-dim); padding:8px 0; border-bottom:1px solid var(--border); display:flex; gap:10px; line-height:1.6; }
+.evidence-list li:last-child { border-bottom:none; }
+.evidence-list li::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--azul); flex-shrink:0; margin-top:5px; }
+.alert-list li::before { background:var(--yellow); }
+
+.transcript-toggle { font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); background:none; border:none; cursor:pointer; padding:8px 0; font-family:'Inter',sans-serif; }
+.transcript-toggle:hover { color:var(--azul); }
+.raw-transcript { display:none; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:14px; font-size:12px; line-height:1.8; color:var(--text-dim); max-height:220px; overflow-y:auto; margin-top:10px; white-space:pre-wrap; font-family:'Inter',sans-serif; }
+.raw-transcript.visible { display:block; }
+
+/* EMPTY / LOADING */
+.empty-state { text-align:center; padding:60px 24px; color:var(--text-muted); }
+.empty-icon { font-size:40px; margin-bottom:16px; color:var(--azul-soft); }
+.empty-title { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; color:var(--text-dim); margin-bottom:8px; }
+.empty-sub { font-size:13px; line-height:1.6; }
+.loading { text-align:center; padding:40px; color:var(--text-muted); font-size:13px; }
+.spinner { width:32px; height:32px; border:2px solid var(--border); border-top-color:var(--azul); border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 12px; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* SHEETS config banner */
+.config-banner { background:var(--azul-light); border:1px solid var(--azul-soft); border-radius:10px; padding:14px 20px; margin-bottom:20px; font-size:13px; color:var(--azul-dark); display:flex; align-items:center; gap:10px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="icon">P</div>
+    <span>PotenciaIA</span>
+  </div>
+  <div class="topbar-right">
+    <span class="hr-badge">Panel HR</span>
+    <button class="btn-refresh" onclick="cargarEvaluaciones()">↻ Actualizar</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total evaluaciones</div>
+      <div class="stat-value" id="statTotal">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Estrato promedio</div>
+      <div class="stat-value" id="statPromedio">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Confianza promedio</div>
+      <div class="stat-value" id="statConfianza">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Última evaluación</div>
+      <div class="stat-value" style="font-size:15px;padding-top:4px" id="statUltima">—</div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div>
+        <div class="table-title">Evaluaciones realizadas</div>
+        <div class="table-sub">Hacé clic en una fila para ver el informe completo</div>
+      </div>
+    </div>
+    <div id="tableContainer">
+      <div class="loading"><div class="spinner"></div>Cargando evaluaciones...</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL INFORME -->
+<div class="modal-bg" id="modalBg" onclick="cerrarModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-top">
+      <button class="modal-close" onclick="cerrarModal()">✕</button>
+      <div id="modalHeader"></div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const SHEETS_URL = 'https://script.google.com/a/macros/rockingdata.co/s/AKfycby_tyQcMTgpc8rxUci5BvGm97BZh1MXTTWa3k3DKhd8TfOey7j_dwT3mtKuWdZMbFxs/exec';
+
+let evaluaciones = [];
+
+function estratoPill(e) {
+  const cls = ['e0','e1','e2','e3','e4'][e] || 'e0';
+  const labels = ['Error','Declarativo','Acumulativo','Serial','Paralelo'];
+  return `<span class="estrato-pill ${cls}">E${e} — ${labels[e]||'?'}</span>`;
+}
+
+async function cargarEvaluaciones() {
+  document.getElementById('tableContainer').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando evaluaciones...</div>';
+  try {
+    const res = await fetch(SHEETS_URL + '?action=get');
+    const data = await res.json();
+    evaluaciones = data.evaluaciones || [];
+    renderTabla();
+    renderStats();
+  } catch(e) {
+    document.getElementById('tableContainer').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚠</div>
+        <div class="empty-title">No se pudo cargar</div>
+        <div class="empty-sub">Verificá que el Apps Script esté publicado correctamente.<br>Error: ${e.message}</div>
+      </div>`;
+  }
+}
+
+function renderStats() {
+  const total = evaluaciones.length;
+  document.getElementById('statTotal').textContent = total;
+  if (total === 0) return;
+  const estratos = evaluaciones.map(e => parseInt(e.estrato)).filter(n => n > 0);
+  const prom = estratos.length ? (estratos.reduce((a,b)=>a+b,0)/estratos.length).toFixed(1) : '—';
+  document.getElementById('statPromedio').textContent = prom;
+  const confs = evaluaciones.map(e => parseInt(e.confianza)).filter(n => !isNaN(n));
+  const promConf = confs.length ? Math.round(confs.reduce((a,b)=>a+b,0)/confs.length)+'%' : '—';
+  document.getElementById('statConfianza').textContent = promConf;
+  document.getElementById('statUltima').textContent = evaluaciones[0]?.fecha?.split(',')[0] || '—';
+}
+
+function renderTabla() {
+  if (evaluaciones.length === 0) {
+    document.getElementById('tableContainer').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">Sin evaluaciones todavía</div>
+        <div class="empty-sub">Cuando un candidato complete la evaluación,<br>el resultado aparecerá aquí automáticamente.</div>
+      </div>`;
+    return;
+  }
+  const rows = evaluaciones.map((ev, i) => {
+    const conf = parseInt(ev.confianza) || 0;
+    return `<tr onclick="abrirModal(${i})">
+      <td class="candidato-cell">${ev.candidato || '—'}</td>
+      <td>${ev.tema || '—'}</td>
+      <td>${ev.fecha || '—'}</td>
+      <td>${ev.duracion || '—'}</td>
+      <td>${estratoPill(parseInt(ev.estrato))}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="conf-bar"><div class="conf-fill" style="width:${conf}%"></div></div>
+          <span style="font-size:12px;color:var(--text-muted);min-width:32px">${conf}%</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tableContainer').innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Candidato</th>
+          <th>Tema</th>
+          <th>Fecha</th>
+          <th>Duración</th>
+          <th>Estrato</th>
+          <th>Confianza</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function abrirModal(i) {
+  const ev = evaluaciones[i];
+  if (!ev) return;
+  const conf = parseInt(ev.confianza) || 0;
+  const evidencias = (ev.evidencias || '').split(' | ').filter(Boolean);
+  const alertas = (ev.alertas || '').split(' | ').filter(Boolean);
+
+  document.getElementById('modalHeader').innerHTML = `
+    <div style="text-align:center">
+      <div class="modal-estrato">
+        <div class="modal-estrato-num">${ev.estrato || '?'}</div>
+        <div class="modal-estrato-name">${ev.nombre_estrato || ''}</div>
+        <div class="modal-modo">${ev.modo_procesamiento || ''}</div>
+        <div class="modal-sub">${ev.subestrato || ''} · Horizonte: ${ev.horizonte || ''}</div>
+      </div>
+    </div>`;
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="info-grid">
+      <div class="info-item"><div class="info-item-label">Candidato</div><div class="info-item-value">${ev.candidato || '—'}</div></div>
+      <div class="info-item"><div class="info-item-label">Tema</div><div class="info-item-value">${ev.tema || '—'}</div></div>
+      <div class="info-item"><div class="info-item-label">Fecha</div><div class="info-item-value">${ev.fecha || '—'}</div></div>
+      <div class="info-item"><div class="info-item-label">Duración</div><div class="info-item-value">${ev.duracion || '—'}</div></div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px">
+        <span>Confianza del análisis</span><span style="color:var(--azul)">${conf}%</span>
+      </div>
+      <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+        <div style="width:${conf}%;height:100%;background:var(--azul);border-radius:3px;transition:width 1s ease"></div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-title">Síntesis del análisis</div>
+      <div class="resumen-text">${ev.resumen || '—'}</div>
+    </div>
+
+    ${evidencias.length ? `
+    <div class="section-block">
+      <div class="section-title">Evidencias del discurso</div>
+      <ul class="evidence-list">${evidencias.map(e=>`<li>${e}</li>`).join('')}</ul>
+    </div>` : ''}
+
+    ${alertas.length && alertas[0] ? `
+    <div class="section-block">
+      <div class="section-title">Observaciones</div>
+      <ul class="evidence-list alert-list">${alertas.map(a=>`<li>${a}</li>`).join('')}</ul>
+    </div>` : ''}
+
+    <div class="section-block">
+      <button class="transcript-toggle" onclick="toggleTranscript()">▾ Ver transcript completo</button>
+      <div class="raw-transcript" id="modalTranscript">${ev.transcript || 'No disponible'}</div>
+    </div>`;
+
+  document.getElementById('modalBg').classList.add('active');
+}
+
+function cerrarModal(e) {
+  if (!e || e.target === document.getElementById('modalBg')) {
+    document.getElementById('modalBg').classList.remove('active');
+  }
+}
+
+function toggleTranscript() {
+  document.getElementById('modalTranscript').classList.toggle('visible');
+}
+
+cargarEvaluaciones();
+</script>
+</body>
+</html>

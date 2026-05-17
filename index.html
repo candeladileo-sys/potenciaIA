@@ -7,136 +7,141 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #ffffff; --surface: #f4f7fb; --surface2: #eaf0f8;
-  --border: #d0dcea; --border-dark: #a8bcd4;
-  --azul: #1a5fa8; --azul-dark: #0d3d70;
-  --azul-light: #e8f0fb; --azul-mid: #6fa3d8; --azul-soft: #b8d1ed;
-  --rojo: #e74c3c; --rojo-light: #fdf0ee;
-  --text: #0d1b2e; --text-dim: #3d5470; --text-muted: #7a96b8;
-  --yellow: #f39c12; --yellow-light: #fef9e7;
+  --bg:#ffffff;--surface:#f4f7fb;--border:#d0dcea;--border-dark:#a8bcd4;
+  --azul:#1a5fa8;--azul-dark:#0d3d70;--azul-light:#e8f0fb;--azul-mid:#6fa3d8;--azul-soft:#b8d1ed;
+  --rojo:#e74c3c;--rojo-light:#fdf0ee;
+  --text:#0d1b2e;--text-dim:#3d5470;--text-muted:#7a96b8;
+  --yellow:#f39c12;--yellow-light:#fef9e7;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; overflow-x:hidden; }
-.container { max-width:860px; margin:0 auto; padding:40px 24px 60px; }
-
-.header { display:flex; align-items:center; justify-content:space-between; margin-bottom:40px; padding-bottom:24px; border-bottom:1.5px solid var(--border); gap:16px; }
-.logo { display:flex; align-items:center; gap:14px; }
-.logo-icon { width:46px; height:46px; background:var(--azul); border-radius:12px; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:800; font-size:20px; color:white; flex-shrink:0; }
-.logo-text h1 { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:var(--azul); letter-spacing:-0.02em; }
-.logo-text p { font-size:12px; color:var(--text-muted); margin-top:2px; }
-.phase-badge { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--azul); background:var(--azul-light); border:1px solid var(--azul-soft); padding:6px 14px; border-radius:20px; white-space:nowrap; }
-
-.screen { display:none; animation:fadeUp 0.3s ease; }
-.screen.active { display:block; }
-@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-
-.card { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:32px; margin-bottom:20px; }
-.card h2 { font-family:'Syne',sans-serif; font-size:20px; font-weight:700; color:var(--text); margin-bottom:12px; }
-.card p { font-size:14px; line-height:1.7; color:var(--text-dim); margin-bottom:10px; }
-.card p:last-of-type { margin-bottom:0; }
-
-.rule-list { list-style:none; margin:20px 0; }
-.rule-list li { font-size:13px; color:var(--text-dim); padding:10px 0; border-bottom:1px solid var(--border); display:flex; gap:12px; align-items:flex-start; line-height:1.5; }
-.rule-list li:last-child { border-bottom:none; }
-.rule-list li::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--azul); flex-shrink:0; margin-top:5px; }
-
-.api-input-group { margin-top:24px; }
-.api-input-group label { display:block; font-size:12px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; }
-.api-input-group input { width:100%; background:var(--surface); border:1.5px solid var(--border); border-radius:8px; padding:12px 16px; color:var(--text); font-family:'Inter',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s, box-shadow 0.2s; }
-.api-input-group input:focus { border-color:var(--azul); box-shadow:0 0 0 3px rgba(26,95,168,0.12); }
-
-.btn { font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:0.04em; padding:12px 28px; border:none; border-radius:8px; cursor:pointer; transition:all 0.2s; }
-.btn-primary { background:var(--azul); color:white; }
-.btn-primary:hover { background:var(--azul-dark); transform:translateY(-1px); }
-.btn-secondary { background:white; color:var(--text-dim); border:1.5px solid var(--border); }
-.btn-secondary:hover { border-color:var(--azul); color:var(--azul); }
-.btn-danger { background:white; color:var(--rojo); border:1.5px solid var(--rojo); }
-.btn-danger:hover { background:var(--rojo); color:white; }
-.btn:disabled { opacity:0.4; cursor:not-allowed; transform:none !important; }
-.btn-row { display:flex; gap:12px; flex-wrap:wrap; }
-
-.countdown-overlay { display:none; position:fixed; inset:0; background:white; z-index:200; flex-direction:column; align-items:center; justify-content:center; gap:24px; }
-.countdown-overlay.active { display:flex; }
-.countdown-brand { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; color:var(--azul); }
-.countdown-topic-label { font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); }
-.countdown-topic-text { font-family:'Syne',sans-serif; font-size:28px; font-weight:700; color:var(--text); text-align:center; max-width:560px; padding:0 24px; line-height:1.35; }
-.countdown-number { font-family:'Syne',sans-serif; font-size:140px; font-weight:800; color:var(--azul); line-height:1; letter-spacing:-0.05em; animation:countPulse 0.85s ease-out; min-width:180px; text-align:center; }
-.countdown-number.go { color:var(--azul-dark); font-size:64px; letter-spacing:0.05em; }
-@keyframes countPulse { 0%{transform:scale(1.5);opacity:0.1} 100%{transform:scale(1);opacity:1} }
-.countdown-instruction { font-size:13px; color:var(--text-muted); font-weight:500; }
-
-.question-overlay { display:none; position:fixed; inset:0; background:rgba(255,255,255,0.92); z-index:150; align-items:center; justify-content:center; padding:32px; backdrop-filter:blur(8px); }
-.question-overlay.active { display:flex; }
-.question-overlay-inner { background:white; border-radius:16px; border:2px solid var(--azul); padding:40px 48px; max-width:600px; width:100%; text-align:center; animation:fadeUp 0.3s ease; position:relative; overflow:hidden; }
-.question-overlay-inner::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--azul); }
-.question-badge { font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--azul); margin-bottom:16px; }
-.question-overlay-text { font-family:'Syne',sans-serif; font-size:22px; font-weight:600; color:var(--text); line-height:1.4; }
-
-.timer-ring-container { display:flex; justify-content:center; margin-bottom:28px; }
-.timer-ring { position:relative; width:180px; height:180px; }
-.timer-ring svg { transform:rotate(-90deg); }
-.ring-bg { fill:none; stroke:var(--border); stroke-width:6; }
-.ring-progress { fill:none; stroke:var(--azul); stroke-width:6; stroke-linecap:round; stroke-dasharray:502; stroke-dashoffset:502; transition:stroke-dashoffset 1s linear, stroke 0.5s; }
-.timer-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-.timer-display { font-family:'Syne',sans-serif; font-size:40px; font-weight:800; color:var(--text); letter-spacing:-0.03em; }
-.timer-label { font-size:10px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-muted); margin-top:4px; }
-
-.time-markers { display:flex; justify-content:space-between; margin-bottom:12px; padding:0 4px; }
-.time-marker { font-size:11px; color:var(--text-muted); font-weight:500; }
-.time-marker.active { color:var(--azul); font-weight:600; }
-
-.interruption-counter { display:flex; gap:8px; margin-bottom:18px; align-items:center; }
-.interruption-counter span { font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted); }
-.int-dot { width:10px; height:10px; border-radius:50%; border:2px solid var(--border-dark); background:white; transition:all 0.3s; }
-.int-dot.done { background:var(--azul); border-color:var(--azul); box-shadow:0 0 0 3px var(--azul-light); }
-
-.status-panel { background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:16px 20px; margin-bottom:16px; min-height:68px; display:flex; align-items:center; gap:14px; }
-.status-indicator { width:10px; height:10px; border-radius:50%; flex-shrink:0; background:var(--border-dark); transition:all 0.3s; }
-.status-indicator.listening { background:var(--azul); box-shadow:0 0 0 4px var(--azul-light); animation:pulse 1.5s infinite; }
-.status-indicator.speaking { background:var(--azul-dark); box-shadow:0 0 0 4px var(--azul-soft); animation:pulse 1s infinite; }
-.status-indicator.processing { background:var(--yellow); box-shadow:0 0 0 4px var(--yellow-light); animation:pulse 0.5s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.status-text { font-size:13px; color:var(--text-dim); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-
-.waveform-container { display:flex; align-items:center; justify-content:center; height:44px; gap:3px; margin-bottom:16px; }
-.wave-bar { width:3px; background:var(--azul); border-radius:3px; height:4px; opacity:0.35; transition:height 0.1s; }
-
-.transcript-area { background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:16px; margin-bottom:16px; max-height:190px; overflow-y:auto; }
-.transcript-entry { font-size:13px; line-height:1.65; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); }
-.transcript-entry:last-child { border-bottom:none; margin-bottom:0; }
-.transcript-entry .speaker { font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:4px; }
-.transcript-entry .speaker.agent { color:var(--azul); }
-.transcript-entry .speaker.user { color:var(--azul-dark); }
-.transcript-entry .content { color:var(--text-dim); }
-
-.warning-box { background:var(--yellow-light); border:1.5px solid #f0d080; border-radius:8px; padding:12px 16px; margin-bottom:16px; font-size:13px; color:#7d5a00; font-weight:500; display:none; }
-.warning-box.visible { display:block; }
-
-.processing-overlay { display:none; position:fixed; inset:0; background:rgba(255,255,255,0.96); z-index:100; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
-.processing-overlay.active { display:flex; }
-.processing-spinner { width:52px; height:52px; border:3px solid var(--border); border-top-color:var(--azul); border-right-color:var(--azul-dark); border-radius:50%; animation:spin 0.7s linear infinite; }
-@keyframes spin { to{transform:rotate(360deg)} }
-.processing-text { font-family:'Syne',sans-serif; font-size:17px; font-weight:700; color:var(--text); }
-.processing-sub { font-size:12px; color:var(--text-muted); }
-
-/* GRACIAS */
-.thanks-screen { text-align:center; padding:80px 24px; }
-.thanks-check { width:80px; height:80px; border-radius:50%; background:var(--azul-light); border:2px solid var(--azul-soft); display:flex; align-items:center; justify-content:center; margin:0 auto 28px; font-size:36px; color:var(--azul); }
-.thanks-title { font-family:'Syne',sans-serif; font-size:26px; font-weight:700; color:var(--text); margin-bottom:14px; }
-.thanks-sub { font-size:15px; color:var(--text-dim); line-height:1.7; max-width:400px; margin:0 auto; }
-
-.footer-note { text-align:center; font-size:11px; color:var(--text-muted); margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
-
-@media(max-width:600px) {
-  .card{padding:20px} .countdown-number{font-size:100px}
-  .countdown-topic-text{font-size:20px} .question-overlay-inner{padding:28px 20px}
-  .header{flex-direction:column;align-items:flex-start}
-}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+.container{max-width:860px;margin:0 auto;padding:40px 24px 60px;}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;padding-bottom:24px;border-bottom:1.5px solid var(--border);gap:16px;}
+.logo{display:flex;align-items:center;gap:14px;}
+.logo-icon{width:46px;height:46px;background:var(--azul);border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:white;flex-shrink:0;}
+.logo-text h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--azul);letter-spacing:-0.02em;}
+.logo-text p{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.phase-badge{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--azul);background:var(--azul-light);border:1px solid var(--azul-soft);padding:6px 14px;border-radius:20px;white-space:nowrap;}
+.screen{display:none;animation:fadeUp 0.3s ease;}
+.screen.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:32px;margin-bottom:20px;}
+.card h2{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;}
+.card p{font-size:14px;line-height:1.7;color:var(--text-dim);margin-bottom:10px;}
+.card p:last-of-type{margin-bottom:0;}
+.rule-list{list-style:none;margin:20px 0;}
+.rule-list li{font-size:13px;color:var(--text-dim);padding:10px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;line-height:1.5;}
+.rule-list li:last-child{border-bottom:none;}
+.rule-list li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--azul);flex-shrink:0;margin-top:5px;}
+.input-group{margin-top:20px;}
+.input-group label{display:block;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
+.input-group input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:12px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+.input-group input:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(26,95,168,0.12);}
+.btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.04em;padding:12px 28px;border:none;border-radius:8px;cursor:pointer;transition:all 0.2s;}
+.btn-primary{background:var(--azul);color:white;}
+.btn-primary:hover{background:var(--azul-dark);transform:translateY(-1px);}
+.btn-secondary{background:white;color:var(--text-dim);border:1.5px solid var(--border);}
+.btn-secondary:hover{border-color:var(--azul);color:var(--azul);}
+.btn-danger{background:white;color:var(--rojo);border:1.5px solid var(--rojo);}
+.btn-danger:hover{background:var(--rojo);color:white;}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none!important;}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;}
+.countdown-overlay{display:none;position:fixed;inset:0;background:white;z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:24px;}
+.countdown-overlay.active{display:flex;}
+.countdown-brand{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--azul);}
+.countdown-topic-label{font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);}
+.countdown-topic-text{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--text);text-align:center;max-width:560px;padding:0 24px;line-height:1.35;}
+.countdown-number{font-family:'Syne',sans-serif;font-size:140px;font-weight:800;color:var(--azul);line-height:1;letter-spacing:-0.05em;animation:countPulse 0.85s ease-out;min-width:180px;text-align:center;}
+.countdown-number.go{color:var(--azul-dark);font-size:64px;letter-spacing:0.05em;}
+@keyframes countPulse{0%{transform:scale(1.5);opacity:0.1}100%{transform:scale(1);opacity:1}}
+.countdown-instruction{font-size:13px;color:var(--text-muted);font-weight:500;}
+.question-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,0.92);z-index:150;align-items:center;justify-content:center;padding:32px;backdrop-filter:blur(8px);}
+.question-overlay.active{display:flex;}
+.question-overlay-inner{background:white;border-radius:16px;border:2px solid var(--azul);padding:40px 48px;max-width:600px;width:100%;text-align:center;animation:fadeUp 0.3s ease;position:relative;overflow:hidden;}
+.question-overlay-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--azul);}
+.question-badge{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--azul);margin-bottom:16px;}
+.question-overlay-text{font-family:'Syne',sans-serif;font-size:22px;font-weight:600;color:var(--text);line-height:1.4;}
+.timer-ring-container{display:flex;justify-content:center;margin-bottom:28px;}
+.timer-ring{position:relative;width:180px;height:180px;}
+.timer-ring svg{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:6;}
+.ring-progress{fill:none;stroke:var(--azul);stroke-width:6;stroke-linecap:round;stroke-dasharray:502;stroke-dashoffset:502;transition:stroke-dashoffset 1s linear,stroke 0.5s;}
+.timer-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.timer-display{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;color:var(--text);letter-spacing:-0.03em;}
+.timer-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px;}
+.time-markers{display:flex;justify-content:space-between;margin-bottom:12px;padding:0 4px;}
+.time-marker{font-size:11px;color:var(--text-muted);font-weight:500;}
+.time-marker.active{color:var(--azul);font-weight:600;}
+.interruption-counter{display:flex;gap:8px;margin-bottom:18px;align-items:center;}
+.interruption-counter span{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);}
+.int-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--border-dark);background:white;transition:all 0.3s;}
+.int-dot.done{background:var(--azul);border-color:var(--azul);box-shadow:0 0 0 3px var(--azul-light);}
+.status-panel{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:16px;min-height:68px;display:flex;align-items:center;gap:14px;}
+.status-indicator{width:10px;height:10px;border-radius:50%;flex-shrink:0;background:var(--border-dark);transition:all 0.3s;}
+.status-indicator.listening{background:var(--azul);box-shadow:0 0 0 4px var(--azul-light);animation:pulse 1.5s infinite;}
+.status-indicator.speaking{background:var(--azul-dark);box-shadow:0 0 0 4px var(--azul-soft);animation:pulse 1s infinite;}
+.status-indicator.processing{background:var(--yellow);box-shadow:0 0 0 4px var(--yellow-light);animation:pulse 0.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.status-text{font-size:13px;color:var(--text-dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.waveform-container{display:flex;align-items:center;justify-content:center;height:44px;gap:3px;margin-bottom:16px;}
+.wave-bar{width:3px;background:var(--azul);border-radius:3px;height:4px;opacity:0.35;transition:height 0.1s;}
+.transcript-area{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;max-height:190px;overflow-y:auto;}
+.transcript-entry{font-size:13px;line-height:1.65;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.transcript-entry:last-child{border-bottom:none;margin-bottom:0;}
+.transcript-entry .speaker{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;}
+.transcript-entry .speaker.agent{color:var(--azul);}
+.transcript-entry .speaker.user{color:var(--azul-dark);}
+.transcript-entry .content{color:var(--text-dim);}
+.warning-box{background:var(--yellow-light);border:1.5px solid #f0d080;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#7d5a00;font-weight:500;display:none;}
+.warning-box.visible{display:block;}
+.processing-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,0.96);z-index:100;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
+.processing-overlay.active{display:flex;}
+.processing-spinner{width:52px;height:52px;border:3px solid var(--border);border-top-color:var(--azul);border-right-color:var(--azul-dark);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.processing-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text);}
+.processing-sub{font-size:12px;color:var(--text-muted);}
+.thanks-screen{text-align:center;padding:80px 24px;}
+.thanks-check{width:80px;height:80px;border-radius:50%;background:var(--azul-light);border:2px solid var(--azul-soft);display:flex;align-items:center;justify-content:center;margin:0 auto 28px;font-size:36px;color:var(--azul);}
+.thanks-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;}
+.thanks-sub{font-size:15px;color:var(--text-dim);line-height:1.7;max-width:400px;margin:0 auto;}
+.footer-note{text-align:center;font-size:11px;color:var(--text-muted);margin-top:40px;padding-top:20px;border-top:1px solid var(--border);}
 </style>
 </head>
 <body>
-<div class="container">
 
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBHM3tvO-LmzMvTkCIKC476tE3sqmJs1QM",
+  authDomain: "potencia-bccf7.firebaseapp.com",
+  projectId: "potencia-bccf7",
+  storageBucket: "potencia-bccf7.firebasestorage.app",
+  messagingSenderId: "748478455182",
+  appId: "1:748478455182:web:191cd421c86f5aad1858df"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.guardarEvaluacion = async function(data) {
+  try {
+    const docRef = await addDoc(collection(db, 'evaluaciones'), {
+      ...data,
+      timestamp: serverTimestamp()
+    });
+    console.log('Guardado en Firebase:', docRef.id);
+    return docRef.id;
+  } catch(e) {
+    console.error('Error Firebase:', e);
+    return null;
+  }
+};
+</script>
+
+<div class="container">
   <div class="header">
     <div class="logo">
       <div class="logo-icon">P</div>
@@ -148,7 +153,6 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; 
     <div class="phase-badge" id="phaseBadge">Inicio</div>
   </div>
 
-  <!-- SETUP -->
   <div class="screen active" id="screenSetup">
     <div class="card">
       <h2>Bienvenido/a a PotenciaIA</h2>
@@ -160,11 +164,11 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; 
         <li>No hay juicio de valor sobre tus opiniones ni tu postura</li>
         <li>Todo el intercambio es por voz</li>
       </ul>
-      <div class="api-input-group">
+      <div class="input-group">
         <label>Nombre del candidato</label>
         <input type="text" id="candidatoInput" placeholder="Nombre completo" />
       </div>
-      <div class="api-input-group">
+      <div class="input-group">
         <label>API Key de Anthropic</label>
         <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
       </div>
@@ -174,11 +178,10 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; 
     </div>
   </div>
 
-  <!-- PRE-TOPIC -->
   <div class="screen" id="screenTopic">
     <div class="card">
       <h2>Antes de comenzar</h2>
-      <p>Escuchá la introducción completa antes de ver tu tema. El tema aparecerá en la cuenta regresiva — a partir de ese momento, tenés los segundos del countdown para empezar a pensar.</p>
+      <p>Escuchá la introducción completa antes de ver tu tema. El tema aparecerá en la cuenta regresiva.</p>
       <p>La idea es ver <strong style="color:var(--azul)">cómo organizás tu discurso</strong>. No se realizará ningún juicio de valor sobre lo que digas. Tenés entre 6 y 10 minutos.</p>
     </div>
     <div class="btn-row">
@@ -187,7 +190,6 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; 
     </div>
   </div>
 
-  <!-- COUNTDOWN -->
   <div class="countdown-overlay" id="countdownOverlay">
     <div class="countdown-brand">PotenciaIA</div>
     <div class="countdown-topic-label">Tu tema es</div>
@@ -196,7 +198,6 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; 
     <div class="countdown-instruction" id="countdownInstruction">Preparate para hablar...</div>
   </div>
 
-  <!-- QUESTION OVERLAY -->
   <div class="question-overlay" id="questionOverlay">
     <div class="question-overlay-inner">
       <div class="question-badge">PotenciaIA · Intervención</div>
@@ -204,7 +205,6 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; 
     </div>
   </div>
 
-  <!-- INTERVIEW -->
   <div class="screen" id="screenInterview">
     <div class="timer-ring-container">
       <div class="timer-ring">
@@ -244,7 +244,6 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; 
     </div>
   </div>
 
-  <!-- GRACIAS (candidato) -->
   <div class="screen" id="screenThanks">
     <div class="thanks-screen">
       <div class="thanks-check">✓</div>
@@ -253,7 +252,6 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; 
     </div>
     <div class="footer-note">PotenciaIA · Metodología Blaistein · Basado en la teoría de E. Jaques</div>
   </div>
-
 </div>
 
 <div class="processing-overlay" id="processingOverlay">
@@ -263,60 +261,51 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; 
 </div>
 
 <script>
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwIuMQOljSU0GJGaUMUQ0BHnyKY3oGb4oEBZiHUYvESz45DKks67ZSd_jgYU3yfd726/exec';
-const TOPICS = ['Legalización de la droga','Inseguridad ciudadana','Cambio climático','Deserción escolar'];
+const TOPICS=['Legalización de la droga','Inseguridad ciudadana','Cambio climático','Deserción escolar'];
+let apiKey='',selectedTopic='',candidatoNombre='';
+let timerInterval=null,elapsedSeconds=0,interruptionCount=0;
+let transcriptLog=[],currentRecognition=null,isSpeaking=false;
+let interviewPhase='idle',lastUserText='',accumulatedUserText='';
+let synthesisRequested=false,waveInterval=null,interruptionTimes=[];
+let lastSpeechTimestamp=Date.now(),closingSilenceTimer=null;
+const MAX_DURATION=600,MIN_DURATION=360,SYNTHESIS_TIME=510;
 
-let apiKey='', selectedTopic='', candidatoNombre='';
-let timerInterval=null, elapsedSeconds=0, interruptionCount=0;
-let transcriptLog=[], currentRecognition=null, isSpeaking=false;
-let interviewPhase='idle', lastUserText='', accumulatedUserText='';
-let synthesisRequested=false, waveInterval=null, interruptionTimes=[];
-let lastSpeechTimestamp=Date.now(), closingSilenceTimer=null;
-const MAX_DURATION=600, MIN_DURATION=360, SYNTHESIS_TIME=510;
-
-function showScreen(id) {
+function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   const labels={screenSetup:'Inicio',screenTopic:'Preparación',screenInterview:'Entrevista',screenThanks:'Completado'};
   document.getElementById('phaseBadge').textContent=labels[id]||'';
 }
-
-function initWaveform() {
-  const wf=document.getElementById('waveform'); wf.innerHTML='';
+function initWaveform(){
+  const wf=document.getElementById('waveform');wf.innerHTML='';
   for(let i=0;i<26;i++){const b=document.createElement('div');b.className='wave-bar';wf.appendChild(b);}
 }
-
-function setWaveActive(active) {
+function setWaveActive(active){
   clearInterval(waveInterval);
   const bars=document.querySelectorAll('.wave-bar');
-  if(active){
-    bars.forEach(b=>{b.style.height=(4+Math.random()*28)+'px';b.style.opacity='0.6';});
-    waveInterval=setInterval(()=>{bars.forEach(b=>{b.style.height=(4+Math.random()*30)+'px';});},140);
-  } else { bars.forEach(b=>{b.style.height='4px';b.style.opacity='0.3';}); }
+  if(active){bars.forEach(b=>{b.style.height=(4+Math.random()*28)+'px';b.style.opacity='0.6';});waveInterval=setInterval(()=>{bars.forEach(b=>{b.style.height=(4+Math.random()*30)+'px';});},140);}
+  else{bars.forEach(b=>{b.style.height='4px';b.style.opacity='0.3';});}
 }
-
-function setStatus(type,text) {
+function setStatus(type,text){
   document.getElementById('statusDot').className='status-indicator '+type;
   document.getElementById('statusText').textContent=text;
   setWaveActive(type==='listening');
 }
-
-function addTranscriptEntry(speaker,text) {
+function addTranscriptEntry(speaker,text){
   const area=document.getElementById('transcriptArea');
   if(area.querySelector('div[style]'))area.innerHTML='';
-  const entry=document.createElement('div'); entry.className='transcript-entry';
-  const sp=document.createElement('div'); sp.className='speaker '+speaker;
+  const entry=document.createElement('div');entry.className='transcript-entry';
+  const sp=document.createElement('div');sp.className='speaker '+speaker;
   sp.textContent=speaker==='agent'?'▶ PotenciaIA':'◆ Participante';
-  const ct=document.createElement('div'); ct.className='content'; ct.textContent=text;
-  entry.appendChild(sp); entry.appendChild(ct); area.appendChild(entry);
+  const ct=document.createElement('div');ct.className='content';ct.textContent=text;
+  entry.appendChild(sp);entry.appendChild(ct);area.appendChild(entry);
   area.scrollTop=area.scrollHeight;
   transcriptLog.push({speaker,text,time:elapsedSeconds});
 }
-
 function showQuestionOverlay(text){document.getElementById('questionOverlayText').textContent=text;document.getElementById('questionOverlay').classList.add('active');}
 function hideQuestionOverlay(){document.getElementById('questionOverlay').classList.remove('active');}
 
-function speak(text) {
+function speak(text){
   return new Promise(resolve=>{
     if(!window.speechSynthesis){resolve();return;}
     speechSynthesis.cancel();
@@ -333,7 +322,7 @@ function speak(text) {
   });
 }
 
-function startSetup() {
+function startSetup(){
   candidatoNombre=document.getElementById('candidatoInput').value.trim();
   apiKey=document.getElementById('apiKeyInput').value.trim();
   if(!candidatoNombre){alert('Por favor ingresá el nombre del candidato.');return;}
@@ -342,15 +331,14 @@ function startSetup() {
   showScreen('screenTopic');
 }
 
-async function startIntroThenCountdown() {
+async function startIntroThenCountdown(){
   const btn=document.getElementById('btnStartIntro');
-  btn.disabled=true; btn.textContent='Escuchando...';
-  const intro='Te voy a pedir que hables sobre un tema que te voy a indicar. La idea es ver cómo organizás tu discurso. No voy a realizar ningún juicio de valor sobre lo que digas ni sobre el contenido. Puedo hacerte alguna pregunta para que te explayés más, pero la consigna es que hables durante al menos diez minutos sobre el tema. En unos segundos vas a ver tu tema.';
-  await speak(intro);
+  btn.disabled=true;btn.textContent='Escuchando...';
+  await speak('Te voy a pedir que hables sobre un tema que te voy a indicar. La idea es ver cómo organizás tu discurso. No voy a realizar ningún juicio de valor sobre lo que digas ni sobre el contenido. Puedo hacerte alguna pregunta para que te explayés más, pero la consigna es que hables durante al menos diez minutos sobre el tema. En unos segundos vas a ver tu tema.');
   triggerCountdown();
 }
 
-function triggerCountdown() {
+function triggerCountdown(){
   const overlay=document.getElementById('countdownOverlay');
   const numEl=document.getElementById('countdownNumber');
   const instrEl=document.getElementById('countdownInstruction');
@@ -365,7 +353,7 @@ function triggerCountdown() {
   tick();
 }
 
-async function startInterview() {
+async function startInterview(){
   elapsedSeconds=0;interruptionCount=0;transcriptLog=[];
   accumulatedUserText='';lastUserText='';synthesisRequested=false;
   interviewPhase='speaking';lastSpeechTimestamp=Date.now();
@@ -378,7 +366,7 @@ async function startInterview() {
   interviewPhase='speaking';startTimer();startContinuousListening();
 }
 
-function startTimer() {
+function startTimer(){
   const ring=document.getElementById('ringProgress');const C=2*Math.PI*80;
   timerInterval=setInterval(()=>{
     elapsedSeconds++;
@@ -399,22 +387,17 @@ function startTimer() {
 
 const CLOSING_PHRASES=['no sé qué más decir','no tengo más','creo que es todo','eso sería todo','no se me ocurre más','creo que eso es lo principal','no sé qué más agregar','ya dije todo','no hay mucho más para decir','creo que cubrí todo'];
 function detectsClosingPhrase(text){return CLOSING_PHRASES.some(p=>text.toLowerCase().includes(p));}
-
 function resetClosingSilenceTimer(){
   clearTimeout(closingSilenceTimer);lastSpeechTimestamp=Date.now();
   if(elapsedSeconds>=MIN_DURATION&&!synthesisRequested&&interviewPhase==='speaking'){
-    closingSilenceTimer=setTimeout(()=>{
-      if(!synthesisRequested&&interviewPhase==='speaking'&&!isSpeaking){synthesisRequested=true;document.getElementById('btnSynthesis').disabled=true;triggerClosingSynthesis();}
-    },30000);
+    closingSilenceTimer=setTimeout(()=>{if(!synthesisRequested&&interviewPhase==='speaking'&&!isSpeaking){synthesisRequested=true;document.getElementById('btnSynthesis').disabled=true;triggerClosingSynthesis();}},30000);
   }
 }
-
 async function triggerClosingSynthesis(){
   if(interviewPhase==='ended')return;
   if(lastUserText.trim().length>5){addTranscriptEntry('user',lastUserText.trim());lastUserText='';}
   const wb=document.getElementById('warningBox');
-  wb.textContent='Bien. Antes de cerrar, hacé una síntesis de los puntos más importantes que planteaste.';
-  wb.classList.add('visible');
+  wb.textContent='Bien. Antes de cerrar, hacé una síntesis de los puntos más importantes que planteaste.';wb.classList.add('visible');
   await speak('Bien, antes de cerrar, hacé una síntesis de los puntos más importantes que planteaste.');
   addTranscriptEntry('agent','Hacé una síntesis de los puntos más importantes que planteaste.');
 }
@@ -436,10 +419,10 @@ function startContinuousListening(){
             setTimeout(()=>{if(finalBuf.trim().length>10){addTranscriptEntry('user',finalBuf.trim());finalBuf='';}triggerClosingSynthesis();},1500);
           }
         }
-      } else{interim=e.results[i][0].transcript;}
+      }else{interim=e.results[i][0].transcript;}
     }
-    const disp=(finalBuf+interim).slice(-90);
-    setStatus('listening','"'+disp+'"');lastUserText=(finalBuf+interim).trim();
+    setStatus('listening','"'+(finalBuf+interim).slice(-90)+'"');
+    lastUserText=(finalBuf+interim).trim();
     flushTimer=setTimeout(()=>{if(finalBuf.trim().length>10){addTranscriptEntry('user',finalBuf.trim());finalBuf='';}},4500);
   };
   rec.onend=()=>{if(interviewPhase!=='ended'&&!isSpeaking){setTimeout(()=>{if(interviewPhase!=='ended'){try{rec.start();}catch(err){}}},400);}};
@@ -460,20 +443,18 @@ async function triggerInterruption(){
 }
 
 async function generateInterruptionQuestion(context){
-  const sp=`Sos PotenciaIA, agente entrevistador del Método de Análisis del Discurso (Blaistein/Jaques). Generá UNA intervención breve (máximo 18 palabras) para que el participante se explaye más. REGLAS: Usá las palabras exactas que dijo. Tono cálido, no evaluativo. MODELOS: "Antes dijiste [frase], ¿podés ampliar?", "¿Qué más me podés contar sobre [frase]?", "¿Se te ocurre alguna otra posibilidad?", "¿Qué más?". Solo la pregunta, sin comillas ni prefijos.`;
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:80,system:sp,messages:[{role:'user',content:`El participante dijo: "${context.slice(-250)}". Generá la intervención.`}]})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:80,system:'Sos PotenciaIA, agente entrevistador. Generá UNA intervención breve (máximo 18 palabras) anclada en las últimas palabras del participante. Solo la pregunta, sin comillas.',messages:[{role:'user',content:`El participante dijo: "${context.slice(-250)}". Generá la intervención.`}]})});
     const data=await res.json();return data.content[0].text.trim();
-  }catch(e){return`Antes dijiste "${context.split(' ').slice(-5).join(' ')}", ¿podés ampliar sobre eso?`;}
+  }catch(e){return`Antes dijiste "${context.split(' ').slice(-5).join(' ')}", ¿podés ampliar?`;}
 }
 
 async function triggerSynthesisRequest(){
   if(interviewPhase==='ended')return;
-  const wb=document.getElementById('warningBox');wb.textContent='Vas llegando al límite de tiempo. Se te pedirá una síntesis.';wb.classList.add('visible');
+  document.getElementById('warningBox').textContent='Vas llegando al límite de tiempo.';document.getElementById('warningBox').classList.add('visible');
   await speak('Llevás ya más de ocho minutos. Te pido que hagas una síntesis de los puntos más importantes que planteaste.');
   addTranscriptEntry('agent','Te pido una síntesis de los puntos más importantes que planteaste.');
 }
-
 async function requestSynthesis(){
   if(synthesisRequested)return;synthesisRequested=true;document.getElementById('btnSynthesis').disabled=true;
   await speak('Bien. ¿Podés hacer una síntesis de lo que planteaste hasta ahora?');
@@ -487,80 +468,55 @@ async function endInterview(){
   document.getElementById('processingOverlay').classList.add('active');
   const fullTranscript=transcriptLog.map(e=>`[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] ${e.speaker==='agent'?'POTENCIAÍA':'PARTICIPANTE'}: ${e.text}`).join('\n\n');
   const result=await analyzeWithClaude(fullTranscript);
-  await guardarEnSheets(result,fullTranscript);
+  if(typeof window.guardarEvaluacion==='function'){
+    await window.guardarEvaluacion({
+      candidato:candidatoNombre,
+      tema:selectedTopic,
+      duracion:`${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
+      duracion_segundos:elapsedSeconds,
+      estrato:result.estrato,
+      subestrato:result.subestrato,
+      modo_procesamiento:result.modo_procesamiento,
+      nombre_estrato:result.nombre_estrato,
+      horizonte:result.horizonte_implicito,
+      confianza:result.confianza,
+      resumen:result.resumen,
+      evidencias:(result.evidencias||[]).join(' | '),
+      alertas:(result.alertas||[]).join(' | '),
+      transcript:fullTranscript
+    });
+  }
   document.getElementById('processingOverlay').classList.remove('active');
   showScreen('screenThanks');
   speak('Muchas gracias por tu participación. Tu evaluación fue registrada correctamente.');
 }
 
-async function guardarEnSheets(result,transcript){
-  const payload={
-    candidato: candidatoNombre,
-    tema: selectedTopic,
-    duracion: `${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
-    estrato: result.estrato,
-    subestrato: result.subestrato,
-    modo_procesamiento: result.modo_procesamiento,
-    nombre_estrato: result.nombre_estrato,
-    horizonte: result.horizonte_implicito,
-    confianza: result.confianza,
-    resumen: result.resumen,
-    evidencias: (result.evidencias||[]).join(' | '),
-    alertas: (result.alertas||[]).join(' | '),
-    transcript: transcript
-  };
-  try{
-    await fetch(SHEETS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
-  }catch(e){console.warn('No se pudo guardar en Sheets:',e);}
-}
-
 async function analyzeWithClaude(transcript){
   const systemPrompt=`Sos un evaluador especializado en la Teoría de Sistemas Estratificados de Elliott Jaques, aplicando la metodología de Analía Blaistein para análisis del discurso oral.
 
-Tu tarea: clasificar el MODO DE PROCESAMIENTO MENTAL del participante según su discurso libre sobre un tema de opinión.
+PREMISA: No clasificás por contenido sino por ARQUITECTURA DEL RAZONAMIENTO.
 
-PREMISA CENTRAL
-No clasificás por cargo, conocimiento del tema ni cantidad de palabras. Clasificás únicamente por la ARQUITECTURA DEL RAZONAMIENTO.
+ALGORITMO (Solaas):
+¿Hay series (2+ nexos / 3 elementos concatenados)?
+→ SÍ → ¿Hay paralelo? → E4 / E3
+→ NO → ¿Hay acumulativo? → E2 / E1
 
-ALGORITMO DE CLASIFICACIÓN (Harald Solaas / Jaques)
-PASO 1 — ¿Hay series? (mínimo 2 nexos / 3 elementos concatenados)
-→ SÍ → PASO 2
-→ NO → ¿Hay acumulativo?
+E1 DECLARATIVO: Razones independientes, sin nexo causal. Soluciones operativas. Horizonte días-semanas. VOLUMEN≠COMPLEJIDAD.
+E2 ACUMULATIVO: Ideas que se suman hacia un diagnóstico. Horizonte meses. DIFERENCIA E2/E3: E2=SUMA / E3=CADENA donde A habilita B habilita C.
+E3 SERIAL: Cadena causal mínimo 3 eslabones. Horizonte 1-2 años.
+E4 PARALELO: Múltiples cadenas comparadas con trade-offs. Horizonte 2-5 años.
 
-PASO 2 — ¿Hay procesamiento en paralelo?
-→ SÍ → ESTRATO IV
-→ NO → ESTRATO III
+TRAMPAS: Volumen≠complejidad. Jerga≠pensamiento. Destello≠estrato. Clasificá por patrón dominante.
 
-Si no hay series → ¿Hay ACUMULATIVO? (más de un elemento necesario a la vez)
-→ SÍ → ESTRATO II
-→ NO → ESTRATO I
+Respondé ÚNICAMENTE con JSON válido sin markdown:
+{"estrato":2,"subestrato":"E2-medio","modo_procesamiento":"Acumulativo (Y-Y)","confianza":78,"nombre_estrato":"Acumulación Diagnóstica","horizonte_implicito":"meses","resumen":"2-3 frases del patrón cognitivo con evidencia concreta.","evidencias":["evidencia 1","evidencia 2","evidencia 3"],"alertas":["solo si hay algo relevante"]}`;
 
-ESTRATO I — DECLARATIVO (O-O): Razones independientes, sin nexo causal. Soluciones operativas. Horizonte días-semanas. VOLUMEN ≠ COMPLEJIDAD.
-CASO CALIBRADO E1 (Maestra 48 años): "Reducir alumnos en sala... darle garantías a los profesores." → Causas independientes, soluciones concretas.
-
-ESTRATO II — ACUMULATIVO (Y-Y): Ideas que se SUMAN hacia un diagnóstico. Horizonte meses.
-CASO CALIBRADO E2 (Ingeniero 26 años): "es menos gente capacitada, es menos actividad económica, es menos innovación..." → Acumulación hacia diagnóstico. Destellos de E3 que NO alcanzan.
-DIFERENCIA E2 vs E3: E2=SUMA / E3=CADENA donde A habilita B que habilita C.
-
-ESTRATO III — SERIAL (Si→Entonces): Cadena causal mínimo 3 eslabones, cada uno condición del siguiente. Horizonte 1-2 años.
-
-ESTRATO IV — PARALELO: Múltiples cadenas comparadas con trade-offs sistémicos. Horizonte 2-5 años.
-
-TRAMPAS: 1.VOLUMEN≠COMPLEJIDAD 2.JERGA≠PENSAMIENTO 3.DESTELLO≠ESTRATO 4.Clasificá por PATRÓN DOMINANTE. 5.Discurso<3min→confianza máx 45%.
-
-SUBESTRATOS: bajo / medio / alto
-
-Respondé ÚNICAMENTE con JSON válido (sin markdown, sin backticks):
-{"estrato":2,"subestrato":"E2-medio","modo_procesamiento":"Acumulativo (Y-Y)","confianza":78,"nombre_estrato":"Acumulación Diagnóstica","horizonte_implicito":"meses","resumen":"2-3 frases del patrón cognitivo con evidencia concreta.","evidencias":["Cita + señal cognitiva","Segunda evidencia","Tercera evidencia"],"alertas":["Solo si hay algo relevante"]}`;
-
-  const userMsg=`Analizá el siguiente transcript.\nTEMA: "${selectedTopic}"\nDURACIÓN: ${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg\nINTERVENCIONES: ${interruptionCount}\n\nTRANSCRIPT:\n${transcript}`;
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1200,system:systemPrompt,messages:[{role:'user',content:userMsg}]})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1200,system:systemPrompt,messages:[{role:'user',content:`TEMA: "${selectedTopic}"\nDURACIÓN: ${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg\nINTERVENCIONES: ${interruptionCount}\n\nTRANSCRIPT:\n${transcript}`}]})});
     const data=await res.json();
-    const clean=data.content[0].text.trim().replace(/```json|```/g,'').trim();
-    return JSON.parse(clean);
+    return JSON.parse(data.content[0].text.trim().replace(/```json|```/g,'').trim());
   }catch(e){
-    return{estrato:0,subestrato:'N/A',modo_procesamiento:'Error',confianza:0,nombre_estrato:'Error de análisis',horizonte_implicito:'N/A',resumen:'No se pudo procesar.',evidencias:[],alertas:['Error: '+e.message]};
+    return{estrato:0,subestrato:'N/A',modo_procesamiento:'Error',confianza:0,nombre_estrato:'Error',horizonte_implicito:'N/A',resumen:'No se pudo procesar.',evidencias:[],alertas:['Error: '+e.message]};
   }
 }
 

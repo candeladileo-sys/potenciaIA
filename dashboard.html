@@ -4,282 +4,638 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PotenciaIA · Dashboard HR</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--azul:#1a5fa8;--azul-dark:#0d3d70;--azul-light:#e8f0fb;--azul-soft:#b8d1ed;--azul-mid:#6fa3d8;--bg:#f4f7fb;--surface:#ffffff;--border:#d0dcea;--text:#0d1b2e;--text-dim:#3d5470;--text-muted:#7a96b8;--yellow:#f39c12;--rojo:#e74c3c;--rojo-light:#fdf0ee;}
+:root {
+  --verde:#1d4e3f;--verde-mid:#27ae60;--verde-light:#e8f5ee;--verde-soft:#c8e6d4;
+  --azul:#1a5fa8;--azul-light:#e8f0fb;--azul-soft:#b8d1ed;
+  --bg:#f7f9fc;--surface:#ffffff;--border:#e8edf3;
+  --text:#111827;--text-dim:#4b5563;--text-muted:#9ca3af;
+  --yellow:#f59e0b;--yellow-light:#fef3c7;
+  --rojo:#dc2626;--rojo-light:#fee2e2;
+}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px;}
-.topbar-logo{display:flex;align-items:center;gap:12px;}
-.topbar-logo .icon{width:36px;height:36px;background:var(--azul);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:white;}
-.topbar-logo span{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--azul);}
-.btn-refresh{background:var(--azul);color:white;border:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s;}
-.btn-refresh:hover{opacity:.85;}
-.hr-badge{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--azul);background:var(--azul-light);border:1px solid var(--azul-soft);padding:5px 12px;border-radius:20px;}
-.main{padding:28px 32px;}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;}
-.stat-label{font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:6px;}
-.stat-value{font-size:28px;font-weight:700;font-family:'Syne',sans-serif;color:var(--azul);}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,0.06);}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.logo-icon{width:32px;height:32px;background:var(--verde);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-weight:700;font-size:15px;color:white;}
+.logo-name{font-family:'Lora',serif;font-size:16px;font-weight:600;color:var(--verde);}
+.hr-badge{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--verde);background:var(--verde-light);border:1px solid var(--verde-soft);padding:4px 10px;border-radius:20px;}
+
+/* VIEWS */
+.view{display:none;}
+.view.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* BUTTONS */
+.btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 20px;border-radius:8px;cursor:pointer;transition:all .15s;border:none;}
+.btn-primary{background:var(--verde);color:white;}
+.btn-primary:hover{background:#163d30;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-dim);}
+.btn-outline:hover{border-color:var(--verde);color:var(--verde);}
+.btn-ghost{background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;}
+.btn-ghost:hover{color:var(--text);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* DASHBOARD */
+.main{padding:28px 32px;max-width:1100px;margin:0 auto;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.page-title{font-family:'Lora',serif;font-size:20px;font-weight:600;}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;}
+.stat-label{font-size:11px;color:var(--text-muted);font-weight:500;margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase;}
+.stat-value{font-family:'Lora',serif;font-size:26px;font-weight:600;color:var(--verde);}
 .table-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
-.table-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);}
-.table-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);}
+.table-head{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);}
+.table-title{font-family:'Lora',serif;font-size:15px;font-weight:600;}
 .table-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
 table{width:100%;border-collapse:collapse;}
-thead tr{background:var(--azul-light);}
-th{text-align:left;padding:11px 20px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--azul-dark);}
-tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
-tbody tr:last-child{border-bottom:none;}
-tbody tr:hover{background:var(--azul-light);}
+thead tr{background:#f9fafb;}
+th{text-align:left;padding:10px 20px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);}
+tbody tr{border-top:1px solid var(--border);cursor:pointer;transition:background .12s;}
+tbody tr:hover{background:var(--verde-light);}
 td{padding:14px 20px;font-size:13px;color:var(--text-dim);vertical-align:middle;}
-td.name{font-weight:600;color:var(--text);}
-.epill{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;}
-.e1{background:#fef9e7;color:#8a6000;border:1px solid #f5d87a;}
-.e2{background:var(--azul-light);color:var(--azul-dark);border:1px solid var(--azul-soft);}
-.e3{background:#eaf7f0;color:#0a5c35;border:1px solid #7dd4aa;}
+td.td-name{font-weight:600;color:var(--text);font-size:14px;}
+.epill{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
+.e1{background:#fef9e7;color:#78530a;border:1px solid #f5d87a;}
+.e2{background:var(--azul-light);color:#0d3d70;border:1px solid var(--azul-soft);}
+.e3{background:var(--verde-light);color:var(--verde);border:1px solid var(--verde-soft);}
 .e4{background:#f3eeff;color:#4a2080;border:1px solid #c4a0f0;}
-.e0{background:var(--rojo-light);color:#8b0000;border:1px solid #f0b8b4;}
-.conf-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;width:80px;}
-.conf-fill{height:100%;background:var(--azul);border-radius:3px;}
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(13,27,46,0.45);z-index:200;align-items:center;justify-content:center;padding:24px;}
-.modal-bg.active{display:flex;}
-.modal{background:var(--surface);border-radius:16px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;animation:slideUp .25s ease;}
-@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.modal-top{position:relative;padding:28px 32px 20px;border-bottom:1px solid var(--border);}
-.modal-close{position:absolute;top:20px;right:20px;background:var(--bg);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;color:var(--text-muted);display:flex;align-items:center;justify-content:center;}
-.modal-close:hover{color:var(--text);}
-.modal-body{padding:24px 32px 32px;}
-.modal-estrato{display:inline-flex;flex-direction:column;align-items:center;padding:20px 40px;border:2px solid var(--azul);border-radius:12px;margin-bottom:20px;position:relative;overflow:hidden;}
-.modal-estrato::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--azul);}
-.modal-estrato-num{font-family:'Syne',sans-serif;font-size:64px;font-weight:800;color:var(--azul);line-height:1;}
-.modal-estrato-name{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-top:6px;}
-.modal-modo{font-size:13px;font-weight:600;color:var(--azul);background:var(--azul-light);border:1px solid var(--azul-soft);padding:4px 14px;border-radius:20px;margin-top:10px;}
-.modal-sub{font-size:12px;color:var(--text-muted);margin-top:6px;}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
-.info-item{background:var(--bg);border-radius:8px;padding:12px 16px;}
-.info-item-label{font-size:11px;color:var(--text-muted);font-weight:500;margin-bottom:3px;}
-.info-item-value{font-size:13px;font-weight:600;color:var(--text);}
-.section-block{margin-bottom:16px;}
-.section-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--azul);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
-.resumen-text{font-size:14px;line-height:1.7;color:var(--text-dim);}
-.evidence-list{list-style:none;}
-.evidence-list li{font-size:13px;color:var(--text-dim);padding:8px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;line-height:1.6;}
-.evidence-list li:last-child{border-bottom:none;}
-.evidence-list li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--azul);flex-shrink:0;margin-top:5px;}
-.alert-list li::before{background:var(--yellow);}
-.transcript-toggle{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:8px 0;font-family:'Inter',sans-serif;}
-.transcript-toggle:hover{color:var(--azul);}
-.raw-transcript{display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:12px;line-height:1.8;color:var(--text-dim);max-height:220px;overflow-y:auto;margin-top:10px;white-space:pre-wrap;}
-.raw-transcript.visible{display:block;}
-.empty-state{text-align:center;padding:60px 24px;color:var(--text-muted);}
-.empty-icon{font-size:40px;margin-bottom:16px;}
-.empty-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text-dim);margin-bottom:8px;}
-.empty-sub{font-size:13px;line-height:1.6;}
-.loading{text-align:center;padding:40px;color:var(--text-muted);font-size:13px;}
-.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--azul);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px;}
-@keyframes spin{to{transform:rotate(360deg)}}
+.conf-wrap{display:flex;align-items:center;gap:8px;}
+.conf-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;width:64px;}
+.conf-fill{height:100%;background:var(--verde-mid);border-radius:2px;}
+.fit-dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+.fit-encaja{background:var(--verde-mid);}
+.fit-no{background:var(--rojo);}
+.sp-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;}
+.sp-listo{background:var(--verde-light);color:var(--verde);border:1px solid var(--verde-soft);}
+.sp-enviado{background:var(--azul-light);color:var(--azul);border:1px solid var(--azul-soft);}
+.sp-pendiente{background:var(--yellow-light);color:#92400e;border:1px solid #fcd34d;}
+
+/* INFORME */
+.informe-wrap{max-width:860px;margin:0 auto;padding:32px 24px 60px;animation:fadeUp .3s ease;}
+.inf-back{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);cursor:pointer;margin-bottom:24px;width:fit-content;}
+.inf-back:hover{color:var(--verde);}
+.inf-nombre{font-family:'Lora',serif;font-size:28px;font-weight:600;margin-bottom:6px;}
+.inf-meta{font-size:13px;color:var(--text-muted);margin-bottom:12px;}
+.inf-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px;}
+.badge{font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;border:1px solid var(--border);color:var(--text-dim);}
+.badge-green{background:var(--verde-light);color:var(--verde);border-color:var(--verde-soft);}
+.inf-section{margin-bottom:32px;}
+.inf-section-title{font-family:'Lora',serif;font-size:15px;font-weight:600;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.inf-section-title span{font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;color:var(--text-muted);}
+
+/* Semáforo */
+.semaforo{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:10px;}
+.sem-card{border-radius:10px;padding:16px 18px;border:1.5px solid var(--border);opacity:.35;transition:all .2s;}
+.sem-card.active{opacity:1;}
+.sem-encaja.active{background:var(--verde-light);border-color:var(--verde-soft);}
+.sem-supera.active{background:var(--yellow-light);border-color:#fcd34d;}
+.sem-no.active{background:var(--rojo-light);border-color:#fca5a5;}
+.sem-icon{font-size:18px;margin-bottom:6px;}
+.sem-title{font-size:13px;font-weight:600;margin-bottom:3px;}
+.sem-desc{font-size:11px;color:var(--text-muted);line-height:1.5;}
+.sem-frase{font-size:13px;color:var(--text-dim);line-height:1.7;padding:12px 16px;background:var(--verde-light);border-radius:8px;border-left:3px solid var(--verde-mid);margin-bottom:0;}
+
+/* Estratos */
+.estratos-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.estrato-box{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:20px 24px;text-align:center;}
+.estrato-box.match{border-color:var(--verde-soft);background:var(--verde-light);}
+.estrato-box.gap{border-color:#fca5a5;background:var(--rojo-light);}
+.estrato-num{font-family:'Lora',serif;font-size:52px;font-weight:700;line-height:1;margin-bottom:6px;}
+.estrato-patron{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;}
+.estrato-horizonte{font-size:12px;color:var(--text-muted);}
+.estrato-lbl{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
+
+/* Curva */
+.curva-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;}
+.curva-leyenda{display:flex;gap:20px;margin-top:12px;flex-wrap:wrap;}
+.leyenda-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);}
+.leyenda-dot{width:10px;height:10px;border-radius:50%;}
+.leyenda-line{width:20px;height:2px;}
+
+/* Citas */
+.cita-item{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--verde-mid);border-radius:8px;padding:16px 18px;margin-bottom:12px;}
+.cita-texto{font-family:'Lora',serif;font-size:14px;font-style:italic;color:var(--text-dim);line-height:1.7;margin-bottom:8px;}
+.cita-indicador{font-size:11px;font-weight:600;color:var(--verde);background:var(--verde-light);display:inline-block;padding:3px 10px;border-radius:20px;}
+
+/* PDA */
+.pda-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.pda-tag{font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;background:var(--azul-light);color:#0d3d70;border:1px solid var(--azul-soft);}
+.pda-lectura{font-size:13px;color:var(--text-dim);line-height:1.7;}
+
+/* Recomendación */
+.rec-card{border-radius:10px;padding:22px 24px;border:1.5px solid;}
+.rec-avanzar{background:var(--verde-light);border-color:var(--verde-soft);}
+.rec-desarrollo{background:var(--yellow-light);border-color:#fcd34d;}
+.rec-no{background:var(--rojo-light);border-color:#fca5a5;}
+.rec-decision{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.rec-avanzar .rec-decision{color:var(--verde);}
+.rec-desarrollo .rec-decision{color:#92400e;}
+.rec-no .rec-decision{color:var(--rojo);}
+.rec-texto{font-size:14px;color:var(--text-dim);line-height:1.7;}
+.nota-pie{font-size:11px;color:var(--text-muted);text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid var(--border);line-height:1.7;}
+
+/* WIZARD */
+.wizard-overlay{display:none;position:fixed;inset:0;background:rgba(17,24,39,0.5);z-index:200;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px);}
+.wizard-overlay.active{display:flex;}
+.wizard-box{background:var(--surface);border-radius:16px;max-width:580px;width:100%;max-height:90vh;overflow-y:auto;animation:fadeUp .25s ease;box-shadow:0 20px 60px rgba(0,0,0,0.15);}
+.wizard-top{padding:24px 28px 0;border-bottom:1px solid var(--border);}
+.wizard-title{font-family:'Lora',serif;font-size:18px;font-weight:600;margin-bottom:4px;}
+.wizard-subtitle{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.wizard-steps{display:flex;gap:0;}
+.wstep{display:flex;align-items:center;gap:8px;flex:1;padding-bottom:16px;border-bottom:2px solid var(--border);}
+.wstep.active{border-color:var(--verde);}
+.wstep.done{border-color:var(--verde-soft);}
+.wstep-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;background:var(--border);color:var(--text-muted);transition:all .2s;}
+.wstep.active .wstep-num{background:var(--verde);color:white;}
+.wstep.done .wstep-num{background:var(--verde-soft);color:var(--verde);}
+.wstep-label{font-size:12px;font-weight:500;color:var(--text-muted);}
+.wstep.active .wstep-label{color:var(--verde);font-weight:600;}
+.wizard-body{padding:24px 28px;}
+.form-group{margin-bottom:18px;}
+.form-label{display:block;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px;}
+.form-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.form-input:focus{border-color:var(--verde);box-shadow:0 0 0 3px rgba(29,78,63,0.08);}
+.form-select{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;cursor:pointer;}
+.form-select:focus{border-color:var(--verde);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.estrato-est{background:var(--verde-light);border:1px solid var(--verde-soft);border-radius:8px;padding:14px 16px;margin-bottom:18px;display:none;}
+.estrato-est.visible{display:block;}
+.ee-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--verde);margin-bottom:4px;}
+.ee-value{font-family:'Lora',serif;font-size:16px;font-weight:600;color:var(--verde);}
+.upload-zone{border:1.5px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);position:relative;}
+.upload-zone:hover{border-color:var(--verde);background:var(--verde-light);}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.upload-zone.uploaded{border-color:var(--verde-soft);background:var(--verde-light);border-style:solid;}
+.upload-icon{font-size:22px;margin-bottom:6px;}
+.upload-text{font-size:13px;color:var(--text-muted);}
+.upload-text strong{color:var(--verde);}
+.upload-name{font-size:12px;color:var(--verde);font-weight:500;margin-top:4px;}
+.resumen-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.resumen-item{background:var(--bg);border-radius:8px;padding:12px 14px;}
+.resumen-label{font-size:11px;color:var(--text-muted);margin-bottom:3px;}
+.resumen-value{font-size:13px;font-weight:600;color:var(--text);}
+.link-box{display:none;background:var(--verde-light);border:1px solid var(--verde-soft);border-radius:10px;padding:20px 24px;text-align:center;}
+.link-box.visible{display:block;}
+.link-url{font-size:12px;color:var(--text-muted);background:white;border:1px solid var(--verde-soft);border-radius:6px;padding:8px 12px;margin:10px 0;word-break:break-all;}
+.link-copy{font-size:12px;font-weight:600;color:var(--verde);background:none;border:none;cursor:pointer;text-decoration:underline;font-family:'DM Sans',sans-serif;}
+.wizard-footer{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-top:1px solid var(--border);}
+
+@media print{
+  .topbar,.inf-back,.wizard-overlay{display:none!important;}
+  .view{display:block!important;}
+  #viewDashboard{display:none!important;}
+}
 </style>
 </head>
 <body>
 
+<!-- TOPBAR -->
 <div class="topbar">
-  <div class="topbar-logo">
-    <div class="icon">P</div>
-    <span>PotenciaIA</span>
+  <div class="logo" onclick="go('dashboard')">
+    <div class="logo-icon">P</div>
+    <span class="logo-name">PotenciaIA</span>
   </div>
-  <div style="display:flex;align-items:center;gap:12px;">
+  <div style="display:flex;align-items:center;gap:10px;" id="topbarRight">
     <span class="hr-badge">Panel HR</span>
-    <button class="btn-refresh" onclick="cargarEvaluaciones()">↻ Actualizar</button>
+    <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="go('dashboard')">↻ Actualizar</button>
   </div>
 </div>
 
-<div class="main">
-  <div class="stats-row">
-    <div class="stat-card"><div class="stat-label">Total evaluaciones</div><div class="stat-value" id="statTotal">—</div></div>
-    <div class="stat-card"><div class="stat-label">Estrato promedio</div><div class="stat-value" id="statPromedio">—</div></div>
-    <div class="stat-card"><div class="stat-label">Confianza promedio</div><div class="stat-value" id="statConfianza">—</div></div>
-    <div class="stat-card"><div class="stat-label">Última evaluación</div><div class="stat-value" style="font-size:14px;padding-top:6px" id="statUltima">—</div></div>
+<!-- VISTA DASHBOARD -->
+<div class="view active" id="viewDashboard">
+  <div class="main">
+    <div class="page-header">
+      <div class="page-title">Evaluaciones</div>
+      <button class="btn btn-primary" onclick="abrirWizard()">+ Nueva evaluación</button>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Total evaluaciones</div><div class="stat-value" id="statTotal">3</div></div>
+      <div class="stat-card"><div class="stat-label">Estrato promedio</div><div class="stat-value" id="statProm">2.7</div></div>
+      <div class="stat-card"><div class="stat-label">Confianza promedio</div><div class="stat-value" id="statConf">81%</div></div>
+      <div class="stat-card"><div class="stat-label">Pendientes</div><div class="stat-value" id="statPend">1</div></div>
+    </div>
+    <div class="table-card">
+      <div class="table-head">
+        <div>
+          <div class="table-title">Candidatos</div>
+          <div class="table-sub">Hacé clic en un candidato para ver el informe completo</div>
+        </div>
+      </div>
+      <table>
+        <thead><tr>
+          <th>Candidato</th><th>Puesto</th><th>Estrato requerido</th><th>Estado</th><th>Estrato detectado</th><th>Confianza</th><th>Fit</th>
+        </tr></thead>
+        <tbody id="tablaBody"></tbody>
+      </table>
+    </div>
   </div>
-  <div class="table-card">
-    <div class="table-header">
-      <div>
-        <div class="table-title">Evaluaciones realizadas</div>
-        <div class="table-sub">Hacé clic en una fila para ver el informe completo</div>
+</div>
+
+<!-- VISTA INFORME -->
+<div class="view" id="viewInforme">
+  <div class="informe-wrap" id="informeContent"></div>
+</div>
+
+<!-- WIZARD -->
+<div class="wizard-overlay" id="wizardOverlay" onclick="cerrarWizardClick(event)">
+  <div class="wizard-box">
+    <div class="wizard-top">
+      <div class="wizard-title">Nueva evaluación</div>
+      <div class="wizard-subtitle">Completá los datos para generar el link del candidato</div>
+      <div class="wizard-steps">
+        <div class="wstep active" id="ws1"><div class="wstep-num" id="wn1">1</div><div class="wstep-label">El puesto</div></div>
+        <div class="wstep" id="ws2"><div class="wstep-num" id="wn2">2</div><div class="wstep-label">El candidato</div></div>
+        <div class="wstep" id="ws3"><div class="wstep-num" id="wn3">3</div><div class="wstep-label">Confirmar</div></div>
       </div>
     </div>
-    <div id="tableContainer">
-      <div class="loading"><div class="spinner"></div>Cargando evaluaciones...</div>
+    <div class="wizard-body">
+      <!-- Paso 1 -->
+      <div id="step1">
+        <div class="form-group">
+          <label class="form-label">Título del puesto</label>
+          <input type="text" class="form-input" id="f_puesto" placeholder="Ej: Gerente de Operaciones"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Área</label>
+          <input type="text" class="form-input" id="f_area" placeholder="Ej: Operaciones / Comercial / Tecnología"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">¿Cuánto dura el proyecto más largo que manejará?</label>
+          <select class="form-select" id="f_horizonte" onchange="actualizarEstrato()">
+            <option value="">Seleccioná un horizonte temporal</option>
+            <option value="1">Días a semanas — tareas operativas</option>
+            <option value="1">Semanas a 3 meses — proyectos cortos</option>
+            <option value="2">3 meses a 1 año — proyectos medianos</option>
+            <option value="3">1 a 2 años — proyectos estratégicos</option>
+            <option value="4">2 a 5 años — transformación organizacional</option>
+            <option value="5">Más de 5 años — estrategia corporativa</option>
+          </select>
+        </div>
+        <div class="estrato-est" id="estratoEst">
+          <div class="ee-label">Estrato estimado para el rol</div>
+          <div class="ee-value" id="estratoEstVal">—</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción del rol (opcional)</label>
+          <textarea class="form-input" id="f_desc" rows="3" placeholder="Responsabilidades principales..." style="resize:vertical"></textarea>
+        </div>
+      </div>
+      <!-- Paso 2 -->
+      <div id="step2" style="display:none">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre completo</label>
+            <input type="text" class="form-input" id="f_nombre" placeholder="Nombre y apellido"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Edad</label>
+            <input type="number" class="form-input" id="f_edad" placeholder="35" min="18" max="70"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email del candidato</label>
+          <input type="email" class="form-input" id="f_email" placeholder="candidato@email.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">CV del candidato (PDF)</label>
+          <div class="upload-zone" id="cvZone">
+            <input type="file" accept=".pdf" onchange="handleUpload(this,'cvZone','cvName')"/>
+            <div class="upload-icon">📄</div>
+            <div class="upload-text"><strong>Subí el CV</strong> o arrastrá acá</div>
+            <div class="upload-name" id="cvName"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">PDA del candidato (PDF) <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text-muted)">— opcional</span></label>
+          <div class="upload-zone" id="pdaZone">
+            <input type="file" accept=".pdf" onchange="handleUpload(this,'pdaZone','pdaName')"/>
+            <div class="upload-icon">🧠</div>
+            <div class="upload-text"><strong>Subí el PDA</strong> o arrastrá acá</div>
+            <div class="upload-name" id="pdaName"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Paso 3 -->
+      <div id="step3" style="display:none">
+        <div class="resumen-grid">
+          <div class="resumen-item"><div class="resumen-label">Puesto</div><div class="resumen-value" id="r_puesto">—</div></div>
+          <div class="resumen-item"><div class="resumen-label">Área</div><div class="resumen-value" id="r_area">—</div></div>
+          <div class="resumen-item"><div class="resumen-label">Estrato requerido</div><div class="resumen-value" id="r_estrato">—</div></div>
+          <div class="resumen-item"><div class="resumen-label">Candidato</div><div class="resumen-value" id="r_nombre">—</div></div>
+          <div class="resumen-item"><div class="resumen-label">Edad</div><div class="resumen-value" id="r_edad">—</div></div>
+          <div class="resumen-item"><div class="resumen-label">Email</div><div class="resumen-value" id="r_email" style="font-size:12px">—</div></div>
+          <div class="resumen-item"><div class="resumen-label">CV</div><div class="resumen-value" id="r_cv">—</div></div>
+          <div class="resumen-item"><div class="resumen-label">PDA</div><div class="resumen-value" id="r_pda">—</div></div>
+        </div>
+        <div style="background:var(--azul-light);border:1px solid var(--azul-soft);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#0d3d70;">
+          <strong>Tema del discurso:</strong> se asignará al azar al momento de la evaluación.
+        </div>
+        <div class="link-box" id="linkBox">
+          <div style="font-size:32px;margin-bottom:8px;">✓</div>
+          <div style="font-family:'Lora',serif;font-size:16px;font-weight:600;color:var(--verde);margin-bottom:6px;">Link generado</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Enviá este link al candidato. Expira en 7 días.</div>
+          <div class="link-url" id="linkUrl"></div>
+          <button class="link-copy" onclick="copiarLink()">Copiar link</button>
+        </div>
+      </div>
+    </div>
+    <div class="wizard-footer">
+      <button class="btn-ghost" id="btnAtras" onclick="pasoAtras()">← Atrás</button>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-outline" onclick="cerrarWizard()">Cancelar</button>
+        <button class="btn btn-primary" id="btnSig" onclick="pasoSiguiente()">Siguiente →</button>
+      </div>
     </div>
   </div>
 </div>
-
-<div class="modal-bg" id="modalBg" onclick="cerrarModal(event)">
-  <div class="modal" id="modal">
-    <div class="modal-top">
-      <button class="modal-close" onclick="cerrarModal()">✕</button>
-      <div id="modalHeader"></div>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-  </div>
-</div>
-
-<!-- Firebase -->
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, getDocs, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBHM3tvO-LmzMvTkCIKC476tE3sqmJs1QM",
-  authDomain: "potencia-bccf7.firebaseapp.com",
-  projectId: "potencia-bccf7",
-  storageBucket: "potencia-bccf7.firebasestorage.app",
-  messagingSenderId: "748478455182",
-  appId: "1:748478455182:web:191cd421c86f5aad1858df"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-window.cargarDeFirebase = async function() {
-  try {
-    const q = query(collection(db, 'evaluaciones'), orderBy('timestamp', 'desc'));
-    const snapshot = await getDocs(q);
-    const evaluaciones = [];
-    snapshot.forEach(doc => {
-      evaluaciones.push({ id: doc.id, ...doc.data() });
-    });
-    return evaluaciones;
-  } catch(e) {
-    console.error('Error leyendo Firebase:', e);
-    return [];
-  }
-};
-</script>
 
 <script>
-let evaluaciones = [];
-
-function estratoPill(e) {
-  const cls = ['e0','e1','e2','e3','e4'][e] || 'e0';
-  const labels = ['Error','Declarativo','Acumulativo','Serial','Paralelo'];
-  return `<span class="epill ${cls}">E${e} — ${labels[e]||'?'}</span>`;
-}
-
-async function cargarEvaluaciones() {
-  document.getElementById('tableContainer').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando evaluaciones...</div>';
-  
-  // Esperar a que Firebase esté listo
-  let intentos = 0;
-  while (typeof window.cargarDeFirebase !== 'function' && intentos < 20) {
-    await new Promise(r => setTimeout(r, 200));
-    intentos++;
+// ── DATOS DE EJEMPLO ──
+const candidatos = [
+  {
+    nombre:'Martín Rodríguez', edad:35, puesto:'Gerente de Operaciones', area:'Operaciones',
+    tema:'Cambio climático', fecha:'21 de mayo de 2026', duracion:'9 min 42 seg',
+    tipo:'Externo', estado:'listo', estrato:3, estrato_puesto:3, confianza:87,
+    fit:'encaja', patron:'Serial', subestrato:'E III-alto', horizonte:'1–2 años',
+    frase:'El candidato encaja cognitivamente con el puesto hoy y proyecta crecimiento al estrato IV en aproximadamente 5 años.',
+    citas:[
+      {texto:'Primero hay que ordenar los procesos internos, porque si no, cuando llegue la demanda no vamos a poder responder. Una vez que eso esté, recién ahí tiene sentido contratar.',indicador:'Cadena causal con dependencia explícita · indicador E III'},
+      {texto:'El problema no es la falta de recursos, es que los recursos están mal asignados. Si reorganizamos el equipo en los próximos seis meses, en un año deberíamos ver resultados.',indicador:'Horizonte temporal 1–2 años · plan secuencial · indicador E III'},
+      {texto:'No tiene sentido contratar más gente si primero no sabemos qué procesos están fallando. Hay que hacer el diagnóstico, después diseñar, y recién después ejecutar.',indicador:'Tres etapas secuenciales con dependencia · indicador E III'}
+    ],
+    pda:{rasgos:['Alta orientación a resultados','Estilo directivo','Toma de decisiones ágil','Baja necesidad de estructura'],lectura:'El perfil conductual es consistente con la clasificación cognitiva. El estilo directivo y la orientación a resultados son coherentes con un procesamiento serial orientado a planes de mediano plazo.'},
+    rec:{decision:'avanzar',texto:'El candidato encaja cognitivamente con el puesto hoy y proyecta crecimiento al estrato IV en aproximadamente 5 años. Se recomienda avanzar en el proceso de selección.'}
+  },
+  {
+    nombre:'Sofía López', edad:29, puesto:'Analista Senior', area:'Finanzas',
+    tema:'Inseguridad ciudadana', fecha:'20 de mayo de 2026', duracion:'7 min 15 seg',
+    tipo:'Externa', estado:'listo', estrato:2, estrato_puesto:2, confianza:74,
+    fit:'encaja', patron:'Acumulativo', subestrato:'E II-alto', horizonte:'meses',
+    frase:'Sofía acumula diagnósticos con solidez. El perfil encaja bien con el puesto actual y proyecta desarrollo en 3-4 años.',
+    citas:[
+      {texto:'El problema viene de la educación, y también de la falta de oportunidades, y también de los mensajes que reciben desde chicos. Todo eso junto genera el contexto.',indicador:'Acumulación de causas hacia diagnóstico · indicador E II'}
+    ],
+    pda:null,
+    rec:{decision:'avanzar',texto:'Se recomienda avanzar. El perfil cognitivo es adecuado para el puesto actual con potencial de desarrollo.'}
+  },
+  {
+    nombre:'Carolina Méndez', edad:42, puesto:'Directora Comercial', area:'Comercial',
+    tema:'—', fecha:'—', duracion:'—',
+    tipo:'Externa', estado:'enviado', estrato:null, estrato_puesto:4, confianza:null,
+    fit:null, patron:null, subestrato:null, horizonte:null,
+    frase:null, citas:[], pda:null, rec:null
   }
-  
-  if (typeof window.cargarDeFirebase !== 'function') {
-    document.getElementById('tableContainer').innerHTML = '<div class="empty-state"><div class="empty-icon">⚠</div><div class="empty-title">Error de conexión</div><div class="empty-sub">No se pudo conectar con Firebase. Recargá la página.</div></div>';
-    return;
-  }
+];
 
-  evaluaciones = await window.cargarDeFirebase();
-  renderTabla();
-  renderStats();
-}
+const estratosNombres = ['','I','II','III','IV','V','VI'];
+const estratosMap = {
+  '1':'Estrato I — Operativo','2':'Estrato II — Táctico',
+  '3':'Estrato III — Estratégico','4':'Estrato IV — Directivo','5':'Estrato V — Corporativo'
+};
 
-function renderStats() {
-  document.getElementById('statTotal').textContent = evaluaciones.length;
-  if (evaluaciones.length === 0) return;
-  const estratos = evaluaciones.map(e => parseInt(e.estrato)).filter(n => n > 0);
-  document.getElementById('statPromedio').textContent = estratos.length ? (estratos.reduce((a,b)=>a+b,0)/estratos.length).toFixed(1) : '—';
-  const confs = evaluaciones.map(e => parseInt(e.confianza)).filter(n => !isNaN(n));
-  document.getElementById('statConfianza').textContent = confs.length ? Math.round(confs.reduce((a,b)=>a+b,0)/confs.length)+'%' : '—';
-  const ultima = evaluaciones[0];
-  if (ultima && ultima.timestamp) {
-    const fecha = ultima.timestamp.toDate ? ultima.timestamp.toDate() : new Date(ultima.timestamp);
-    document.getElementById('statUltima').textContent = fecha.toLocaleDateString('es-AR');
-  }
-}
-
+// ── TABLA ──
 function renderTabla() {
-  if (evaluaciones.length === 0) {
-    document.getElementById('tableContainer').innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Sin evaluaciones todavía</div><div class="empty-sub">Cuando un candidato complete la evaluación,<br>el resultado aparecerá aquí automáticamente.</div></div>';
-    return;
-  }
-  const rows = evaluaciones.map((ev, i) => {
-    const conf = parseInt(ev.confianza) || 0;
-    let fecha = '—';
-    if (ev.timestamp) {
-      try { fecha = (ev.timestamp.toDate ? ev.timestamp.toDate() : new Date(ev.timestamp)).toLocaleDateString('es-AR'); } catch(e) {}
-    }
-    return `<tr onclick="abrirModal(${i})">
-      <td class="name">${ev.candidato || '—'}</td>
-      <td>${ev.tema || '—'}</td>
-      <td>${fecha}</td>
-      <td>${ev.duracion || '—'}</td>
-      <td>${estratoPill(parseInt(ev.estrato))}</td>
-      <td><div style="display:flex;align-items:center;gap:8px;"><div class="conf-bar"><div class="conf-fill" style="width:${conf}%"></div></div><span style="font-size:12px;color:var(--text-muted)">${conf}%</span></div></td>
+  const tbody = document.getElementById('tablaBody');
+  tbody.innerHTML = candidatos.map((c,i) => {
+    const eClass = c.estrato ? `e${c.estrato}` : '';
+    const eLabel = c.estrato ? `E ${estratosNombres[c.estrato]} — ${c.patron}` : '—';
+    const ePuesto = `<span class="epill e${c.estrato_puesto}">E ${estratosNombres[c.estrato_puesto]}</span>`;
+    const estado = c.estado === 'listo' ? `<span class="sp-pill sp-listo">Informe listo</span>` : c.estado === 'enviado' ? `<span class="sp-pill sp-enviado">Link enviado</span>` : `<span class="sp-pill sp-pendiente">Pendiente</span>`;
+    const conf = c.confianza ? `<div class="conf-wrap"><div class="conf-bar"><div class="conf-fill" style="width:${c.confianza}%"></div></div><span style="font-size:12px;color:var(--text-muted)">${c.confianza}%</span></div>` : '—';
+    const fit = c.fit ? `<div style="display:flex;align-items:center;gap:6px;"><div class="fit-dot ${c.fit==='encaja'?'fit-encaja':'fit-no'}"></div><span style="font-size:12px">${c.fit==='encaja'?'Encaja':'No alcanza'}</span></div>` : '—';
+    return `<tr onclick="verInforme(${i})">
+      <td class="td-name">${c.nombre}<div style="font-size:11px;color:var(--text-muted);font-weight:400">${c.edad} años · ${c.tipo}</div></td>
+      <td>${c.puesto}</td>
+      <td>${ePuesto}</td>
+      <td>${estado}</td>
+      <td>${c.estrato ? `<span class="epill ${eClass}">${eLabel}</span>` : '—'}</td>
+      <td>${conf}</td>
+      <td>${fit}</td>
     </tr>`;
   }).join('');
-
-  document.getElementById('tableContainer').innerHTML = `
-    <table>
-      <thead><tr>
-        <th>Candidato</th><th>Tema</th><th>Fecha</th><th>Duración</th><th>Estrato</th><th>Confianza</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
 }
 
-function abrirModal(i) {
-  const ev = evaluaciones[i];
-  if (!ev) return;
-  const conf = parseInt(ev.confianza) || 0;
-  const evidencias = typeof ev.evidencias === 'string' ? ev.evidencias.split(' | ').filter(Boolean) : (ev.evidencias || []);
-  const alertas = typeof ev.alertas === 'string' ? ev.alertas.split(' | ').filter(Boolean) : (ev.alertas || []);
-  let fecha = '—';
-  if (ev.timestamp) { try { fecha = (ev.timestamp.toDate ? ev.timestamp.toDate() : new Date(ev.timestamp)).toLocaleString('es-AR'); } catch(e) {} }
+// ── INFORME ──
+function verInforme(i) {
+  const c = candidatos[i];
+  if (!c.estrato) return; // sin informe si no completó
 
-  document.getElementById('modalHeader').innerHTML = `
-    <div style="text-align:center">
-      <div class="modal-estrato">
-        <div class="modal-estrato-num">${ev.estrato || '?'}</div>
-        <div class="modal-estrato-name">${ev.nombre_estrato || ''}</div>
-        <div class="modal-modo">${ev.modo_procesamiento || ''}</div>
-        <div class="modal-sub">${ev.subestrato || ''} · Horizonte: ${ev.horizonte || ''}</div>
+  document.getElementById('topbarRight').innerHTML = `
+    <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="go('dashboard')">← Volver al panel</button>
+    <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="window.print()">Descargar PDF</button>`;
+
+  const xBase=50,xRange=490,edadMin=20,edadMax=60;
+  const yBase=190,yRange=170;
+  const xCPA = xBase+((c.edad-edadMin)/(edadMax-edadMin))*xRange;
+  const yCPA = yBase-((c.estrato/5))*yRange;
+  const xCPF = xBase+((Math.min(c.edad+8,58)-edadMin)/(edadMax-edadMin))*xRange;
+  const yCPF = yBase-((Math.min(c.estrato+1,4)/5))*yRange;
+  const yPuesto = yBase-((c.estrato_puesto/5))*yRange;
+  const eMatch = c.estrato === c.estrato_puesto;
+
+  const fitClass = c.fit==='encaja'?'sem-encaja':c.fit==='supera'?'sem-supera':'sem-no';
+
+  document.getElementById('informeContent').innerHTML = `
+    <div class="inf-back" onclick="go('dashboard')">← Volver al panel</div>
+
+    <div class="inf-nombre">${c.nombre}</div>
+    <div class="inf-meta">${c.puesto} · ${c.fecha} · ${c.duracion} · Tema: ${c.tema}</div>
+    <div class="inf-badges">
+      <span class="badge badge-green">${c.tipo}</span>
+      <span class="badge badge-green">CV cargado</span>
+      ${c.pda?'<span class="badge badge-green">PDA cargado</span>':''}
+    </div>
+
+    <div class="inf-section">
+      <div class="semaforo">
+        <div class="sem-card sem-encaja ${c.fit==='encaja'?'active':''}">
+          <div class="sem-icon">🟢</div>
+          <div class="sem-title" style="color:var(--verde)">Encaja hoy</div>
+          <div class="sem-desc">CPA igual al estrato del puesto.</div>
+        </div>
+        <div class="sem-card sem-supera ${c.fit==='supera'?'active':''}">
+          <div class="sem-icon">🟡</div>
+          <div class="sem-title">Supera el puesto</div>
+          <div class="sem-desc">Riesgo de frustración.</div>
+        </div>
+        <div class="sem-card sem-no ${c.fit==='no_alcanza'?'active':''}">
+          <div class="sem-icon">🔴</div>
+          <div class="sem-title">No alcanza</div>
+          <div class="sem-desc">Brecha cognitiva.</div>
+        </div>
       </div>
+      <div class="sem-frase" style="margin-top:10px">${c.frase}</div>
+    </div>
+
+    <div class="inf-section">
+      <div class="inf-section-title">Comparación de estratos</div>
+      <div class="estratos-grid">
+        <div class="estrato-box ${eMatch?'match':'gap'}">
+          <div class="estrato-lbl">Candidato</div>
+          <div class="estrato-num" style="color:${eMatch?'var(--verde)':'var(--rojo)'}">${estratosNombres[c.estrato]}</div>
+          <div class="estrato-patron">Patrón ${c.patron}</div>
+          <div class="estrato-horizonte">Horizonte ${c.horizonte}</div>
+        </div>
+        <div class="estrato-box">
+          <div class="estrato-lbl">Puesto requerido</div>
+          <div class="estrato-num" style="color:var(--text-dim)">${estratosNombres[c.estrato_puesto]}</div>
+          <div class="estrato-patron">${c.puesto}</div>
+          <div class="estrato-horizonte">Complejidad requerida</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="inf-section">
+      <div class="inf-section-title">Curva de maduración <span>Proyección Jaques · edad/estrato</span></div>
+      <div class="curva-wrap">
+        <svg width="100%" viewBox="0 0 560 220" style="display:block">
+          <line x1="50" y1="20" x2="50" y2="190" stroke="#e8edf3" stroke-width="1"/>
+          <line x1="50" y1="190" x2="540" y2="190" stroke="#e8edf3" stroke-width="1"/>
+          <line x1="50" y1="156" x2="540" y2="156" stroke="#f3f4f6" stroke-width="1" stroke-dasharray="4 3"/>
+          <line x1="50" y1="122" x2="540" y2="122" stroke="#f3f4f6" stroke-width="1" stroke-dasharray="4 3"/>
+          <line x1="50" y1="88" x2="540" y2="88" stroke="#f3f4f6" stroke-width="1" stroke-dasharray="4 3"/>
+          <line x1="50" y1="54" x2="540" y2="54" stroke="#f3f4f6" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="42" y="158" text-anchor="end" font-size="10" fill="#9ca3af">I</text>
+          <text x="42" y="124" text-anchor="end" font-size="10" fill="#9ca3af">II</text>
+          <text x="42" y="90" text-anchor="end" font-size="10" fill="#9ca3af">III</text>
+          <text x="42" y="56" text-anchor="end" font-size="10" fill="#9ca3af">IV</text>
+          <text x="50" y="204" text-anchor="middle" font-size="10" fill="#9ca3af">20</text>
+          <text x="172" y="204" text-anchor="middle" font-size="10" fill="#9ca3af">30</text>
+          <text x="294" y="204" text-anchor="middle" font-size="10" fill="#9ca3af">40</text>
+          <text x="416" y="204" text-anchor="middle" font-size="10" fill="#9ca3af">50</text>
+          <text x="538" y="204" text-anchor="middle" font-size="10" fill="#9ca3af">60</text>
+          <path d="M50 175 C120 165 180 140 250 108 C310 80 380 58 540 36" fill="none" stroke="#c8e6d4" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="50" y1="${yPuesto}" x2="540" y2="${yPuesto}" stroke="#1a5fa8" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.5"/>
+          <circle cx="${xCPA}" cy="${yCPA}" r="7" fill="#1d4e3f"/>
+          <circle cx="${xCPA}" cy="${yCPA}" r="3" fill="white"/>
+          <circle cx="${xCPF}" cy="${yCPF}" r="7" fill="#27ae60" opacity="0.35"/>
+          <circle cx="${xCPF}" cy="${yCPF}" r="3" fill="#27ae60" opacity="0.6"/>
+          <line x1="${xCPA}" y1="${yCPA}" x2="${xCPF}" y2="${yCPF}" stroke="#27ae60" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+          <text x="${xCPA}" y="${yCPA-11}" text-anchor="middle" font-size="9" fill="#1d4e3f" font-weight="600">CPA hoy</text>
+          <text x="${xCPF+20}" y="${yCPF-6}" font-size="9" fill="#27ae60">CPF ~5 años</text>
+        </svg>
+        <div class="curva-leyenda">
+          <div class="leyenda-item"><div class="leyenda-dot" style="background:#1d4e3f"></div>CPA actual (E ${estratosNombres[c.estrato]} · ${c.edad} años)</div>
+          <div class="leyenda-item"><div class="leyenda-dot" style="background:#27ae60;opacity:.5"></div>CPF proyectada</div>
+          <div class="leyenda-item"><div class="leyenda-line" style="background:#1a5fa8;opacity:.5"></div>Estrato requerido</div>
+          <div class="leyenda-item"><div class="leyenda-line" style="background:#c8e6d4"></div>Curva Jaques</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="inf-section">
+      <div class="inf-section-title">Evidencias del discurso <span>Patrón ${c.patron} detectado</span></div>
+      ${c.citas.map(ci=>`<div class="cita-item"><div class="cita-texto">"${ci.texto}"</div><span class="cita-indicador">${ci.indicador}</span></div>`).join('')}
+    </div>
+
+    ${c.pda?`<div class="inf-section">
+      <div class="inf-section-title">Perfil PDA integrado</div>
+      <div class="pda-tags">${c.pda.rasgos.map(r=>`<span class="pda-tag">${r}</span>`).join('')}</div>
+      <div class="pda-lectura">${c.pda.lectura}</div>
+    </div>`:''}
+
+    <div class="inf-section">
+      <div class="inf-section-title">Recomendación</div>
+      <div class="rec-card ${c.rec.decision==='avanzar'?'rec-avanzar':c.rec.decision==='avanzar_con_desarrollo'?'rec-desarrollo':'rec-no'}">
+        <div class="rec-decision">${c.rec.decision==='avanzar'?'✓ Avanzar en el proceso':c.rec.decision==='avanzar_con_desarrollo'?'◐ Avanzar con plan de desarrollo':'✕ No avanzar para este rol'}</div>
+        <div class="rec-texto">${c.rec.texto}</div>
+      </div>
+    </div>
+
+    <div class="nota-pie">
+      PotenciaIA es una herramienta de apoyo a la decisión. El juicio final corresponde al equipo de RRHH.<br>
+      El candidato no tuvo acceso a ninguno de estos resultados.
     </div>`;
 
-  document.getElementById('modalBody').innerHTML = `
-    <div class="info-grid">
-      <div class="info-item"><div class="info-item-label">Candidato</div><div class="info-item-value">${ev.candidato || '—'}</div></div>
-      <div class="info-item"><div class="info-item-label">Tema</div><div class="info-item-value">${ev.tema || '—'}</div></div>
-      <div class="info-item"><div class="info-item-label">Fecha</div><div class="info-item-value">${fecha}</div></div>
-      <div class="info-item"><div class="info-item-label">Duración</div><div class="info-item-value">${ev.duracion || '—'}</div></div>
-    </div>
-    <div style="margin-bottom:20px">
-      <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px"><span>Confianza del análisis</span><span style="color:var(--azul)">${conf}%</span></div>
-      <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="width:${conf}%;height:100%;background:var(--azul);border-radius:3px"></div></div>
-    </div>
-    <div class="section-block">
-      <div class="section-title">Síntesis del análisis</div>
-      <div class="resumen-text">${ev.resumen || '—'}</div>
-    </div>
-    ${evidencias.length ? `<div class="section-block"><div class="section-title">Evidencias del discurso</div><ul class="evidence-list">${evidencias.map(e=>`<li>${e}</li>`).join('')}</ul></div>` : ''}
-    ${alertas.length && alertas[0] ? `<div class="section-block"><div class="section-title">Observaciones</div><ul class="evidence-list alert-list">${alertas.map(a=>`<li>${a}</li>`).join('')}</ul></div>` : ''}
-    <div class="section-block">
-      <button class="transcript-toggle" onclick="document.getElementById('modalTranscript').classList.toggle('visible')">▾ Ver transcript completo</button>
-      <div class="raw-transcript" id="modalTranscript">${ev.transcript || 'No disponible'}</div>
-    </div>`;
-
-  document.getElementById('modalBg').classList.add('active');
+  go('informe');
 }
 
-function cerrarModal(e) {
-  if (!e || e.target === document.getElementById('modalBg')) {
-    document.getElementById('modalBg').classList.remove('active');
+// ── NAVEGACIÓN ──
+function go(vista) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(vista==='informe'?'viewInforme':'viewDashboard').classList.add('active');
+  if(vista==='dashboard'){
+    document.getElementById('topbarRight').innerHTML=`
+      <span class="hr-badge">Panel HR</span>
+      <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="renderTabla()">↻ Actualizar</button>`;
   }
+  window.scrollTo(0,0);
 }
 
-cargarEvaluaciones();
+// ── WIZARD ──
+let paso=1;
+function abrirWizard(){paso=1;actualizarWizard();document.getElementById('wizardOverlay').classList.add('active');}
+function cerrarWizard(){document.getElementById('wizardOverlay').classList.remove('active');document.getElementById('linkBox').classList.remove('visible');document.getElementById('btnSig').disabled=false;document.getElementById('btnSig').textContent='Siguiente →';}
+function cerrarWizardClick(e){if(e.target===document.getElementById('wizardOverlay'))cerrarWizard();}
+
+function actualizarEstrato(){
+  const h=document.getElementById('f_horizonte').value;
+  const ee=document.getElementById('estratoEst');
+  if(h){ee.classList.add('visible');document.getElementById('estratoEstVal').textContent=estratosMap[h]||'—';}
+  else ee.classList.remove('visible');
+}
+
+function handleUpload(input,zoneId,nameId){
+  const file=input.files[0];if(!file)return;
+  const zone=document.getElementById(zoneId);
+  zone.classList.add('uploaded');
+  zone.querySelector('.upload-icon').textContent='✅';
+  zone.querySelector('.upload-text').innerHTML='<strong>Archivo cargado</strong>';
+  document.getElementById(nameId).textContent=file.name;
+}
+
+function actualizarWizard(){
+  [1,2,3].forEach(n=>{
+    document.getElementById('step'+n).style.display=n===paso?'block':'none';
+    const ws=document.getElementById('ws'+n);
+    ws.className='wstep'+(n===paso?' active':n<paso?' done':'');
+    document.getElementById('wn'+n).textContent=n<paso?'✓':n;
+  });
+  document.getElementById('btnAtras').style.visibility=paso===1?'hidden':'visible';
+  document.getElementById('btnSig').textContent=paso===3?'Generar link →':'Siguiente →';
+  if(paso===3)rellenarResumen();
+}
+
+function pasoSiguiente(){
+  if(paso<3){paso++;actualizarWizard();}
+  else generarLink();
+}
+function pasoAtras(){if(paso>1){paso--;actualizarWizard();}}
+
+function rellenarResumen(){
+  document.getElementById('r_puesto').textContent=document.getElementById('f_puesto').value||'—';
+  document.getElementById('r_area').textContent=document.getElementById('f_area').value||'—';
+  document.getElementById('r_estrato').textContent=estratosMap[document.getElementById('f_horizonte').value]||'—';
+  document.getElementById('r_nombre').textContent=document.getElementById('f_nombre').value||'—';
+  document.getElementById('r_edad').textContent=document.getElementById('f_edad').value?document.getElementById('f_edad').value+' años':'—';
+  document.getElementById('r_email').textContent=document.getElementById('f_email').value||'—';
+  document.getElementById('r_cv').textContent=document.getElementById('cvName').textContent||'No cargado';
+  document.getElementById('r_pda').textContent=document.getElementById('pdaName').textContent||'No cargado';
+}
+
+function generarLink(){
+  const token=Math.random().toString(36).slice(2,10);
+  const nombre=document.getElementById('f_nombre').value||'candidato';
+  const url=`https://candeladileo-sys.github.io/potenciaIA/?token=${token}&candidato=${encodeURIComponent(nombre)}`;
+  document.getElementById('linkUrl').textContent=url;
+  document.getElementById('linkBox').classList.add('visible');
+  document.getElementById('btnSig').disabled=true;
+  document.getElementById('btnSig').textContent='Link generado ✓';
+}
+
+function copiarLink(){
+  navigator.clipboard.writeText(document.getElementById('linkUrl').textContent).then(()=>{
+    document.querySelector('.link-copy').textContent='¡Copiado!';
+    setTimeout(()=>document.querySelector('.link-copy').textContent='Copiar link',2000);
+  });
+}
+
+// INIT
+renderTabla();
 </script>
 </body>
 </html>

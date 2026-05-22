@@ -502,6 +502,16 @@ window.guardarEvaluacion = async function(data) {
     return null;
   }
 };
+
+window.actualizarEvaluacion = async function(id, data) {
+  try {
+    const { doc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await updateDoc(doc(db, 'evaluaciones', id), data);
+    console.log('Evaluacion actualizada:', id);
+  } catch(e) {
+    console.error('Error actualizando Firebase:', e);
+  }
+};
 </script>
 
 
@@ -933,8 +943,8 @@ async function startInterview() {
 
   // Primera intervención: 2:30–3:30 | Segunda: 5:00–6:00
   interruptionTimes = [
-    150 + Math.floor(Math.random() * 60),
-    300 + Math.floor(Math.random() * 60)
+    240 + Math.floor(Math.random() * 30),   // Primera: 4:00–4:30
+    420 + Math.floor(Math.random() * 30)    // Segunda: 7:00–7:30
   ];
 
   document.getElementById('transcriptArea').innerHTML = '<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px 0">El transcript aparecerá aquí mientras hablás</div>';
@@ -1129,6 +1139,13 @@ async function generateInterruptionQuestion(context) {
     return demos[interruptionCount % demos.length];
   }
 
+  // Si hay poco contexto, usar fallback directo sin llamar a Claude
+  const words = context.trim().split(/\s+/).filter(Boolean);
+  if (words.length < 20) {
+    const fallbacks = ['¿Podés contarme más?', '¿Qué más?', '¿Podés desarrollar eso?'];
+    return fallbacks[interruptionCount % fallbacks.length];
+  }
+
   const systemPrompt = `Sos un entrevistador del Método de Análisis del Discurso de Analía Blaistein.
 
 Tu única función es lograr que el candidato AMPLÍE lo que ya dijo.
@@ -1184,6 +1201,34 @@ async function requestSynthesis() {
   addTranscriptEntry('agent', '¿Podés hacer una síntesis de lo que planteaste hasta ahora?');
 }
 
+// ── PLAN B: guardar transcript como .txt en el navegador ──
+function descargarTranscriptEmergencia(transcript, nombre) {
+  try {
+    const fecha = new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
+    const nombreArchivo = `PotenciaIA_${(nombre||'candidato').replace(/\s+/g,'_')}_${fecha}.txt`;
+    const contenido = [
+      '═══════════════════════════════════════',
+      'POTENCIAÍA · Transcript de evaluación',
+      '═══════════════════════════════════════',
+      `Candidato: ${nombre || 'No registrado'}`,
+      `Tema: ${selectedTopic}`,
+      `Fecha: ${new Date().toLocaleString('es-AR')}`,
+      `Duración: ${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
+      '═══════════════════════════════════════',
+      '',
+      transcript
+    ].join('\n');
+    const blob = new Blob([contenido], {type:'text/plain;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = nombreArchivo; a.click();
+    URL.revokeObjectURL(url);
+    console.log('Transcript descargado como respaldo:', nombreArchivo);
+  } catch(err) {
+    console.error('No se pudo descargar transcript:', err);
+  }
+}
+
 // ── FIN ──
 async function endInterview() {
   interviewPhase = 'ended';
@@ -1196,15 +1241,56 @@ async function endInterview() {
     .map(e => `[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] ${e.speaker==='agent'?'POTENCIAÍA':'PARTICIPANTE'}: ${e.text}`)
     .join('\n\n');
 
-  const result = await analyzeWithClaude(fullTranscript);
+  // PLAN B INMEDIATO: guardar transcript en Firebase antes de analizar
+  // Así si el análisis falla, el transcript ya está guardado
+  const datosBase = {
+    candidato: candidatoNombre || 'Candidato',
+    tema: selectedTopic,
+    duracion: `${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
+    duracion_segundos: elapsedSeconds,
+    transcript: fullTranscript,
+    estado: 'pendiente_analisis',
+    estrato: null, confianza: null, resumen: 'Análisis en proceso...',
+    evidencias: '', alertas: ''
+  };
 
-  // Guardar en Firebase
+  let firebaseId = null;
   if (typeof window.guardarEvaluacion === 'function') {
-    await window.guardarEvaluacion({
-      candidato: candidatoNombre || 'Candidato',
-      tema: selectedTopic,
-      duracion: `${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
-      duracion_segundos: elapsedSeconds,
+    firebaseId = await window.guardarEvaluacion(datosBase);
+  }
+
+  // Si Firebase falló, descargar transcript como respaldo inmediato
+  if (!firebaseId) {
+    descargarTranscriptEmergencia(fullTranscript, candidatoNombre);
+  }
+
+  // Analizar con timeout de 60 segundos
+  let result;
+  let analisisExitoso = false;
+  try {
+    const analysisPromise = analyzeWithClaude(fullTranscript);
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 60000));
+    result = await Promise.race([analysisPromise, timeoutPromise]);
+    analisisExitoso = true;
+  } catch(e) {
+    console.error('Análisis falló:', e.message);
+    result = {
+      estrato: 0, subestrato: 'N/A', modo_procesamiento: 'Análisis pendiente',
+      confianza: 0, nombre_estrato: 'Análisis pendiente',
+      horizonte_implicito: 'N/A',
+      resumen: 'El análisis automático no pudo completarse. El transcript fue guardado. HR puede contactar a PotenciaIA para procesar manualmente.',
+      evidencias: [], alertas: ['Análisis pendiente — transcript guardado correctamente']
+    };
+    // Si el análisis falló pero Firebase también falló, descargar de todas formas
+    if (!firebaseId) {
+      descargarTranscriptEmergencia(fullTranscript, candidatoNombre);
+    }
+  }
+
+  // Actualizar Firebase con el resultado del análisis
+  if (typeof window.actualizarEvaluacion === 'function' && firebaseId) {
+    await window.actualizarEvaluacion(firebaseId, {
+      estado: analisisExitoso ? 'completado' : 'analisis_fallido',
       estrato: result.estrato,
       subestrato: result.subestrato,
       modo_procesamiento: result.modo_procesamiento,
@@ -1213,14 +1299,26 @@ async function endInterview() {
       confianza: result.confianza,
       resumen: result.resumen,
       evidencias: (result.evidencias||[]).join(' | '),
-      alertas: (result.alertas||[]).join(' | '),
-      transcript: fullTranscript
+      alertas: (result.alertas||[]).join(' | ')
+    });
+  } else if (typeof window.guardarEvaluacion === 'function' && !firebaseId) {
+    // Si no se pudo guardar antes, intentar guardar todo junto ahora
+    await window.guardarEvaluacion({
+      ...datosBase,
+      estado: analisisExitoso ? 'completado' : 'analisis_fallido',
+      estrato: result.estrato,
+      subestrato: result.subestrato,
+      modo_procesamiento: result.modo_procesamiento,
+      nombre_estrato: result.nombre_estrato,
+      horizonte: result.horizonte_implicito,
+      confianza: result.confianza,
+      resumen: result.resumen,
+      evidencias: (result.evidencias||[]).join(' | '),
+      alertas: (result.alertas||[]).join(' | ')
     });
   }
 
   document.getElementById('processingOverlay').classList.remove('active');
-
-  // El candidato solo ve la pantalla de gracias
   showScreen('screenThanks');
   speak('Muchas gracias por tu participación. Tu evaluación fue registrada correctamente.');
 }

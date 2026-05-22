@@ -353,22 +353,120 @@ td.td-name{font-weight:600;color:var(--text);font-size:14px;}
   </div>
 </div>
 
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBHM3tvO-LmzMvTkCIKC476tE3sqmJs1QM",
+  authDomain: "potencia-bccf7.firebaseapp.com",
+  projectId: "potencia-bccf7",
+  storageBucket: "potencia-bccf7.firebasestorage.app",
+  messagingSenderId: "748478455182",
+  appId: "1:748478455182:web:191cd421c86f5aad1858df"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.cargarDeFirebase = async function() {
+  try {
+    const q = query(collection(db, 'evaluaciones'), orderBy('timestamp', 'desc'));
+    const snapshot = await getDocs(q);
+    const datos = [];
+    snapshot.forEach(doc => datos.push({ id: doc.id, ...doc.data() }));
+    return datos;
+  } catch(e) {
+    console.error('Error Firebase:', e);
+    return [];
+  }
+};
+</script>
+
 <script>
-// ── DATOS DE EJEMPLO ──
-const candidatos = [
+// ── DATOS ──
+let candidatos = [];
+
+async function cargarYRenderizar() {
+  document.getElementById('tablaBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)"><div style="display:inline-block;width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--verde);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle"></div>Cargando evaluaciones...</td></tr>';
+
+  let intentos = 0;
+  while (typeof window.cargarDeFirebase !== 'function' && intentos < 30) {
+    await new Promise(r => setTimeout(r, 200));
+    intentos++;
+  }
+
+  if (typeof window.cargarDeFirebase !== 'function') {
+    document.getElementById('tablaBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">No se pudo conectar con Firebase.</td></tr>';
+    return;
+  }
+
+  const datos = await window.cargarDeFirebase();
+
+  // Convertir datos de Firebase al formato del dashboard
+  candidatos = datos.map(d => {
+    const evidencias = typeof d.evidencias === 'string' ? d.evidencias.split(' | ').filter(Boolean) : (d.evidencias || []);
+    const alertas = typeof d.alertas === 'string' ? d.alertas.split(' | ').filter(Boolean) : (d.alertas || []);
+    let fecha = '—';
+    if (d.timestamp) {
+      try { fecha = (d.timestamp.toDate ? d.timestamp.toDate() : new Date(d.timestamp)).toLocaleDateString('es-AR'); } catch(e) {}
+    }
+    const estrato = parseInt(d.estrato) || 0;
+    const fit = estrato > 0 ? 'encaja' : null;
+    return {
+      nombre: d.candidato || '—',
+      edad: d.duracion_segundos ? Math.round(d.duracion_segundos/60) : null,
+      puesto: d.puesto || '—',
+      area: '—',
+      tema: d.tema || '—',
+      fecha: fecha,
+      duracion: d.duracion || '—',
+      tipo: 'Externo',
+      estado: estrato > 0 ? 'listo' : 'enviado',
+      estrato: estrato || null,
+      estrato_puesto: estrato || null,
+      confianza: parseInt(d.confianza) || null,
+      fit: estrato > 0 ? 'encaja' : null,
+      patron: d.modo_procesamiento || null,
+      subestrato: d.subestrato || null,
+      horizonte: d.horizonte || null,
+      frase: d.resumen || null,
+      citas: evidencias.map(e => ({texto: e, indicador: d.subestrato || ''})),
+      pda: null,
+      rec: d.resumen ? {decision:'avanzar', texto: d.resumen} : null,
+      _raw: d
+    };
+  });
+
+  renderTabla();
+  renderStats();
+}
+
+function renderStats() {
+  const total = candidatos.length;
+  document.getElementById('statTotal').textContent = total || '0';
+  const estratos = candidatos.map(c => c.estrato).filter(e => e > 0);
+  document.getElementById('statProm').textContent = estratos.length ? (estratos.reduce((a,b)=>a+b,0)/estratos.length).toFixed(1) : '—';
+  const confs = candidatos.map(c => c.confianza).filter(Boolean);
+  document.getElementById('statConf').textContent = confs.length ? Math.round(confs.reduce((a,b)=>a+b,0)/confs.length)+'%' : '—';
+  document.getElementById('statPend').textContent = candidatos.filter(c => !c.estrato).length || '0';
+}
+
+// ── DATOS DE EJEMPLO cuando Firebase está vacío ──
+const candidatosEjemplo = [
   {
-    nombre:'Martín Rodríguez', edad:35, puesto:'Gerente de Operaciones', area:'Operaciones',
+    nombre:'Martín Rodríguez (ejemplo)', edad:35, puesto:'Gerente de Operaciones', area:'Operaciones',
     tema:'Cambio climático', fecha:'21 de mayo de 2026', duracion:'9 min 42 seg',
     tipo:'Externo', estado:'listo', estrato:3, estrato_puesto:3, confianza:87,
-    fit:'encaja', patron:'Serial', subestrato:'E III-alto', horizonte:'1–2 años',
+    fit:'encaja', patron:'Serial (Si→Entonces)', subestrato:'E III-alto', horizonte:'1–2 años',
     frase:'El candidato encaja cognitivamente con el puesto hoy y proyecta crecimiento al estrato IV en aproximadamente 5 años.',
     citas:[
       {texto:'Primero hay que ordenar los procesos internos, porque si no, cuando llegue la demanda no vamos a poder responder. Una vez que eso esté, recién ahí tiene sentido contratar.',indicador:'Cadena causal con dependencia explícita · indicador E III'},
-      {texto:'El problema no es la falta de recursos, es que los recursos están mal asignados. Si reorganizamos el equipo en los próximos seis meses, en un año deberíamos ver resultados.',indicador:'Horizonte temporal 1–2 años · plan secuencial · indicador E III'},
-      {texto:'No tiene sentido contratar más gente si primero no sabemos qué procesos están fallando. Hay que hacer el diagnóstico, después diseñar, y recién después ejecutar.',indicador:'Tres etapas secuenciales con dependencia · indicador E III'}
+      {texto:'El problema no es la falta de recursos, es que los recursos están mal asignados. Si reorganizamos el equipo en los próximos seis meses, en un año deberíamos ver resultados.',indicador:'Horizonte temporal 1–2 años · plan secuencial · indicador E III'}
     ],
-    pda:{rasgos:['Alta orientación a resultados','Estilo directivo','Toma de decisiones ágil','Baja necesidad de estructura'],lectura:'El perfil conductual es consistente con la clasificación cognitiva. El estilo directivo y la orientación a resultados son coherentes con un procesamiento serial orientado a planes de mediano plazo.'},
-    rec:{decision:'avanzar',texto:'El candidato encaja cognitivamente con el puesto hoy y proyecta crecimiento al estrato IV en aproximadamente 5 años. Se recomienda avanzar en el proceso de selección.'}
+    pda:{rasgos:['Alta orientación a resultados','Estilo directivo','Toma de decisiones ágil'],lectura:'El perfil conductual es consistente con la clasificación cognitiva.'},
+    rec:{decision:'avanzar',texto:'Se recomienda avanzar en el proceso de selección.'}
   },
   {
     nombre:'Sofía López', edad:29, puesto:'Analista Senior', area:'Finanzas',
@@ -561,7 +659,7 @@ function go(vista) {
   if(vista==='dashboard'){
     document.getElementById('topbarRight').innerHTML=`
       <span class="hr-badge">Panel HR</span>
-      <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="renderTabla()">↻ Actualizar</button>`;
+      <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="cargarYRenderizar()">↻ Actualizar</button>`;
   }
   window.scrollTo(0,0);
 }
@@ -635,7 +733,14 @@ function copiarLink(){
 }
 
 // INIT
-renderTabla();
+setTimeout(async () => {
+  await cargarYRenderizar();
+  if (candidatos.length === 0) {
+    candidatos = candidatosEjemplo;
+    renderTabla();
+    renderStats();
+  }
+}, 800);
 </script>
 </body>
 </html>

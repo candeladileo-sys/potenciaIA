@@ -691,6 +691,7 @@ let waveInterval = null;
 let interruptionTimes = [];
 let lastSpeechTimestamp = Date.now();
 let closingSilenceTimer = null;
+let pendingFinalBuf = '';   // ← texto reconocido pero aún no volcado al transcript
 
 const MAX_DURATION  = 600;
 const SYNTHESIS_TIME = 510;
@@ -946,7 +947,7 @@ function startContinuousListening() {
   const rec = new SR();
   rec.lang = 'es-AR'; rec.continuous = true; rec.interimResults = true;
 
-  let finalBuf = '', flushTimer = null;
+  let flushTimer = null;
 
   rec.onresult = (e) => {
     if (isSpeaking) return;
@@ -956,7 +957,7 @@ function startContinuousListening() {
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
       if (e.results[i].isFinal) {
-        finalBuf += e.results[i][0].transcript + ' ';
+        pendingFinalBuf += e.results[i][0].transcript + ' ';
         accumulatedUserText += e.results[i][0].transcript + ' ';
         if (!synthesisRequested && interviewPhase === 'speaking') {
           if (detectsClosingPhrase(e.results[i][0].transcript)) {
@@ -964,7 +965,7 @@ function startContinuousListening() {
             synthesisRequested = true;
             document.getElementById('btnSynthesis').disabled = true;
             setTimeout(() => {
-              if (finalBuf.trim().length > 10) { addTranscriptEntry('user', finalBuf.trim()); finalBuf = ''; }
+              if (pendingFinalBuf.trim().length > 10) { addTranscriptEntry('user', pendingFinalBuf.trim()); pendingFinalBuf = ''; }
               triggerClosingSynthesis();
             }, 1200);
           }
@@ -972,12 +973,12 @@ function startContinuousListening() {
       } else { interim = e.results[i][0].transcript; }
     }
 
-    const disp = (finalBuf + interim).slice(-90);
+    const disp = (pendingFinalBuf + interim).slice(-90);
     setStatus('listening', '"' + disp + '"');
-    lastUserText = (finalBuf + interim).trim();
+    lastUserText = (pendingFinalBuf + interim).trim();
 
     flushTimer = setTimeout(() => {
-      if (finalBuf.trim().length > 10) { addTranscriptEntry('user', finalBuf.trim()); finalBuf = ''; }
+      if (pendingFinalBuf.trim().length > 10) { addTranscriptEntry('user', pendingFinalBuf.trim()); pendingFinalBuf = ''; }
     }, 4500);
   };
 
@@ -1123,6 +1124,19 @@ async function endInterview() {
 
   await speak('Muchas gracias. Voy a analizar tu discurso ahora.');
   addTranscriptEntry('agent', 'Muchas gracias. Voy a analizar tu discurso ahora.');
+
+  // ── Volcar TODO texto pendiente antes de construir el transcript ──
+  // pendingFinalBuf: texto ya reconocido como final pero no volcado por el flushTimer
+  if (pendingFinalBuf.trim().length > 5) {
+    addTranscriptEntry('user', pendingFinalBuf.trim());
+    pendingFinalBuf = '';
+  }
+  // lastUserText: puede tener texto interim adicional
+  if (lastUserText.trim().length > 5 && !transcriptLog.length || 
+      (transcriptLog.length && transcriptLog[transcriptLog.length-1].speaker === 'agent')) {
+    addTranscriptEntry('user', lastUserText.trim());
+  }
+
   document.getElementById('processingOverlay').classList.add('active');
 
   const fullTranscript = transcriptLog
@@ -1416,7 +1430,7 @@ function restart() {
   speechSynthesis.cancel(); stopListening();
   clearInterval(timerInterval); clearInterval(waveInterval); clearTimeout(closingSilenceTimer);
   elapsedSeconds=0; interruptionCount=0; transcriptLog=[];
-  accumulatedUserText=''; lastUserText=''; synthesisRequested=false; interviewPhase='idle';
+  accumulatedUserText=''; lastUserText=''; pendingFinalBuf=''; synthesisRequested=false; interviewPhase='idle';
   lastSpeechTimestamp=Date.now();
   document.getElementById('warningBox').classList.remove('visible');
   document.getElementById('int1').classList.remove('done');

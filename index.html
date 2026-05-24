@@ -139,6 +139,26 @@ body {
   background: var(--verde); flex-shrink: 0; margin-top: 5px;
 }
 
+/* INFO CANDIDATO */
+.candidato-info {
+  background: var(--verde-light);
+  border: 1.5px solid var(--verde-mid);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: none;
+}
+.candidato-info.visible { display: block; }
+.candidato-info .ci-nombre {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px; font-weight: 700; color: var(--verde);
+  margin-bottom: 4px;
+}
+.candidato-info .ci-meta {
+  font-size: 12px; color: var(--text-muted);
+  display: flex; gap: 16px; flex-wrap: wrap;
+}
+
 /* API INPUT */
 .api-input-group { margin-top: 24px; }
 
@@ -364,105 +384,16 @@ body {
 .processing-text { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--text); }
 .processing-sub { font-size: 12px; color: var(--text-muted); font-weight: 500; }
 
-/* ── RESULT ── */
-.result-header { text-align: center; margin-bottom: 32px; }
-
-.estrato-badge {
-  display: inline-flex; flex-direction: column; align-items: center;
-  background: white; border: 2px solid var(--verde);
-  border-radius: 16px; padding: 28px 56px; margin-bottom: 8px;
-  box-shadow: 0 4px 20px rgba(39,174,96,0.12);
-  position: relative; overflow: hidden;
-}
-
-.estrato-badge::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-  background: linear-gradient(90deg, var(--verde), var(--azul));
-}
-
-.estrato-number {
-  font-family: 'Syne', sans-serif; font-size: 84px; font-weight: 800;
-  color: var(--verde); line-height: 1; letter-spacing: -0.04em;
-}
-
-.estrato-name {
-  font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--text-muted); margin-top: 8px;
-}
-
-.procesamiento-tag {
-  font-size: 13px; font-weight: 600; color: var(--azul);
-  background: var(--azul-light); border: 1.5px solid var(--azul-mid);
-  padding: 5px 16px; border-radius: 20px; margin-top: 12px;
-}
-
-.subestrato-tag {
-  font-size: 12px; color: var(--text-muted); margin-top: 8px; font-weight: 500;
-}
-
-/* CONFIDENCE */
-.confidence-bar-container { margin-bottom: 28px; }
-.confidence-label { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
-.confidence-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.confidence-fill { height: 100%; background: linear-gradient(90deg, var(--verde), var(--azul)); border-radius: 3px; transition: width 1.2s ease; width: 0; }
-
-/* RESULT SECTIONS */
-.result-section {
-  background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: 12px; padding: 24px; margin-bottom: 14px;
-}
-
-.result-section h3 {
-  font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700;
-  letter-spacing: 0.14em; text-transform: uppercase; color: var(--verde);
-  margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
-}
-
-.result-section p { font-size: 14px; line-height: 1.75; color: var(--text-dim); }
-
-.evidence-list { list-style: none; }
-
-.evidence-list li {
-  font-size: 13px; color: var(--text-dim); padding: 10px 0;
-  border-bottom: 1px solid var(--border); display: flex; gap: 12px; line-height: 1.6;
-}
-.evidence-list li:last-child { border-bottom: none; }
-
-.evidence-list li::before {
-  content: ''; width: 6px; height: 6px; border-radius: 50%;
-  background: var(--azul); flex-shrink: 0; margin-top: 5px;
-}
-
-.alert-list li::before { background: var(--yellow); }
-
-/* TRANSCRIPT TOGGLE */
-.transcript-toggle {
-  font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
-  text-transform: uppercase; color: var(--text-muted);
-  background: none; border: none; cursor: pointer;
-  padding: 8px 0; display: flex; align-items: center; gap: 8px;
-  font-family: 'Inter', sans-serif; transition: color 0.2s;
-}
-.transcript-toggle:hover { color: var(--verde); }
-
-.raw-transcript {
-  display: none; background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 8px; padding: 16px; font-size: 12px; line-height: 1.8;
-  color: var(--text-dim); max-height: 280px; overflow-y: auto;
-  margin-top: 12px; white-space: pre-wrap;
-  font-family: 'Inter', sans-serif;
-}
-.raw-transcript.visible { display: block; }
-
-/* FOOTER INFO */
-.footer-note {
-  text-align: center; font-size: 11px; color: var(--text-muted);
-  margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border);
+/* ── PANTALLA GRACIAS ── */
+.thanks-check {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: var(--verde-light); border: 2px solid var(--verde-mid);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 28px; font-size: 36px;
 }
 
 @media (max-width: 600px) {
   .card { padding: 20px; }
-  .estrato-number { font-size: 64px; }
   .countdown-number { font-size: 100px; }
   .countdown-topic-text { font-size: 20px; }
   .question-overlay-inner { padding: 28px 20px; }
@@ -472,10 +403,11 @@ body {
 </style>
 </head>
 <body>
-<!-- Firebase -->
+
+<!-- ── FIREBASE ── -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, addDoc, doc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBHM3tvO-LmzMvTkCIKC476tE3sqmJs1QM",
@@ -505,7 +437,6 @@ window.guardarEvaluacion = async function(data) {
 
 window.actualizarEvaluacion = async function(id, data) {
   try {
-    const { doc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
     await updateDoc(doc(db, 'evaluaciones', id), data);
     console.log('Evaluacion actualizada:', id);
   } catch(e) {
@@ -513,7 +444,6 @@ window.actualizarEvaluacion = async function(id, data) {
   }
 };
 </script>
-
 
 <div class="container">
 
@@ -531,8 +461,19 @@ window.actualizarEvaluacion = async function(id, data) {
 
   <!-- SCREEN 1: SETUP -->
   <div class="screen active" id="screenSetup">
+
+    <!-- Banner candidato (visible cuando llega por link con token) -->
+    <div class="candidato-info" id="candidatoInfo">
+      <div class="ci-nombre" id="ciNombre"></div>
+      <div class="ci-meta">
+        <span id="ciEdad"></span>
+        <span id="ciPuesto"></span>
+        <span id="ciEstratoPuesto"></span>
+      </div>
+    </div>
+
     <div class="card">
-      <h2>Bienvenido/a a PotenciaIA</h2>
+      <h2 id="welcomeTitle">Bienvenido/a a PotenciaIA</h2>
       <p>Este sistema evalúa tu capacidad de procesamiento mental a través del discurso oral libre. No hay respuestas correctas ni incorrectas — lo que se analiza es <strong style="color:var(--verde)">cómo organizás tu pensamiento</strong>, no el contenido de lo que decís.</p>
       <ul class="rule-list">
         <li>Se te asignará un tema al azar — lo verás en la cuenta regresiva</li>
@@ -541,7 +482,9 @@ window.actualizarEvaluacion = async function(id, data) {
         <li>No hay juicio de valor sobre tus opiniones ni tu postura</li>
         <li>Todo el intercambio es por voz</li>
       </ul>
-      <div class="api-input-group">
+
+      <!-- API key: solo visible si no viene por link -->
+      <div class="api-input-group" id="apiKeyGroup">
         <label>API Key de Anthropic</label>
         <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
       </div>
@@ -554,7 +497,7 @@ window.actualizarEvaluacion = async function(id, data) {
         <label style="position:relative; display:inline-block; width:44px; height:24px; flex-shrink:0;">
           <input type="checkbox" id="demoToggle" onchange="toggleDemo()" style="opacity:0; width:0; height:0;">
           <span id="demoSlider" style="position:absolute; cursor:pointer; inset:0; background:#cdd3da; border-radius:24px; transition:0.3s;">
-            <span style="position:absolute; content:''; height:18px; width:18px; left:3px; bottom:3px; background:white; border-radius:50%; transition:0.3s; display:block;" id="demoKnob"></span>
+            <span style="position:absolute; height:18px; width:18px; left:3px; bottom:3px; background:white; border-radius:50%; transition:0.3s; display:block;" id="demoKnob"></span>
           </span>
         </label>
       </div>
@@ -640,56 +583,14 @@ window.actualizarEvaluacion = async function(id, data) {
     </div>
   </div>
 
-  <!-- SCREEN 4: RESULT -->
-  <!-- PANTALLA GRACIAS (candidato) -->
+  <!-- SCREEN 4: GRACIAS (candidato) -->
   <div class="screen" id="screenThanks">
     <div style="text-align:center;padding:80px 24px;">
-      <div style="width:80px;height:80px;border-radius:50%;background:var(--verde-light);border:2px solid var(--verde-soft);display:flex;align-items:center;justify-content:center;margin:0 auto 28px;font-size:36px;">✓</div>
+      <div class="thanks-check">✓</div>
       <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;">¡Muchas gracias!</div>
       <div style="font-size:15px;color:var(--text-dim);line-height:1.7;max-width:400px;margin:0 auto;">Tu evaluación fue registrada correctamente. El equipo de selección recibirá los resultados en breve.</div>
     </div>
     <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">PotenciaIA · Metodología Blaistein · Basado en la teoría de E. Jaques</div>
-  </div>
-
-  <div class="screen" id="screenResult">
-    <div class="result-header" id="resultHeader"></div>
-
-    <div class="confidence-bar-container">
-      <div class="confidence-label">
-        <span>Confianza del análisis</span>
-        <span id="confidenceValue">0%</span>
-      </div>
-      <div class="confidence-bar"><div class="confidence-fill" id="confidenceFill"></div></div>
-    </div>
-
-    <div class="result-section">
-      <h3>Síntesis del análisis</h3>
-      <p id="resultSummary"></p>
-    </div>
-
-    <div class="result-section">
-      <h3>Evidencias del discurso</h3>
-      <ul class="evidence-list" id="resultEvidences"></ul>
-    </div>
-
-    <div class="result-section" id="alertsSection" style="display:none">
-      <h3>Observaciones</h3>
-      <ul class="evidence-list alert-list" id="resultAlerts"></ul>
-    </div>
-
-    <div class="result-section">
-      <button class="transcript-toggle" onclick="toggleTranscript()">▾ Ver transcript completo</button>
-      <div class="raw-transcript" id="rawTranscript"></div>
-    </div>
-
-    <div class="btn-row" style="margin-top:20px">
-      <button class="btn btn-primary" onclick="restart()">Nueva evaluación</button>
-      <button class="btn btn-secondary" onclick="downloadTranscript()">↓ Descargar transcript</button>
-    </div>
-
-    <div class="footer-note">
-      PotenciaIA · Metodología Blaistein · Basado en la teoría de E. Jaques
-    </div>
   </div>
 
 </div>
@@ -702,13 +603,43 @@ window.actualizarEvaluacion = async function(id, data) {
 </div>
 
 <script>
-// ── MODO DEMO ──
+// ══════════════════════════════════════════════════
+// LEER PARÁMETROS DE URL (vienen del wizard del dashboard)
+// ══════════════════════════════════════════════════
+const urlParams = new URLSearchParams(window.location.search);
+const candidatoNombre  = decodeURIComponent(urlParams.get('nombre')  || '');
+const candidatoEdad    = parseInt(urlParams.get('edad'))              || null;
+const candidatoPuesto  = decodeURIComponent(urlParams.get('puesto')  || '');
+const estratoPuesto    = parseInt(urlParams.get('estrato_puesto'))    || null;
+const sessionToken     = urlParams.get('token')                       || '';
+const apiKeyFromUrl    = urlParams.get('api_key')                     || '';  // opcional
+
+// Mostrar banner si vino por link
+if (candidatoNombre || candidatoEdad || candidatoPuesto) {
+  const info = document.getElementById('candidatoInfo');
+  info.classList.add('visible');
+  if (candidatoNombre) {
+    document.getElementById('ciNombre').textContent = candidatoNombre;
+    document.getElementById('welcomeTitle').textContent = `Hola, ${candidatoNombre.split(' ')[0]}`;
+  }
+  if (candidatoEdad)   document.getElementById('ciEdad').textContent    = `${candidatoEdad} años`;
+  if (candidatoPuesto) document.getElementById('ciPuesto').textContent  = candidatoPuesto;
+  if (estratoPuesto)   document.getElementById('ciEstratoPuesto').textContent = `Puesto E ${['','I','II','III','IV','V'][estratoPuesto] || estratoPuesto}`;
+  // Ocultar el campo de API key si ya viene configurado o en modo candidato
+  if (apiKeyFromUrl) {
+    document.getElementById('apiKeyGroup').style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════════
+// MODO DEMO
+// ══════════════════════════════════════════════════
 let demoMode = false;
 
 function toggleDemo() {
   demoMode = document.getElementById('demoToggle').checked;
-  const slider = document.getElementById('demoSlider');
-  const knob = document.getElementById('demoKnob');
+  const slider  = document.getElementById('demoSlider');
+  const knob    = document.getElementById('demoKnob');
   const apiInput = document.getElementById('apiKeyInput');
   if (demoMode) {
     slider.style.background = 'var(--verde)';
@@ -725,30 +656,13 @@ function toggleDemo() {
   }
 }
 
-// Intervenciones demo hardcodeadas
-const DEMO_INTERVENTIONS = [
-  '¿Podés ampliar un poco más eso que dijiste?',
-  '¿Qué más me podés contar sobre eso?',
-  '¿Cómo lo pensás vos?',
-  '¿A qué te referís con eso exactamente?',
-  '¿Podés desarrollar ese punto?'
-];
-
-// Resultado demo
 const DEMO_RESULT = {
-  estrato: 2,
-  subestrato: 'E2-medio',
-  modo_procesamiento: 'Acumulativo (Y-Y)',
-  confianza: 65,
-  nombre_estrato: 'Acumulación Diagnóstica',
-  horizonte_implicito: 'meses',
-  resumen: 'MODO DEMO — Este resultado es de ejemplo. El participante mostró un patrón acumulativo: juntó múltiples causas hacia un diagnóstico propio, reconociendo obstáculos sistémicos sin llegar a construir cadenas causales encadenadas.',
-  evidencias: [
-    'DEMO: Acumuló causas distintas hacia un diagnóstico central.',
-    'DEMO: Reconoció obstáculos sistémicos e intereses en juego.',
-    'DEMO: Horizonte temporal implícito de meses, sin proyección a años.'
-  ],
-  alertas: ['Resultado de ejemplo — modo demo activo. Activá la API para análisis real.']
+  estrato: 2, subestrato: 'E2-medio',
+  modo_procesamiento: 'Acumulativo (Y-Y)', confianza: 65,
+  nombre_estrato: 'Acumulación Diagnóstica', horizonte_implicito: 'meses',
+  resumen: 'MODO DEMO — El participante mostró un patrón acumulativo: juntó múltiples causas hacia un diagnóstico propio.',
+  evidencias: ['DEMO: Acumuló causas distintas hacia un diagnóstico central.'],
+  alertas: ['Resultado de ejemplo — modo demo activo.']
 };
 
 const TOPICS = [
@@ -758,7 +672,10 @@ const TOPICS = [
   'Deserción escolar'
 ];
 
-let apiKey = '';
+// ══════════════════════════════════════════════════
+// ESTADO GLOBAL
+// ══════════════════════════════════════════════════
+let apiKey = apiKeyFromUrl || '';
 let selectedTopic = '';
 let timerInterval = null;
 let elapsedSeconds = 0;
@@ -775,16 +692,18 @@ let interruptionTimes = [];
 let lastSpeechTimestamp = Date.now();
 let closingSilenceTimer = null;
 
-const MAX_DURATION = 600;
-const MIN_DURATION = 0;    // Sin mínimo — cierre posible en cualquier momento
+const MAX_DURATION  = 600;
 const SYNTHESIS_TIME = 510;
-const SILENCE_FOR_CLOSE = 20000; // 20 segundos de silencio = pedir síntesis
+const SILENCE_FOR_CLOSE = 20000;
 
 // ── UI ──
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  const labels = { screenSetup:'Inicio', screenTopic:'Preparación', screenInterview:'Entrevista', screenResult:'Resultado' };
+  const labels = {
+    screenSetup: 'Inicio', screenTopic: 'Preparación',
+    screenInterview: 'Entrevista', screenThanks: 'Finalizado'
+  };
   document.getElementById('phaseBadge').textContent = labels[id] || '';
 }
 
@@ -850,27 +769,17 @@ function speak(text) {
     if (!window.speechSynthesis) { resolve(); return; }
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'es-AR';
-    u.rate = 0.88;   // un poco más lento — más pausado y humano
-    u.pitch = 1.05;  // ligeramente más agudo — suena más cálido
-    u.volume = 1;
-
-    // Elegir la mejor voz disponible en español
+    u.lang = 'es-AR'; u.rate = 0.88; u.pitch = 1.05; u.volume = 1;
     const voices = speechSynthesis.getVoices();
-    // Prioridad: voz femenina española latinoamericana > cualquier español
     const preferred = [
       voices.find(v => v.lang === 'es-AR'),
       voices.find(v => v.lang === 'es-MX'),
       voices.find(v => v.lang === 'es-US'),
       voices.find(v => v.lang === 'es-ES'),
-      voices.find(v => v.lang && v.lang.startsWith('es') && v.name.toLowerCase().includes('female')),
-      voices.find(v => v.lang && v.lang.startsWith('es') && v.name.toLowerCase().includes('paulina')),
-      voices.find(v => v.lang && v.lang.startsWith('es') && v.name.toLowerCase().includes('monica')),
       voices.find(v => v.lang && v.lang.startsWith('es')),
     ];
     const bestVoice = preferred.find(v => v !== undefined);
     if (bestVoice) u.voice = bestVoice;
-
     isSpeaking = true;
     setStatus('speaking', text.length > 80 ? text.slice(0,80)+'...' : text);
     u.onend = () => { isSpeaking = false; resolve(); };
@@ -881,11 +790,13 @@ function speak(text) {
 
 // ── SETUP ──
 function startSetup() {
-  apiKey = document.getElementById('apiKeyInput').value.trim();
-  if (!demoMode && !apiKey) { alert('Por favor ingresá tu API Key de Anthropic, o activá el Modo Demo.'); return; }
-  // Elegir un tema DIFERENTE al anterior para evitar repetición
-  let newTopic;
-  let attempts = 0;
+  const inputKey = document.getElementById('apiKeyInput').value.trim();
+  if (inputKey) apiKey = inputKey;
+  if (!demoMode && !apiKey) {
+    alert('Por favor ingresá tu API Key de Anthropic, o activá el Modo Demo.');
+    return;
+  }
+  let newTopic, attempts = 0;
   do {
     newTopic = TOPICS[Math.floor(Math.random() * TOPICS.length)];
     attempts++;
@@ -898,9 +809,7 @@ async function startIntroThenCountdown() {
   const btn = document.getElementById('btnStartIntro');
   btn.disabled = true;
   btn.textContent = 'Escuchando...';
-
   const intro = 'Te voy a pedir que hables sobre un tema que te voy a indicar. La idea es ver cómo organizás tu discurso. No voy a realizar ningún juicio de valor sobre lo que digas ni sobre el contenido. Puedo hacerte alguna pregunta para que te explayés más, pero la consigna es que hables durante al menos diez minutos sobre el tema. En unos segundos vas a ver tu tema.';
-
   await speak(intro);
   triggerCountdown();
 }
@@ -941,10 +850,9 @@ async function startInterview() {
   interviewPhase = 'speaking'; lastSpeechTimestamp = Date.now();
   clearTimeout(closingSilenceTimer);
 
-  // Primera intervención: 2:30–3:30 | Segunda: 5:00–6:00
   interruptionTimes = [
-    240 + Math.floor(Math.random() * 30),   // Primera: 4:00–4:30
-    420 + Math.floor(Math.random() * 30)    // Segunda: 7:00–7:30
+    240 + Math.floor(Math.random() * 30),
+    420 + Math.floor(Math.random() * 30)
   ];
 
   document.getElementById('transcriptArea').innerHTML = '<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px 0">El transcript aparecerá aquí mientras hablás</div>';
@@ -970,24 +878,17 @@ function startTimer() {
     document.getElementById('timerDisplay').textContent = `${m}:${s.toString().padStart(2,'0')}`;
     ring.style.strokeDashoffset = C - (Math.min(elapsedSeconds/MAX_DURATION,1)*C);
 
-    // Habilitar síntesis desde el minuto 1 (dar tiempo para empezar)
-    if (elapsedSeconds >= 60) {
-      document.getElementById('btnSynthesis').disabled = false;
-    }
-    // Cambiar color del ring a los 6 min como referencia visual
+    if (elapsedSeconds >= 60) document.getElementById('btnSynthesis').disabled = false;
     if (elapsedSeconds >= 360) {
       ring.style.stroke = 'var(--azul)';
       document.getElementById('m6').classList.add('active');
     }
-
     if (elapsedSeconds >= SYNTHESIS_TIME && !synthesisRequested) {
       synthesisRequested = true;
       triggerSynthesisRequest();
     }
-
     if (elapsedSeconds >= MAX_DURATION) { clearInterval(timerInterval); endInterview(); return; }
 
-    // Interrupciones: pausa natural de 3s después del tiempo mínimo
     if (interruptionCount < 2 && !isSpeaking && interviewPhase === 'speaking') {
       const silence = (Date.now() - lastSpeechTimestamp) / 1000;
       const passedMin = elapsedSeconds >= interruptionTimes[interruptionCount];
@@ -999,15 +900,11 @@ function startTimer() {
 
 // ── CIERRE POR SILENCIO ──
 const CLOSING_PHRASES = [
-  // Explícitas
-  'termine', 'terminé', 'ya termine', 'ya terminé', 'listo termine',
-  'eso es todo', 'eso sería todo', 'creo que es todo', 'hasta acá llego',
-  'no tengo más', 'no sé qué más decir', 'no se me ocurre más',
-  'ya dije todo', 'creo que cubrí todo', 'no hay mucho más para decir',
-  'creo que eso es lo principal', 'no sé qué más agregar',
-  // Coloquiales
-  'nada más', 'y nada', 'y bueno nada', 'y eso', 'y eso es todo',
-  'no tengo nada más', 'se me acabaron las ideas', 'no se me ocurre nada más'
+  'termine','terminé','ya termine','ya terminé','listo termine',
+  'eso es todo','eso sería todo','creo que es todo','hasta acá llego',
+  'no tengo más','no sé qué más decir','no se me ocurre más',
+  'ya dije todo','creo que cubrí todo','no hay mucho más para decir',
+  'nada más','y nada','y bueno nada','y eso','y eso es todo'
 ];
 
 function detectsClosingPhrase(text) {
@@ -1018,7 +915,6 @@ function detectsClosingPhrase(text) {
 function resetClosingSilenceTimer() {
   clearTimeout(closingSilenceTimer);
   lastSpeechTimestamp = Date.now();
-  // 20 segundos de silencio en cualquier momento = pedir síntesis
   if (!synthesisRequested && interviewPhase === 'speaking') {
     closingSilenceTimer = setTimeout(() => {
       if (!synthesisRequested && interviewPhase === 'speaking' && !isSpeaking) {
@@ -1043,7 +939,8 @@ async function triggerClosingSynthesis() {
 // ── SPEECH RECOGNITION ──
 function startContinuousListening() {
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert('Tu navegador no soporta reconocimiento de voz. Usá Chrome.'); return;
+    alert('Tu navegador no soporta reconocimiento de voz. Usá Chrome.');
+    return;
   }
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   const rec = new SR();
@@ -1061,7 +958,6 @@ function startContinuousListening() {
       if (e.results[i].isFinal) {
         finalBuf += e.results[i][0].transcript + ' ';
         accumulatedUserText += e.results[i][0].transcript + ' ';
-        // Cierre explícito en cualquier momento — sin mínimo de tiempo
         if (!synthesisRequested && interviewPhase === 'speaking') {
           if (detectsClosingPhrase(e.results[i][0].transcript)) {
             clearTimeout(closingSilenceTimer);
@@ -1106,19 +1002,15 @@ async function triggerInterruption() {
   if (interviewPhase === 'ended') return;
   interviewPhase = 'interrupted';
   stopListening();
-
   if (lastUserText.trim().length > 5) addTranscriptEntry('user', lastUserText.trim());
   document.getElementById('int' + (interruptionCount + 1)).classList.add('done');
   interruptionCount++;
-
   setStatus('speaking', 'PotenciaIA tiene una intervención...');
   const question = await generateInterruptionQuestion(accumulatedUserText.slice(-300));
-
   showQuestionOverlay(question);
   await speak(question);
   addTranscriptEntry('agent', question);
   setTimeout(() => hideQuestionOverlay(), 1500);
-
   interviewPhase = 'speaking';
   lastUserText = '';
   lastSpeechTimestamp = Date.now();
@@ -1127,7 +1019,6 @@ async function triggerInterruption() {
 }
 
 async function generateInterruptionQuestion(context) {
-  // MODO DEMO: usar intervenciones hardcodeadas
   if (demoMode) {
     const lw = context.trim().split(' ').slice(-4).join(' ');
     const demos = [
@@ -1139,7 +1030,6 @@ async function generateInterruptionQuestion(context) {
     return demos[interruptionCount % demos.length];
   }
 
-  // Si hay poco contexto, usar fallback directo sin llamar a Claude
   const words = context.trim().split(/\s+/).filter(Boolean);
   if (words.length < 20) {
     const fallbacks = ['¿Podés contarme más?', '¿Qué más?', '¿Podés desarrollar eso?'];
@@ -1147,33 +1037,26 @@ async function generateInterruptionQuestion(context) {
   }
 
   const systemPrompt = `Sos un entrevistador del Método de Análisis del Discurso de Analía Blaistein.
-
-Tu única función es lograr que el candidato AMPLÍE lo que ya dijo.
-NO introducís contenido nuevo. NO mencionás actores, países, soluciones ni conceptos que el candidato no haya dicho.
+Tu única función es lograr que el candidato AMPLÍE lo que ya dijo. NO introducís contenido nuevo.
 Solo tomás palabras literales de su discurso y pedís que desarrolle.
-
-REGLA ABSOLUTA: Cada palabra de tu intervención tiene que estar justificada por algo que el candidato ya dijo. Nada nuevo.
-
-FÓRMULAS PERMITIDAS:
-- "Antes dijiste [palabras literales], ¿podés ampliar eso?"
-- "¿Qué más me podés decir sobre [palabras literales]?"
-- "¿Cómo lo pensás vos?"
-- "¿Qué más?"
-- "¿Podés desarrollar eso?"
-- "¿A qué te referís con [término exacto que usó]?"
-
-EJEMPLOS DE LO QUE NO DEBÉS HACER NUNCA:
-✗ "¿Qué deberían hacer China y Estados Unidos?" → introduce actores que el candidato no mencionó
-✗ "¿Creés que la educación podría mejorar con más presupuesto?" → sugiere una dirección nueva
-✗ "¿Qué pensás sobre las políticas públicas?" → introduce concepto nuevo
-
+FÓRMULAS: "Antes dijiste [palabras literales], ¿podés ampliar eso?", "¿Qué más?", "¿Cómo lo pensás vos?", "¿A qué te referís con [término exacto]?"
 Máximo 15 palabras. Solo la frase, sin comillas ni prefijos.`;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 80, system: systemPrompt, messages: [{ role: 'user', content: `El participante dijo: "${context.slice(-250)}". Generá la intervención.` }] })
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 80,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: `El participante dijo: "${context.slice(-250)}". Generá la intervención.` }]
+      })
     });
     const data = await res.json();
     return data.content[0].text.trim();
@@ -1201,7 +1084,7 @@ async function requestSynthesis() {
   addTranscriptEntry('agent', '¿Podés hacer una síntesis de lo que planteaste hasta ahora?');
 }
 
-// ── PLAN B: guardar transcript como .txt en el navegador ──
+// ── RESPALDO TRANSCRIPT ──
 function descargarTranscriptEmergencia(transcript, nombre) {
   try {
     const fecha = new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
@@ -1223,16 +1106,21 @@ function descargarTranscriptEmergencia(transcript, nombre) {
     const a = document.createElement('a');
     a.href = url; a.download = nombreArchivo; a.click();
     URL.revokeObjectURL(url);
-    console.log('Transcript descargado como respaldo:', nombreArchivo);
   } catch(err) {
     console.error('No se pudo descargar transcript:', err);
   }
 }
 
-// ── FIN ──
+// ══════════════════════════════════════════════════
+// FIN DE ENTREVISTA
+// ══════════════════════════════════════════════════
 async function endInterview() {
   interviewPhase = 'ended';
-  stopListening(); clearInterval(timerInterval); clearInterval(waveInterval); clearTimeout(closingSilenceTimer);
+  stopListening();
+  clearInterval(timerInterval);
+  clearInterval(waveInterval);
+  clearTimeout(closingSilenceTimer);
+
   await speak('Muchas gracias. Voy a analizar tu discurso ahora.');
   addTranscriptEntry('agent', 'Muchas gracias. Voy a analizar tu discurso ahora.');
   document.getElementById('processingOverlay').classList.add('active');
@@ -1241,17 +1129,23 @@ async function endInterview() {
     .map(e => `[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] ${e.speaker==='agent'?'POTENCIAÍA':'PARTICIPANTE'}: ${e.text}`)
     .join('\n\n');
 
-  // PLAN B INMEDIATO: guardar transcript en Firebase antes de analizar
-  // Así si el análisis falla, el transcript ya está guardado
+  // ── Guardar datos base en Firebase (incluye edad y estrato del puesto) ──
   const datosBase = {
-    candidato: candidatoNombre || 'Candidato',
-    tema: selectedTopic,
-    duracion: `${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
+    candidato:        candidatoNombre || 'Candidato',
+    edad:             candidatoEdad   || null,   // ← CLAVE para calcular CPF en el dashboard
+    puesto:           candidatoPuesto || null,
+    estrato_puesto:   estratoPuesto   || null,   // ← CLAVE para comparar fit
+    token:            sessionToken    || null,
+    tema:             selectedTopic,
+    duracion:         `${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
     duracion_segundos: elapsedSeconds,
-    transcript: fullTranscript,
-    estado: 'pendiente_analisis',
-    estrato: null, confianza: null, resumen: 'Análisis en proceso...',
-    evidencias: '', alertas: ''
+    transcript:       fullTranscript,
+    estado:           'pendiente_analisis',
+    estrato:          null,
+    confianza:        null,
+    resumen:          'Análisis en proceso...',
+    evidencias:       '',
+    alertas:          ''
   };
 
   let firebaseId = null;
@@ -1259,12 +1153,11 @@ async function endInterview() {
     firebaseId = await window.guardarEvaluacion(datosBase);
   }
 
-  // Si Firebase falló, descargar transcript como respaldo inmediato
   if (!firebaseId) {
     descargarTranscriptEmergencia(fullTranscript, candidatoNombre);
   }
 
-  // Analizar con timeout de 60 segundos
+  // ── Análisis con Claude (timeout 60s) ──
   let result;
   let analisisExitoso = false;
   try {
@@ -1278,44 +1171,30 @@ async function endInterview() {
       estrato: 0, subestrato: 'N/A', modo_procesamiento: 'Análisis pendiente',
       confianza: 0, nombre_estrato: 'Análisis pendiente',
       horizonte_implicito: 'N/A',
-      resumen: 'El análisis automático no pudo completarse. El transcript fue guardado. HR puede contactar a PotenciaIA para procesar manualmente.',
+      resumen: 'El análisis automático no pudo completarse. El transcript fue guardado.',
       evidencias: [], alertas: ['Análisis pendiente — transcript guardado correctamente']
     };
-    // Si el análisis falló pero Firebase también falló, descargar de todas formas
-    if (!firebaseId) {
-      descargarTranscriptEmergencia(fullTranscript, candidatoNombre);
-    }
   }
 
-  // Actualizar Firebase con el resultado del análisis
+  // ── Actualizar Firebase con resultado del análisis ──
+  const datosAnalisis = {
+    estado:            analisisExitoso ? 'completado' : 'analisis_fallido',
+    estrato:           result.estrato,
+    subestrato:        result.subestrato,
+    modo_procesamiento: result.modo_procesamiento,
+    modo_curva:        result.modo_curva || null,
+    nombre_estrato:    result.nombre_estrato,
+    horizonte:         result.horizonte_implicito,
+    confianza:         result.confianza,
+    resumen:           result.resumen,
+    evidencias:        (result.evidencias||[]).join(' | '),
+    alertas:           (result.alertas||[]).join(' | ')
+  };
+
   if (typeof window.actualizarEvaluacion === 'function' && firebaseId) {
-    await window.actualizarEvaluacion(firebaseId, {
-      estado: analisisExitoso ? 'completado' : 'analisis_fallido',
-      estrato: result.estrato,
-      subestrato: result.subestrato,
-      modo_procesamiento: result.modo_procesamiento,
-      nombre_estrato: result.nombre_estrato,
-      horizonte: result.horizonte_implicito,
-      confianza: result.confianza,
-      resumen: result.resumen,
-      evidencias: (result.evidencias||[]).join(' | '),
-      alertas: (result.alertas||[]).join(' | ')
-    });
+    await window.actualizarEvaluacion(firebaseId, datosAnalisis);
   } else if (typeof window.guardarEvaluacion === 'function' && !firebaseId) {
-    // Si no se pudo guardar antes, intentar guardar todo junto ahora
-    await window.guardarEvaluacion({
-      ...datosBase,
-      estado: analisisExitoso ? 'completado' : 'analisis_fallido',
-      estrato: result.estrato,
-      subestrato: result.subestrato,
-      modo_procesamiento: result.modo_procesamiento,
-      nombre_estrato: result.nombre_estrato,
-      horizonte: result.horizonte_implicito,
-      confianza: result.confianza,
-      resumen: result.resumen,
-      evidencias: (result.evidencias||[]).join(' | '),
-      alertas: (result.alertas||[]).join(' | ')
-    });
+    await window.guardarEvaluacion({ ...datosBase, ...datosAnalisis });
   }
 
   document.getElementById('processingOverlay').classList.remove('active');
@@ -1323,13 +1202,22 @@ async function endInterview() {
   speak('Muchas gracias por tu participación. Tu evaluación fue registrada correctamente.');
 }
 
-// ── ANÁLISIS CLAUDE ──
+// ══════════════════════════════════════════════════
+// ANÁLISIS CON CLAUDE — incluye edad y contexto del puesto
+// ══════════════════════════════════════════════════
 async function analyzeWithClaude(transcript) {
-  // MODO DEMO: devolver resultado de ejemplo
   if (demoMode) {
-    await new Promise(r => setTimeout(r, 2500)); // simular procesamiento
+    await new Promise(r => setTimeout(r, 2500));
     return DEMO_RESULT;
   }
+
+  // Contexto adicional del candidato para el prompt
+  const contextoExtra = [
+    candidatoNombre  ? `Nombre del candidato: ${candidatoNombre}` : '',
+    candidatoEdad    ? `Edad del candidato: ${candidatoEdad} años` : '',
+    candidatoPuesto  ? `Puesto al que aplica: ${candidatoPuesto}` : '',
+    estratoPuesto    ? `Estrato requerido por el puesto: E${['','I','II','III','IV','V'][estratoPuesto]||estratoPuesto}` : '',
+  ].filter(Boolean).join('\n');
 
   const systemPrompt = `Sos un evaluador especializado en la Teoría de Sistemas Estratificados de Elliott Jaques, aplicando la metodología de Analía Blaistein para análisis del discurso oral.
 
@@ -1368,18 +1256,17 @@ Sin nexos entre ideas. Sin cadena causal. Sin proyección temporal.
 Soluciones concretas y operativas ("poner más policías", "difundir en la tele", "reducir alumnos").
 Puede sonar coherente y extenso — VOLUMEN NO ES COMPLEJIDAD.
 
-PISTA RÁPIDA: ¿La persona habla desde experiencia personal directa sin integrarla en un patrón?  → I
+PISTA RÁPIDA: ¿La persona habla desde experiencia personal directa sin integrarla en un patrón? → I
 
 CASO CALIBRADO REAL — E1 (Maestra 48 años, tema: educación):
 "Antes era como más sistemática, más rigurosa... ahora es como más permisivo."
 "Me da la impresión de que los profesores no están tan comprometidos como estaban antes."
 "Reducir la cantidad de alumnos en sala... darle garantías a los profesores de que su autoridad va a ser respetada."
 → POR QUÉ ES E1: Todo gira en una sola idea (antes mejor que ahora). Causas independientes que vuelven al mismo punto. Soluciones concretas y operativas, no sistémicas. Sin horizonte temporal.
-EVALUACIÓN BLAISTEIN: "Discurso consistente pero basado en opiniones. Soluciones concretas y operativas en lugar de cambios abstractos y sistémicos."
 
-EJEMPLO CALIBRADO ADICIONAL — E1 (legalización de droga):
+EJEMPLO CALIBRADO — E1 (legalización de droga):
 "Y mirá, yo digo que la legalicen. Total, el que quiere consumir consume igual. Yo tengo un primo que fuma porro desde los 16 y no le pasó nada. Si legalizaran no habría tanto delincuente, eso seguro. Legalicen y se terminó."
-→ Causalidad de un solo paso: legal = menos delincuentes. "Y se terminó" — solución completa en una frase.
+→ Causalidad de un solo paso. "Y se terminó" — solución completa en una frase.
 
 ════════════════════════════════════
 ESTRATO II — ACUMULATIVO (Y-Y)
@@ -1395,12 +1282,16 @@ PISTA RÁPIDA: ¿La persona junta evidencia acumulada en un patrón con una conc
 CASO CALIBRADO REAL — E2 (Ingeniero 26 años, tema: deserción escolar):
 "En general es más común en países en desarrollo donde los chicos tienen que salir a trabajar para comer... es menos gente capacitada en el mercado laboral, es menos actividad económica, es menos innovación..."
 → POR QUÉ ES E2: Acumula ejemplos hacia un diagnóstico (tema de clase social). Los condicionales son simples y aislados, no cadenas ramificadas.
-DESTELLOS DE E3 que NO alcanzan: "Si no tenés un plato de comida no podés estudiar... tiene que haber algo más instantáneo" → cadena simple, no ramificada.
-EVALUACIÓN BLAISTEIN: "E2 consolidado con destellos que tocan el umbral del E3, pero no sostiene el pensamiento serial de forma consistente."
 
-EJEMPLO CALIBRADO ADICIONAL — E2 (inseguridad):
+EJEMPLO — E2 (inseguridad):
 "Lo que sí me parece que ayuda es la combinación de presencia policial inteligente con programas para los pibes. Cuando abrieron el centro deportivo municipal hace cuatro años, se notó una baja. Después hay un tema con la justicia que la gente plantea... si el Estado regula, esa plata no la maneja el narco."
-→ Junta observaciones acumuladas. Compara con casos concretos. Una línea narrativa principal.
+→ Junta observaciones acumuladas. Una línea narrativa principal.
+
+CASO CALIBRADO — E2-Alto (en pasaje a E3, el más difícil de clasificar):
+Ignacio, ~30 años, tema: liderazgo en equipos:
+"Lo que noto es que cuando el equipo no tiene claro para dónde va, empieza a haber fricciones. Yo vengo viendo eso hace un tiempo... la gente trabaja pero sin dirección, y eso genera un clima que después es difícil de revertir. Creo que el líder tiene que poder anticipar eso, no solo reaccionar cuando ya está el problema."
+→ POR QUÉ ES E2-Alto y NO E3: Acumula observaciones (clima, dirección, fricción) hacia un diagnóstico ("difícil de revertir"). Menciona anticipación pero NO construye una cadena de pasos explícitos. No hay "si hago A primero, entonces B es posible". La conclusión es diagnóstica, no secuencial.
+→ DESTELLO DE E3 que NO alcanza: "anticipar" sugiere pensamiento previo, pero no construye la secuencia de cómo.
 
 ════════════════════════════════════
 ESTRATO III — SERIAL (Si→Entonces→Entonces)
@@ -1409,13 +1300,12 @@ Horizonte: 1 a 2 años
 Cadena causal de MÍNIMO 3 ESLABONES donde cada uno es condición del siguiente.
 Diseña un único plan con etapas dependientes explícitas.
 Identifica precondiciones, secuencia, y consecuencias de hacer las cosas en mal orden.
-Horizonte de 5-7 años con etapas definidas.
 
 PISTA RÁPIDA: ¿La persona construye un plan secuencial multi-etapa con dependencias? → III
 
-EJEMPLO CALIBRADO — E3 (legalización de droga):
-"Mi posición es que tendría que haber una secuencia clara de tres etapas. La primera etapa, los primeros dos años, sería despenalización del consumo y regulación medicinal — esto te permite descomprimir el sistema judicial Y construye capacidad regulatoria. La segunda etapa, legalización regulada tipo Uruguay — la regulación tiene que llegar ANTES que el mercado, porque si liberás sin estructura te quedan problemas nuevos. La tercera etapa, evaluar y decidir sobre otras sustancias. El riesgo más grande es político: cada cambio de gobierno puede frenar, por eso se necesitan consensos amplios."
-→ Tres etapas con dependencias explícitas. Cada etapa es condición de la siguiente. Identifica riesgo crítico con mitigación. UN plan dominante.
+EJEMPLO — E3 (legalización de droga):
+"Mi posición es que tendría que haber una secuencia clara de tres etapas. La primera etapa, los primeros dos años, sería despenalización del consumo y regulación medicinal — esto te permite descomprimir el sistema judicial Y construye capacidad regulatoria. La segunda etapa, legalización regulada tipo Uruguay — la regulación tiene que llegar ANTES que el mercado, porque si liberás sin estructura te quedan problemas nuevos. La tercera etapa, evaluar y decidir sobre otras sustancias."
+→ Tres etapas con dependencias explícitas. Cada etapa es condición de la siguiente.
 
 DIFERENCIA CLAVE E2 vs E3:
 E2: "El problema viene de la educación, y también de la pobreza, y también de los intereses creados, todo esto lo hace irresoluble." → SUMA de causas → diagnóstico.
@@ -1427,42 +1317,35 @@ ESTRATO IV — PARALELO (A si y solo si B)
 Horizonte: 2 a 5 años
 Sostiene MÚLTIPLES cadenas alternativas en paralelo y las COMPARA con criterios sistémicos.
 Identifica trade-offs entre modelos: "el camino A optimiza X pero deteriora Y".
-Ve interacciones entre subsistemas: "esto no se puede ver aislado porque interactúa con...".
-Horizonte estructural de 10-20 años.
+Ve interacciones entre subsistemas.
 
 PISTA RÁPIDA: ¿La persona compara modelos alternativos con trade-offs sistémicos? → IV
 
-EJEMPLO CALIBRADO — E4 (legalización de droga):
-"Hay tres modelos que están operando en el mundo. El primero es el modelo mercado tipo California — maximiza recaudación pero termina concentrado y con publicidad agresiva. El segundo es el modelo Estado tipo Uruguay — recaudación menor pero preserva salud pública. El tercero es el modelo Portugal — despenaliza sin tocar el mercado. Cada modelo excluye en parte a los otros. Si elegís mercado, el sector privado se vuelve actor político difícil de revertir. Si elegís Estado, necesitás capacidad sostenida que en Argentina es problemática."
-→ Tres modelos sostenidos en paralelo. Comparados en múltiples ejes. Reconoce irreversibilidad de cada elección.
+EJEMPLO — E4 (legalización de droga):
+"Hay tres modelos que están operando en el mundo. El primero es el modelo mercado tipo California — maximiza recaudación pero termina concentrado y con publicidad agresiva. El segundo es el modelo Estado tipo Uruguay — recaudación menor pero preserva salud pública. El tercero es el modelo Portugal — despenaliza sin tocar el mercado. Cada modelo excluye en parte a los otros."
+→ Tres modelos sostenidos en paralelo. Comparados en múltiples ejes. Reconoce irreversibilidad.
 
 ════════════════════════════════════
 TRAMPAS FRECUENTES — CRÍTICO
 ════════════════════════════════════
-1. VOLUMEN ≠ COMPLEJIDAD: Un discurso largo y coherente puede ser perfectamente E1. La maestra jardinera habló mucho y ordenadamente → E1.
-2. JERGA ≠ PENSAMIENTO: "estratégico", "sistémico", "estructural" son palabras, no estructura. Mirá la ARQUITECTURA.
-3. DESTELLO ≠ ESTRATO: Una cadena Si→Entonces aislada no mueve a E3. El ingeniero (E2) tenía destellos de E3 → sigue siendo E2.
-4. CLASIFICÁ POR PATRÓN DOMINANTE sostenido, no por el pico más alto.
-5. DOMINIO: Si la persona habla de un tema lejano a su experiencia, puede aparecer más baja. Notarlo en alertas.
-6. Discurso menor a 3 minutos → confianza máxima 45%.
-7. Sin discurso del participante → estrato 0, confianza 0.
+1. VOLUMEN ≠ COMPLEJIDAD: Un discurso largo y coherente puede ser E1.
+2. JERGA ≠ PENSAMIENTO: "estratégico", "sistémico", "estructural" son palabras, no estructura.
+3. DESTELLO ≠ ESTRATO: Una cadena Si→Entonces aislada no mueve a E3. Clasificá por patrón DOMINANTE sostenido.
+4. DOMINIO: Si la persona habla de un tema lejano a su experiencia, puede aparecer más baja. Notarlo en alertas.
+5. Discurso menor a 3 minutos → confianza máxima 45%.
+6. Sin discurso del participante → estrato 0, confianza 0.
 
 SUBESTRATOS:
 • bajo: modo incipiente, aparece pero no consolidado
 • medio: modo predominante y consistente
-• alto: consolidado con destellos sostenidos del nivel siguiente
-
-TABLA REFERENCIA:
-E I   Declarativo   1 día–3 meses     Operario, admin, técnico
-E II  Acumulativo   3 meses–1 año     Jefe, especialista, analista
-E III Serial        1–2 años          Gerente área, PM senior, director PyME
-E IV  Paralelo      2–5 años          Gerente general, VP, director operaciones
+• alto: consolidado con destellos sostenidos del nivel siguiente (indica pasaje próximo)
 
 Respondé ÚNICAMENTE con JSON válido (sin markdown, sin backticks):
 {
   "estrato": 2,
   "subestrato": "E2-medio",
   "modo_procesamiento": "Acumulativo (Y-Y)",
+  "modo_curva": "III",
   "confianza": 78,
   "nombre_estrato": "Acumulación Diagnóstica",
   "horizonte_implicito": "meses",
@@ -1473,14 +1356,28 @@ Respondé ÚNICAMENTE con JSON válido (sin markdown, sin backticks):
     "Tercera evidencia"
   ],
   "alertas": [
-    "Solo si hay algo relevante: discurso breve, destellos del nivel superior, habló fuera de su dominio, posible ansiedad, etc."
+    "Solo si hay algo relevante: discurso breve, destellos del nivel superior, dominio ajeno, posible ansiedad, etc."
   ]
-}` 
+}
+
+CAMPO modo_curva — INSTRUCCIÓN CRÍTICA:
+Es la curva de crecimiento del candidato en el Gráfico de Progreso del Potencial de Jaques (valores: "I", "II", "III", "IV", "V", "VI").
+Cruzá estrato + subestrato + edad:
+- Estrato I Bajo/Medio → Modo I o II
+- Estrato I Alto / II Bajo → Modo II
+- Estrato II Medio/Alto → Modo III
+- Estrato III Bajo/Medio → Modo IV
+- Estrato III Alto / IV Bajo → Modo IV o V
+- Estrato IV Medio/Alto → Modo V o VI
+Ajustá según la edad: candidatos jóvenes (< 30) en estrato alto → curva más alta.
+Sin edad disponible: estimá por estrato y subestrato únicamente.`;
+
   const userMsg = `Analizá el siguiente transcript de evaluación PotenciaIA.
 
 TEMA: "${selectedTopic}"
 DURACIÓN: ${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg
 INTERVENCIONES: ${interruptionCount}
+${contextoExtra ? '\nCONTEXTO DEL CANDIDATO:\n' + contextoExtra : ''}
 
 TRANSCRIPT:
 ${transcript}`;
@@ -1488,86 +1385,30 @@ ${transcript}`;
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 1200, system: systemPrompt, messages: [{ role: 'user', content: userMsg }] })
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1200,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMsg }]
+      })
     });
     const data = await res.json();
     const clean = data.content[0].text.trim().replace(/```json|```/g,'').trim();
     return JSON.parse(clean);
   } catch(e) {
-    return { estrato:0, subestrato:'N/A', modo_procesamiento:'Error', confianza:0, nombre_estrato:'Error de análisis', horizonte_implicito:'N/A', resumen:'No se pudo procesar. Verificá la API key y la conexión.', evidencias:[], alertas:['Error: '+e.message] };
+    return {
+      estrato: 0, subestrato: 'N/A', modo_procesamiento: 'Error',
+      confianza: 0, nombre_estrato: 'Error de análisis', horizonte_implicito: 'N/A',
+      resumen: 'No se pudo procesar. Verificá la API key y la conexión.',
+      evidencias: [], alertas: ['Error: ' + e.message]
+    };
   }
-}
-
-// ── RESULTADO ──
-function showResult(result, transcript) {
-  showScreen('screenResult');
-
-  const colorMap = { 1:'var(--yellow)', 2:'var(--verde)', 3:'var(--azul)', 4:'var(--rojo)' };
-  const col = colorMap[result.estrato] || 'var(--verde)';
-
-  document.getElementById('resultHeader').innerHTML = `
-    <div class="estrato-badge" style="border-color:${col}">
-      <div class="estrato-number" style="color:${col}">${result.estrato > 0 ? result.estrato : '?'}</div>
-      <div class="estrato-name">${result.nombre_estrato}</div>
-      <div class="procesamiento-tag">${result.modo_procesamiento}</div>
-      <div class="subestrato-tag">${result.subestrato} &nbsp;·&nbsp; Horizonte: ${result.horizonte_implicito}</div>
-    </div>
-  `;
-
-  setTimeout(() => {
-    document.getElementById('confidenceFill').style.width = result.confianza + '%';
-    document.getElementById('confidenceValue').textContent = result.confianza + '%';
-  }, 400);
-
-  document.getElementById('resultSummary').textContent = result.resumen;
-
-  const ev = document.getElementById('resultEvidences');
-  ev.innerHTML = '';
-  (result.evidencias||[]).forEach(e => { const li=document.createElement('li'); li.textContent=e; ev.appendChild(li); });
-
-  if (result.alertas && result.alertas.length && result.alertas[0]) {
-    document.getElementById('alertsSection').style.display = 'block';
-    const al = document.getElementById('resultAlerts');
-    al.innerHTML = '';
-    result.alertas.forEach(a => { const li=document.createElement('li'); li.textContent=a; al.appendChild(li); });
-  }
-
-  document.getElementById('rawTranscript').textContent = transcript;
-
-  setTimeout(() => speak(`El análisis indica procesamiento ${result.modo_procesamiento}, Estrato ${result.estrato}: ${result.nombre_estrato}. ${result.resumen}`), 700);
-}
-
-function toggleTranscript() {
-  document.getElementById('rawTranscript').classList.toggle('visible');
-}
-
-// ── DESCARGA ──
-function downloadTranscript() {
-  const transcript = document.getElementById('rawTranscript').textContent;
-  if (!transcript || !transcript.trim()) { alert('No hay transcript disponible.'); return; }
-  const fecha = new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
-  const nombre = `PotenciaIA_${selectedTopic.replace(/\s+/g,'_')}_${fecha}.txt`;
-  const encabezado = [
-    '═══════════════════════════════════════',
-    'POTENCIAÍA · Evaluación de Potencial',
-    'Metodología Blaistein · Análisis del Discurso',
-    '═══════════════════════════════════════',
-    `Tema: ${selectedTopic}`,
-    `Fecha: ${new Date().toLocaleString('es-AR')}`,
-    `Duración: ${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
-    `Intervenciones: ${interruptionCount}`,
-    '═══════════════════════════════════════',
-    '',
-    'TRANSCRIPT:',
-    '',
-    transcript
-  ].join('\n');
-  const blob = new Blob([encabezado], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = nombre; a.click();
-  URL.revokeObjectURL(url);
 }
 
 // ── RESTART ──

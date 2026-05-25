@@ -7,65 +7,158 @@
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --verde: #1d4e3f; --verde-mid: #27ae60; --verde-light: #e8f5ee; --verde-soft: #c8e6d4;
-  --azul: #1a5fa8; --azul-light: #e8f0fb; --azul-soft: #b8d1ed;
-  --bg: #f7f9fc; --surface: #ffffff; --border: #e8edf3;
-  --text: #111827; --text-dim: #4b5563; --text-muted: #9ca3af;
-  --yellow: #f59e0b; --yellow-light: #fef3c7;
-  --rojo: #dc2626; --rojo-light: #fee2e2;
+  --verde:#1d4e3f;--verde-mid:#27ae60;--verde-light:#e8f5ee;--verde-soft:#c8e6d4;
+  --azul:#1a5fa8;--azul-light:#e8f0fb;--azul-soft:#b8d1ed;
+  --bg:#f7f9fc;--surface:#ffffff;--border:#e8edf3;
+  --text:#111827;--text-dim:#4b5563;--text-muted:#9ca3af;
+  --yellow:#f59e0b;--yellow-light:#fef3c7;
+  --rojo:#dc2626;--rojo-light:#fee2e2;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
 
-.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,0.02); }
-.logo { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-.logo-icon { width: 32px; height: 32px; background: var(--verde); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Lora', serif; font-weight: 700; font-size: 16px; color: white; }
-.logo-name { font-family: 'Lora', serif; font-size: 18px; font-weight: 700; color: var(--verde); }
-.hr-badge { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--verde); background: var(--verde-light); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; }
+/* TOPBAR */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,0.06);}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.logo-icon{width:32px;height:32px;background:var(--verde);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-weight:700;font-size:15px;color:white;}
+.logo-name{font-family:'Lora',serif;font-size:16px;font-weight:600;color:var(--verde);}
+.hr-badge{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--verde);background:var(--verde-light);border:1px solid var(--border);padding:4px 10px;border-radius:20px;}
 
-.view { display: none; } .view.active { display: block; }
-.main { padding: 28px 32px; max-width: 1100px; margin: 0 auto; }
-.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-.page-title { font-family: 'Lora', serif; font-size: 22px; font-weight: 700; }
+/* VIEWS */
+.view{display:none;}
+.view.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-.btn { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 9px 20px; border-radius: 8px; cursor: pointer; border: none; transition: all .2s; }
-.btn-primary { background: var(--verde); color: white; }
-.btn-primary:hover { background: #13332a; }
+/* BUTTONS */
+.btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 20px;border-radius:8px;cursor:pointer;transition:all .15s;border:none;}
+.btn-primary{background:var(--verde);color:white;}
+.btn-primary:hover{background:#163d30;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-dim);}
+.btn-outline:hover{border-color:var(--verde);color:var(--verde);}
+.btn-ghost{background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;}
+.btn-ghost:hover{color:var(--text);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
 
-.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
-.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
-.stat-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
-.stat-value { font-family: 'Lora', serif; font-size: 26px; font-weight: 700; color: var(--verde); }
+/* DASHBOARD */
+.main{padding:28px 32px;max-width:1100px;margin:0 auto;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.page-title{font-family:'Lora',serif;font-size:20px;font-weight:600;}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;}
+.stat-label{font-size:11px;color:var(--text-muted);font-weight:500;margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase;}
+.stat-value{font-family:'Lora',serif;font-size:26px;font-weight:600;color:var(--verde);}
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.table-head{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);}
+.table-title{font-family:'Lora',serif;font-size:15px;font-weight:600;}
+.table-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:#f9fafb;}
+th{text-align:left;padding:10px 20px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);}
+tbody tr{border-top:1px solid var(--border);cursor:pointer;transition:background .12s;}
+tbody tr:hover{background:var(--verde-light);}
+td{padding:14px 20px;font-size:13px;color:var(--text-dim);vertical-align:middle;}
+td.td-name{font-weight:600;color:var(--text);font-size:14px;}
+.epill{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
+.e1{background:#fef9e7;color:#78530a;border:1px solid #f5d87a;}
+.e2{background:var(--azul-light);color:#0d3d70;border:1px solid var(--azul-soft);}
+.e3{background:var(--verde-light);color:var(--verde);border:1px solid var(--verde-soft);}
+.e4{background:#f3eeff;color:#4a2080;border:1px solid #c4a0f0;}
+.conf-wrap{display:flex;align-items:center;gap:8px;}
+.conf-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;width:64px;}
+.conf-fill{height:100%;background:var(--verde-mid);border-radius:2px;}
+.fit-dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+.fit-encaja{background:var(--verde-mid);}
+.fit-no{background:var(--rojo);}
+.sp-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;}
+.sp-listo{background:var(--verde-light);color:var(--verde);border:1px solid var(--verde-soft);}
+.sp-enviado{background:var(--azul-light);color:var(--azul);border:1px solid var(--azul-soft);}
+.sp-pendiente{background:var(--yellow-light);color:#92400e;border:1px solid #fcd34d;}
 
-.table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-table { width: 100%; border-collapse: collapse; }
-thead tr { background: #f9fafb; }
-th { text-align: left; padding: 12px 20px; font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
-tbody tr { border-top: 1px solid var(--border); cursor: pointer; }
-tbody tr:hover { background: var(--verde-light); }
-td { padding: 14px 20px; font-size: 13px; color: var(--text-dim); }
+/* INFORME STYLES */
+.informe-wrap{max-width:860px;margin:0 auto;padding:32px 24px 60px;animation:fadeUp .3s ease;}
+.inf-back{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);cursor:pointer;margin-bottom:24px;width:fit-content;}
+.inf-back:hover{color:var(--verde);}
+.inf-nombre{font-family:'Lora',serif;font-size:28px;font-weight:600;margin-bottom:6px;}
+.inf-meta{font-size:13px;color:var(--text-muted);margin-bottom:12px;}
+.inf-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px;}
+.badge{font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;border:1px solid var(--border);color:var(--text-dim);}
+.badge-green{background:var(--verde-light);color:var(--verde);border-color:var(--verde-soft);}
+.inf-section{margin-bottom:32px;}
+.inf-section-title{font-family:'Lora',serif;font-size:15px;font-weight:600;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.inf-section-title span{font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;color:var(--text-muted);}
 
-.ep { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; border: 1px solid transparent; }
-.e1 { background: #fef9e7; color: #78530a; border-color: #f5d87a; }
-.e2 { background: var(--azul-light); color: #0d3d70; border-color: var(--azul-soft); }
-.e3 { background: var(--verde-light); color: var(--verde-mid); border-color: var(--verde-soft); }
-.e4 { background: #f3eeff; color: #4a2080; border-color: #c4a0f0; }
-.pend { background: #f3f4f6; color: #6b7280; border-color: #d1d5db; }
-.err { background: var(--rl); color: var(--r); border-color: #fca5a5; }
-.fd { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.semaforo{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:10px;}
+.sem-card{border-radius:10px;padding:16px 18px;border:1.5px solid var(--border);opacity:.35;transition:all .2s;}
+.sem-card.active{opacity:1;}
+.sem-encaja.active{background:var(--verde-light);border-color:var(--verde-soft);}
+.sem-supera.active{background:var(--yellow-light);border-color:#fcd34d;}
+.sem-no.active{background:var(--rojo-light);border-color:#fca5a5;}
+.sem-icon{font-size:18px;margin-bottom:6px;}
+.sem-title{font-size:13px;font-weight:600;margin-bottom:3px;}
+.sem-desc{font-size:11px;color:var(--text-muted);line-height:1.5;}
+.sem-frase{font-size:13px;color:var(--text-dim);line-height:1.7;padding:12px 16px;background:var(--verde-light);border-radius:8px;border-left:3px solid var(--verde-mid);margin-bottom:0;}
 
-.sm { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 14px 0; }
-.sm-c { border-radius: 10px; padding: 16px; border: 1.5px solid var(--border); opacity: .35; }
-.sm-c.active { opacity: 1; }
-.sm-e.active { background: var(--verde-light); border-color: var(--verde-soft); }
-.sm-s.active { background: var(--yellow-light); border-color:#fcd34d; }
-.sm-b.active { background: var(--rojo-light); border-color:#fca5a5; }
+.estratos-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.estrato-box{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:20px 24px;text-align:center;}
+.estrato-box.match{border-color:var(--verde-soft);background:var(--verde-light);}
+.estrato-box.gap{border-color:#fca5a5;background:var(--rojo-light);}
+.estrato-num{font-family:'Lora',serif;font-size:52px;font-weight:700;line-height:1;margin-bottom:6px;}
+.estrato-patron{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;}
+.estrato-horizonte{font-size:12px;color:var(--text-muted);}
+.estrato-lbl{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
 
-.ci { background: var(--surface); border-left: 3px solid var(--verde-mid); padding: 16px; margin-bottom: 12px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-.wo { display: none; position: fixed; inset: 0; background: rgba(17,24,39,0.4); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-.wo.active { display: flex; }
-.wb { background: var(--surface); border-radius: 16px; max-width: 520px; width: 100%; padding: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-.in { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; padding: 10px; margin-top: 6px; outline: none; }
+.cita-item{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--verde-mid);border-radius:8px;padding:16px 18px;margin-bottom:12px;}
+.cita-texto{font-family:'Lora',serif;font-size:14px;font-style:italic;color:var(--text-dim);line-height:1.7;margin-bottom:8px;}
+.cita-indicador{font-size:11px;font-weight:600;color:var(--verde);background:var(--verde-light);display:inline-block;padding:3px 10px;border-radius:20px;}
+
+.rec-card{border-radius:10px;padding:22px 24px;border:1.5px solid;}
+.rec-avanzar{background:var(--verde-light);border-color:var(--verde-soft);}
+.rec-desarrollo{background:var(--yellow-light);border-color:#fcd34d;}
+.rec-no{background:var(--rojo-light);border-color:#fca5a5;}
+.rec-decision{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.rec-avanzar .rec-decision{color:var(--verde);}
+.rec-desarrollo .rec-decision{color:#92400e;}
+.rec-no .rec-decision{color:var(--rojo);}
+.rec-texto{font-size:14px;color:var(--text-dim);line-height:1.7;}
+
+/* WIZARD ORIGINAL */
+.wizard-overlay{display:none;position:fixed;inset:0;background:rgba(17,24,39,0.5);z-index:200;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px);}
+.wizard-overlay.active{display:flex;}
+.wizard-box{background:var(--surface);border-radius:16px;max-width:580px;width:100%;max-height:90vh;overflow-y:auto;animation:fadeUp .25s ease;box-shadow:0 20px 60px rgba(0,0,0,0.15);}
+.wizard-top{padding:24px 28px 0;border-bottom:1px solid var(--border);}
+.wizard-title{font-family:'Lora',serif;font-size:18px;font-weight:600;margin-bottom:4px;}
+.wizard-subtitle{font-size:13px;color:var(--text-muted);margin-bottom:20px;}
+.wizard-steps{display:flex;gap:0;}
+.wstep{display:flex;align-items:center;gap:8px;flex:1;padding-bottom:16px;border-bottom:2px solid var(--border);}
+.wstep.active{border-color:var(--verde);}
+.wstep.done{border-color:var(--verde-soft);}
+.wstep-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;background:var(--border);color:var(--text-muted);transition:all .2s;}
+.wstep.active .wstep-num{background:var(--verde);color:white;}
+.wstep.done .wstep-num{background:var(--verde-soft);color:var(--verde);}
+.wstep-label{font-size:12px;font-weight:500;color:var(--text-muted);}
+.wstep.active .wstep-label{color:var(--verde);font-weight:600;}
+.wizard-body{padding:24px 28px;}
+.form-group{margin-bottom:18px;}
+.form-label{display:block;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px;}
+.form-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.form-input:focus{border-color:var(--verde);}
+.form-select{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;cursor:pointer;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.estrato-est{background:var(--verde-light);border:1px solid var(--verde-soft);border-radius:8px;padding:14px 16px;margin-bottom:18px;display:none;}
+.estrato-est.visible{display:block;}
+.ee-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--verde);margin-bottom:4px;}
+.ee-value{font-family:'Lora',serif;font-size:16px;font-weight:600;color:var(--verde);}
+.upload-zone{border:1.5px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;background:var(--bg);position:relative;}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.upload-text{font-size:13px;color:var(--text-muted);}
+.resumen-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.resumen-item{background:var(--bg);border-radius:8px;padding:12px 14px;}
+.resumen-label{font-size:11px;color:var(--text-muted);margin-bottom:3px;}
+.resumen-value{font-size:13px;font-weight:600;color:var(--text);}
+.link-box{display:none;background:var(--verde-light);border:1px solid var(--verde-soft);border-radius:10px;padding:20px 24px;text-align:center;}
+.link-box.visible{display:block;}
+.link-url{font-size:12px;color:var(--text-muted);background:white;border:1px solid var(--verde-soft);border-radius:6px;padding:8px 12px;margin:10px 0;word-break:break-all;}
+.wizard-footer{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-top:1px solid var(--border);}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -74,61 +167,89 @@ td { padding: 14px 20px; font-size: 13px; color: var(--text-dim); }
 <body>
 
 <div class="topbar">
-  <div class="logo" onclick="Dashboard.init()">
-    <div class="logo-icon">P</div><span class="logo-name">PotenciaIA</span>
-  </div>
+  <div class="logo" onclick="go('dashboard')"><div class="logo-icon">P</div><span class="logo-name">PotenciaIA</span></div>
   <div><span class="hr-badge">Panel HR</span></div>
 </div>
 
-<div class="view active" id="v_dash">
+<div class="view active" id="viewDashboard">
   <div class="main">
     <div class="page-header">
-      <h2 class="page-title">Monitor de Búsquedas Activas</h2>
-      <button class="btn btn-primary" onclick="$('wizard').classList.add('active')">+ Enviar Invitación</button>
+      <div class="page-title">Evaluaciones</div>
+      <button class="btn btn-primary" onclick="abrirWizard()">+ Nueva evaluación</button>
     </div>
-    
     <div class="stats-row">
-      <div class="stat-card"><div class="stat-label">Procesos Totales</div><div class="stat-value" id="m1">0</div></div>
-      <div class="stat-card"><div class="stat-label">CPA Promedio</div><div class="stat-value" id="m2">0.0</div></div>
-      <div class="stat-card"><div class="stat-label">Confianza Promedio</div><div class="stat-value" id="m3">0%</div></div>
-      <div class="stat-card"><div class="stat-label">Pendientes</div><div class="stat-value" style="color:var(--azul)" id="m4">0</div></div>
+      <div class="stat-card"><div class="stat-label">Total evaluaciones</div><div class="stat-value" id="statTotal">0</div></div>
+      <div class="stat-card"><div class="stat-label">Estrato promedio</div><div class="stat-value" id="statProm">0.0</div></div>
+      <div class="stat-card"><div class="stat-label">Confianza promedio</div><div class="stat-value" id="statConf">0%</div></div>
+      <div class="stat-card"><div class="stat-label">Pendientes</div><div class="stat-value" id="statPend">0</div></div>
     </div>
-
     <div class="table-card">
+      <div class="table-head"><div><div class="table-title">Candidatos</div></div></div>
       <table>
-        <thead>
-          <tr><th>Candidato</th><th>Puesto Destino</th><th>Estrato Requerido</th><th>CPA Detectada</th><th>Ajuste (Fit)</th></tr>
-        </thead>
-        <tbody id="tabla_body"></tbody>
+        <thead><tr><th>Candidato</th><th>Puesto</th><th>Estrato requerido</th><th>Estado</th><th>Estrato detectado</th><th>Confianza</th><th>Fit</th></tr></thead>
+        <tbody id="tablaBody"></tbody>
       </table>
     </div>
   </div>
 </div>
 
-<div class="view" id="v_rep"><div class="main" id="report_content"></div></div>
+<div class="view" id="viewInforme"><div class="informe-wrap" id="informeContent"></div></div>
 
-<div class="wo" id="wizard">
-  <div class="wb">
-    <h3 class="page-title">Configurar Nuevo Proceso</h3>
-    <input type="text" id="w_nombre" placeholder="Nombre completo del candidato" class="in">
-    <input type="text" id="w_puesto" placeholder="Posición (ej. Gerente de Planta)" class="in">
-    <select id="w_estrato" class="in" style="background:white;">
-      <option value="Estrato I">Estrato I (Operario / Supervisor)</option>
-      <option value="Estrato II">Estrato II (Especialista / Jefe de Línea)</option>
-      <option value="Estrato III">Estrato III (Gerente Pleno / Funcional)</option>
-      <option value="Estrato IV">Estrato IV (Gerente General / Director)</option>
-    </select>
-    <div style="display:flex; justify-content:end; gap:10px; margin-top:24px;">
-      <button onclick="$('wizard').classList.remove('active')" class="btn" style="background:none; border:1px solid var(--border);">Cancelar</button>
-      <button onclick="Dashboard.crearInvitacion()" class="btn btn-primary">Generar e Inyectar a Firebase</button>
+<div class="wizard-overlay" id="wizardOverlay">
+  <div class="wizard-box">
+    <div class="wizard-top">
+      <div class="wizard-title">Nueva evaluación</div>
+      <div class="wizard-subtitle">Completá los datos para generar el link del candidato</div>
+      <div class="wizard-steps">
+        <div class="wstep active" id="ws1"><div class="wstep-num">1</div><div class="wstep-label">El puesto</div></div>
+        <div class="wstep" id="ws2"><div class="wstep-num">2</div><div class="wstep-label">El candidato</div></div>
+        <div class="wstep" id="ws3"><div class="wstep-num">3</div><div class="wstep-label">Confirmar</div></div>
+      </div>
+    </div>
+    <div class="wizard-body">
+      <div id="step1">
+        <div class="form-group"><label class="form-label">Título del puesto</label><input type="text" class="form-input" id="f_puesto" placeholder="Ej: Gerente de Operaciones"/></div>
+        <div class="form-group"><label class="form-label">Área</label><input type="text" class="form-input" id="f_area" placeholder="Ej: Tecnología"/></div>
+        <div class="form-group">
+          <label class="form-label">¿Cuánto dura el proyecto más largo que manejará?</label>
+          <select class="form-select" id="f_horizonte" onchange="actualizarEstrato()">
+            <option value="">Seleccioná un horizonte temporal</option>
+            <option value="1">Días a semanas — tareas operativas (Estrato I)</option>
+            <option value="2">Meses a 1 año — mejoras tácticas (Estrato II)</option>
+            <option value="3">1 a 2 años — planes funcionales (Estrato III)</option>
+            <option value="4">2 a 5 años — estrategia de unidad (Estrato IV)</option>
+          </select>
+        </div>
+        <div class="estrato-est" id="estratoEstBox"><div class="ee-label">Estrato Requerido Estimado</div><div class="ee-value" id="estratoEstVal">-</div></div>
+      </div>
+      <div id="step2" style="display:none;">
+        <div class="form-group"><label class="form-label">Nombre del candidato</label><input type="text" class="form-input" id="f_nombre" placeholder="Ej: Carlos Gómez"/></div>
+        <div class="form-group"><label class="form-label">Edad (opcional)</label><input type="number" class="form-input" id="f_edad" placeholder="Ej: 38"/></div>
+      </div>
+      <div id="step3" style="display:none;">
+        <div id="resumenPre">
+          <div class="resumen-grid">
+            <div class="resumen-item"><div class="resumen-label">Candidato</div><div class="resumen-value" id="r_nombre">-</div></div>
+            <div class="resumen-item"><div class="resumen-label">Puesto</div><div class="resumen-value" id="r_puesto">-</div></div>
+          </div>
+        </div>
+        <div class="link-box" id="linkBox">
+          <div style="font-size:13px; font-weight:600; color:var(--verde);">¡Link generado con éxito! El proceso está en Firebase.</div>
+          <div class="link-url" id="linkUrl">-</div>
+        </div>
+      </div>
+    </div>
+    <div class="wizard-footer">
+      <button class="btn btn-ghost" id="btnCancel" onclick="cerrarWizard()">Cancelar</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-outline" id="btnBack" onclick="wizardBack()" style="display:none;">Atrás</button>
+        <button class="btn btn-primary" id="btnNext" onclick="wizardNext()">Siguiente</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-const $=i=>document.getElementById(i);
-
-// ── REEMPLAZÁ CON TUS CREDENCIALES REALES DE FIREBASE RTDB ──
 const firebaseConfig = {
   apiKey: "TU_API_KEY",
   authDomain: "TU_PROJECT_ID.firebaseapp.com",
@@ -139,167 +260,144 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const firebaseDB = firebase.database();
 
-const UI = {
-  pill: e => {
-    if(e === 'Pendiente') return `<span class="ep pend">PENDIENTE</span>`;
-    if(e === 'Error Red') return `<span class="ep err">ERR_CORS</span>`;
-    const n = e.match(/\d+/) ? e.match(/\d+/)[0] : '1';
-    return `<span class="ep e${n}">Estrato ${n}</span>`;
-  },
-  sem: f => `
-    <div class="sm">
-      <div class="sm-c sm-e ${f==='encaja'?'active':''}">🟢 <b>ENCAJA</b></div>
-      <div class="sm-c sm-s ${f==='supera'?'active':''}">🟡 <b>SUPERA</b></div>
-      <div class="sm-c sm-b ${f==='brecha'?'active':''}">🔴 <b>BRECHA</b></div>
-    </div>`
-};
+let currentStep = 1;
+let evaluaciones = [];
 
-const Dashboard = {
-  evs: [],
-  init() {
-    $('v_rep').classList.remove('active'); $('v_dash').classList.add('active');
+function go(v){
+  if(v==='dashboard'){ $('viewInforme').classList.remove('active'); $('viewDashboard').classList.add('active'); }
+}
+function abrirWizard(){ currentStep=1; showStep(1); $('wizardOverlay').style.display='flex'; }
+function cerrarWizard(){ $('wizardOverlay').style.display='none'; }
+
+function showStep(s){
+  $('step1').style.display = s===1?'block':'none';
+  $('step2').style.display = s===2?'block':'none';
+  $('step3').style.display = s===3?'block':'none';
+  $('btnBack').style.display = s>1&&s<3?'inline-block':'none';
+  $('btnNext').textContent = s===2?'Generar Link →':s===3?'Finalizar':'Siguiente';
+  $('ws1').className = s===1?'wstep active':s>1?'wstep done':'wstep';
+  $('ws2').className = s===2?'wstep active':s>2?'wstep done':'wstep';
+  $('ws3').className = s===3?'wstep active':'wstep';
+}
+
+function actualizarEstrato(){
+  const h = $('f_horizonte').value;
+  if(!h){ $('estratoEstBox').classList.remove('visible'); return; }
+  $('estratoEstBox').classList.add('visible');
+  $('estratoEstVal').textContent = "Estrato " + (h==='1'?'I':h==='2'?'II':h==='3'?'III':'IV');
+}
+
+function wizardBack(){ if(currentStep>1){ currentStep--; showStep(currentStep); } }
+
+function wizardNext(){
+  if(currentStep===1){
+    if(!$('f_puesto').value || !$('f_horizonte').value) return alert('Completá los campos obligatorios.');
+    currentStep=2; showStep(2);
+  } else if(currentStep===2){
+    if(!$('f_nombre').value) return alert('Ingresá el nombre del candidato.');
+    inyectarFirebase();
+    currentStep=3; showStep(3);
+  } else if(currentStep===3){
+    cerrarWizard();
+  }
+}
+
+function inyectarFirebase(){
+  const n = $('f_nombre').value.trim();
+  const p = $('f_puesto').value.trim();
+  const h = $('f_horizonte').value;
+  const req = "Estrato " + (h==='1'?'I':h==='2'?'II':h==='3'?'III':'IV');
+  const idEv = 'EV-' + Date.now().toString().slice(-3);
+
+  firebaseDB.ref('potencia_evals/' + idEv).set({
+    id: idEv, nombre: n, puesto: p, requerido: req, edad: $('f_edad').value || '-',
+    cpa: 'Pendiente', estado: 'pendiente', fit: '-', fraseEjecutiva: 'En espera.', evidencias: [], rec: { decision: 'no_avanzar', texto: 'En espera de oratoria.' }, confianza: 0, transcripcionCompleta: ''
+  });
+
+  $('r_nombre').textContent = n; $('r_puesto').textContent = p;
+  $('linkUrl').textContent = `https://candeladileo-sys.github.io/potenciaIA/?candidato=${encodeURIComponent(n)}`;
+  $('linkBox').classList.add('visible');
+}
+
+window.onload = () => {
+  firebaseDB.ref('potencia_evals').on('value', (snap) => {
+    const data = snap.val(); evaluaciones = [];
+    if(data) Object.keys(data).forEach(k => evaluaciones.push({fKey: k, ...data[k]}));
     
-    firebaseDB.ref('potencia_evals').on('value', (snapshot) => {
-      const data = snapshot.val();
-      this.evs = [];
-      if (data) {
-        Object.keys(data).forEach(key => {
-          this.evs.push({ idFirebase: key, ...data[key] });
-        });
-      }
-      this.calc(); this.render();
-    });
-  },
-
-  calc() {
-    $('m1').textContent = this.evs.length;
-    let s = 0, f = 0, c = 0, confAcum = 0, p = 0;
-    this.evs.forEach(e => {
-      if(e.estado === 'listo') {
-        const num = e.cpa.match(/\d+/) ? parseInt(e.cpa.match(/\d+/)[0]) : 1;
-        s += num; c++;
-        confAcum += e.confianza || 0;
-        if(e.fit === 'encaja') f++;
+    $('statTotal').textContent = evaluaciones.length;
+    let s=0, c=0, p=0, conf=0;
+    evaluaciones.forEach(e => {
+      if(e.estado==='listo'){ 
+        const n = e.cpa.match(/\d+/) ? parseInt(e.cpa.match(/\d+/)[0]) : 1;
+        s+=n; c++; conf+=e.confianza||0;
       } else { p++; }
     });
-    $('m2').textContent = c ? (s / c).toFixed(1) : '0.0';
-    $('m3').textContent = c ? Math.round((confAcum / c)) + '%' : '0%';
-    $('m4').textContent = p;
-  },
+    $('statProm').textContent = c ? (s/c).toFixed(1) : '0.0';
+    $('statConf').textContent = c ? Math.round(conf/c)+'%' : '0%';
+    $('statPend').textContent = p;
 
-  render() {
-    $('tabla_body').innerHTML = this.evs.map((e,i) => `
-      <tr onclick="Dashboard.verInforme(${i})">
-        <td><b>${e.nombre}</b></td>
-        <td>${e.puesto}</td>
-        <td>${e.requerido}</td>
+    $('tablaBody').innerHTML = evaluaciones.map((e,idx) => `
+      <tr onclick="Dashboard.verInforme(${idx})">
+        <td class="td-name">${e.nombre}</td><td>${e.puesto}</td><td>${e.requerido}</td>
+        <td><span class="sp-pill ${e.estado==='listo'?'sp-listo':'sp-pendiente'}">${e.estado.toUpperCase()}</span></td>
         <td>${UI.pill(e.cpa)}</td>
-        <td><span class="fd" style="background:${e.fit==='encaja'?'var(--vm)':e.fit==='supera'?'var(--y)':e.fit==='brecha'?'var(--r)':'#9ca3af'}"></span>${e.fit.toUpperCase()}</td>
+        <td><div class="conf-wrap"><span>${e.confianza}%</span><div class="conf-bar"><div class="conf-fill" style="width:${e.confianza}%"></div></div></div></td>
+        <td><span class="fit-dot ${e.fit==='encaja'?'fit-encaja':'fit-no'}"></span> ${e.fit.toUpperCase()}</td>
       </tr>
     `).join('');
-  },
-
-  verInforme(i) {
-    const c = this.evs[i];
-    if(c.estado === 'pendiente') {
-      alert(`Invitación activa. URL oficial para el postulante:\nagente_potenciaIA.html?candidato=${encodeURIComponent(c.nombre)}`);
-      return;
-    }
-    $('v_dash').classList.remove('active'); $('v_rep').classList.add('active');
-    
-    let bannerError = "";
-    if(c.estado === 'error_red') {
-      bannerError = `
-        <div style="background:var(--rl); border:1px solid #fca5a5; padding:16px; border-radius:8px; margin-bottom:20px; font-size:13px; color:var(--r); line-height:1.5;">
-          🚨 <b>Alerta de Enlace Analítico (CORS):</b> El audio se grabó pero la red bloqueó la llamada analítica a Claude. Transcripción preservada abajo.
-        </div>
-      `;
-    }
-
-    $('report_content').innerHTML = `
-      <span style="cursor:pointer; color:var(--tm); font-size:13px;" onclick="Dashboard.init()">← Volver al Dashboard</span>
-      
-      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:32px; margin-top:16px;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:24px;">
-          <div>
-            <h1 style="font-family:'Lora',serif; font-size:28px; color:var(--text); margin-bottom:4px;">${c.nombre}</h1>
-            <div style="font-size:14px; color:var(--text-dim); font-weight:500;">${c.puesto} · <span style="color:var(--text-muted);">Ref: ${c.id}</span></div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">Índice de Confianza</div>
-            <div style="font-family:'Lora',serif; font-size:24px; font-weight:700; color:var(--verde-mid);">${c.confianza || 85}%</div>
-          </div>
-        </div>
-
-        ${bannerError}
-
-        <div style="margin-bottom:32px;">
-          <div style="font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:6px;">AJUSTE CON EL PUESTO (FIT)</div>
-          ${UI.sem(c.fit)}
-          <div style="background:var(--bg); padding:16px; border-left:4px solid var(--verde-mid); border-radius:8px; font-size:14px; line-height:1.6; color:var(--text-dim); margin-top:16px;">
-            <b>Síntesis Ejecutiva:</b> ${c.fraseEjecutiva}
-          </div>
-        </div>
-
-        <div style="margin-bottom:32px;">
-          <div style="font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:6px;">ANÁLISIS DE CAPACIDAD COGNITIVA</div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
-            <div style="background:var(--vl); border:1.5px solid var(--verde-soft); border-radius:10px; padding:20px; text-align:center;">
-              <div style="font-size:11px; font-weight:600; color:var(--text-dim); text-transform:uppercase; margin-bottom:4px;">Detectada (CPA)</div>
-              <div style="font-family:'Lora',serif; font-size:36px; font-weight:700; color:var(--verde);">${c.cpa}</div>
-            </div>
-            <div style="background:white; border:1.5px solid var(--border); border-radius:10px; padding:20px; text-align:center;">
-              <div style="font-size:11px; font-weight:600; color:var(--text-dim); text-transform:uppercase; margin-bottom:4px;">Requerida por Puesto</div>
-              <div style="font-family:'Lora',serif; font-size:36px; font-weight:700; color:var(--text);">${c.requerido}</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="margin-bottom:32px;">
-          <div style="font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:6px;">EVIDENCIAS EN EL DISCURSO (MATRIZ BLAISTEIN)</div>
-          <div style="margin-top:12px;">
-            ${c.evidencias ? c.evidencias.map(v => `
-              <div class="ci">
-                <p style="font-style:italic; font-size:14px; color:var(--text-dim); line-height:1.6;">"${v.texto}"</p>
-                <span style="font-size:11px; background:var(--vl); color:var(--verde-mid); padding:2px 8px; border-radius:10px; font-weight:600; display:inline-block; margin-top:8px;">${v.indicador}</span>
-              </div>
-            `).join('') : ''}
-          </div>
-        </div>
-
-        <div style="margin-bottom:16px;">
-          <div style="font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:6px;">RECOMENDACIÓN</div>
-          <div style="background:${c.fit==='encaja'?'var(--verde-light)':c.fit==='supera'?'var(--yellow-light)':'var(--rojo-light)'}; border:1.5px solid ${c.fit==='encaja'?'var(--verde-soft)':c.fit==='supera'?'#fcd34d':'#fca5a5'}; border-radius:10px; padding:20px 24px;">
-            <div style="font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:${c.fit==='encaja'?'var(--verde)':c.fit==='supera'?'#92400e':'var(--rojo)'}; margin-bottom:8px;">${decisionTitulo}</div>
-            <div style="font-size:14px; color:var(--text-dim); line-height:1.7;">${c.rec?.texto || ''}</div>
-          </div>
-        </div>
-
-        <div style="margin-top:32px;">
-          <div style="font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px;">REGISTRO DE TEXTO COMPLETO (BUFFER DE VOZ)</div>
-          <textarea style="width:100%; height:140px; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:13px; font-family:monospace; background:var(--bg); color:var(--text-dim);" readonly>${c.transcripcionCompleta || 'Sin texto registrado.'}</textarea>
-        </div>
-      </div>
-    `;
-  },
-
-  crearInvitacion() {
-    const n = $('w_nombre').value.trim(), p = $('w_puesto').value.trim(), estrato = $('w_estrato').value;
-    if(!n || !p) return alert('Por favor, complete todos los campos.');
-    
-    this.evs = this.evs.filter(e => e.nombre.toLowerCase().trim() !== n.toLowerCase().trim());
-    const nuevoId = 'EV-' + Date.now().toString().slice(-3);
-    
-    firebaseDB.ref('potencia_evals/' + nuevoId).set({
-      id: nuevoId, nombre: n, puesto: p, requerido: estrato,
-      cpa: 'Pendiente', estado: 'pendiente', fit: '-', fraseEjecutiva: 'En espera.', evidencias: [], rec: { decision: 'no_avanzar', texto: 'En espera.' }, confianza: 0, transcripcionCompleta: ''
-    });
-
-    alert(`Invitación guardada en Firebase para: ${n}\nURL para el Candidato:\nagente_potenciaIA.html?candidato=${encodeURIComponent(n)}`);
-    $('wizard').classList.remove('active');
-  }
+  });
 };
-window.onload = () => Dashboard.init();
+
+Dashboard.verInforme = function(idx){
+  const c = evaluaciones[idx];
+  if(c.estado==='pendiente'){ alert(`Enlace activo para: ${c.nombre}\nhttps://candeladileo-sys.github.io/potenciaIA/?candidato=${encodeURIComponent(c.nombre)}`); return; }
+  $('viewDashboard').classList.remove('active'); $('viewInforme').classList.add('active');
+
+  const decTitle = c.rec?.decision === 'avanzar' ? '✓ Avanzar en el proceso' : c.rec?.decision === 'avanzar_con_desarrollo' ? '◐ Avanzar con plan de desarrollo' : '✕ No avanzar para este rol';
+
+  $('informeContent').innerHTML = `
+    <div class="inf-back" onclick="go('dashboard')">← Volver al monitor</div>
+    <h1 class="inf-nombre">${c.nombre}</h1>
+    <div class="inf-meta">${c.puesto} · ID: ${c.id} · Edad: ${c.edad || '-'}</div>
+    
+    <div class="inf-section">
+      <div class="inf-section-title">Ajuste Organizacional (SST)</div>
+      ${UI.sem(c.fit)}
+      <p class="sem-frase"><b>Síntesis de Ajuste:</b> ${c.fraseEjecutiva}</p>
+    </div>
+
+    <div class="inf-section">
+      <div class="inf-section-title">Mapeo de Capacidad Intelectual Actual</div>
+      <div class="estratos-grid">
+        <div class="estrato-box match"><div class="estrato-lbl">Detectada (CPA)</div><div class="estrato-num">${c.cpa}</div></div>
+        <div class="estrato-box"><div class="estrato-lbl">Requerida por Puesto</div><div class="estrato-num">${c.requerido}</div></div>
+      </div>
+    </div>
+
+    <div class="inf-section">
+      <div class="inf-section-title">Evidencias Extraídas (Protocolo Blaistein)</div>
+      ${c.evidencias ? c.evidencias.map(v => `
+        <div class="cita-item">
+          <p class="cita-texto">"${v.texto}"</p>
+          <span class="cita-indicador">${v.indicador}</span>
+        </div>
+      `).join('') : ''}
+    </div>
+
+    <div class="inf-section">
+      <div class="inf-section-title">Recomendación Estratégica</div>
+      <div class="rec-card ${c.fit==='encaja'?'rec-avanzar':c.fit==='supera'?'rec-desarrollo':'rec-no'}">
+        <div class="rec-decision">${decTitle}</div>
+        <div class="rec-texto">${c.rec?.texto || ''}</div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px;">
+      <div class="inf-section-title">Buffer Completo del Discurso Registrado</div>
+      <textarea style="width:100%; height:140px; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:13px; font-family:monospace; background:var(--bg); color:var(--text-dim);" readonly>${c.transcripcionCompleta || ''}</textarea>
+    </div>
+  `;
+};
 </script>
 </body>
 </html>

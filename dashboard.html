@@ -4,56 +4,68 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PotenciaIA · Dashboard HR</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@800&display=swap');
 :root {
-  --verde: #1d4e3f; --vm: #27ae60; --vl: #e8f5ee; --vs: #c8e6d4;
-  --azul: #1a5fa8; --al: #e8f0fb; --as: #b8d1ed;
-  --bg: #f7f9fc; --sf: #ffffff; --bd: #e8edf3;
-  --text: #111827; --td: #4b5563; --tm: #9ca3af;
-  --y: #f59e0b; --yl: #fef3c7; --r: #dc2626; --rl: #fee2e2;
+  --verde: #1d4e3f; --verde-mid: #27ae60; --verde-light: #e8f5ee; --verde-soft: #c8e6d4;
+  --azul: #1a5fa8; --azul-light: #e8f0fb; --azul-soft: #b8d1ed;
+  --bg: #f7f9fc; --surface: #ffffff; --border: #e8edf3;
+  --text: #111827; --text-dim: #4b5563; --text-muted: #9ca3af;
+  --yellow: #f59e0b; --yellow-light: #fef3c7;
+  --rojo: #dc2626; --rojo-light: #fee2e2;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
-.topbar { background: var(--sf); border-bottom: 1px solid var(--bd); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,0.02); }
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,0.02); }
 .logo { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-.logo-icon { width: 32px; height: 32px; background: var(--verde); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; color: white; }
-.logo-name { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: var(--verde); }
-.hr-badge { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--verde); background: var(--verde-light); border: 1px solid var(--vs); padding: 4px 10px; border-radius: 20px; }
+.logo-icon { width: 32px; height: 32px; background: var(--verde); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Lora', serif; font-weight: 700; font-size: 16px; color: white; }
+.logo-name { font-family: 'Lora', serif; font-size: 18px; font-weight: 700; color: var(--verde); }
+.hr-badge { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--verde); background: var(--verde-light); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; }
+
 .view { display: none; } .view.active { display: block; }
 .main { padding: 28px 32px; max-width: 1100px; margin: 0 auto; }
 .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-.page-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+.page-title { font-family: 'Lora', serif; font-size: 22px; font-weight: 700; }
+
+.btn { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 9px 20px; border-radius: 8px; cursor: pointer; border: none; transition: all .2s; }
+.btn-primary { background: var(--verde); color: white; }
+.btn-primary:hover { background: #13332a; }
+
 .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
-.stat-card { background: var(--sf); border: 1px solid var(--bd); border-radius: 10px; padding: 18px 20px; }
-.stat-label { font-size: 11px; color: var(--tm); font-weight: 600; text-transform: uppercase; }
-.stat-value { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--verde); }
-.table-card { background: var(--sf); border: 1px solid var(--bd); border-radius: 12px; overflow: hidden; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+.stat-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+.stat-value { font-family: 'Lora', serif; font-size: 26px; font-weight: 700; color: var(--verde); }
+
+.table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
 table { width: 100%; border-collapse: collapse; }
 thead tr { background: #f9fafb; }
-th { text-align: left; padding: 12px 20px; font-size: 11px; color: var(--tm); text-transform: uppercase; }
-tbody tr { border-top: 1px solid var(--bd); cursor: pointer; }
-tbody tr:hover { background: var(--vl); }
-td { padding: 14px 20px; font-size: 13px; color: var(--td); }
+th { text-align: left; padding: 12px 20px; font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+tbody tr { border-top: 1px solid var(--border); cursor: pointer; }
+tbody tr:hover { background: var(--verde-light); }
+td { padding: 14px 20px; font-size: 13px; color: var(--text-dim); }
+
 .ep { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; border: 1px solid transparent; }
 .e1 { background: #fef9e7; color: #78530a; border-color: #f5d87a; }
-.e2 { background: var(--al); color: #0d3d70; border-color: var(--as); }
-.e3 { background: var(--vl); color: var(--vm); border-color: var(--vs); }
+.e2 { background: var(--azul-light); color: #0d3d70; border-color: var(--azul-soft); }
+.e3 { background: var(--verde-light); color: var(--verde-mid); border-color: var(--verde-soft); }
 .e4 { background: #f3eeff; color: #4a2080; border-color: #c4a0f0; }
 .pend { background: #f3f4f6; color: #6b7280; border-color: #d1d5db; }
 .err { background: var(--rl); color: var(--r); border-color: #fca5a5; }
 .fd { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+
 .sm { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 14px 0; }
-.sm-c { border-radius: 10px; padding: 16px; border: 1.5px solid var(--bd); opacity: .35; }
+.sm-c { border-radius: 10px; padding: 16px; border: 1.5px solid var(--border); opacity: .35; }
 .sm-c.active { opacity: 1; }
-.sm-e.active { background: var(--vl); border-color: var(--vs); }
-.sm-s.active { background: var(--yl); border-color: #fcd34d; }
-.sm-b.active { background: var(--rl); border-color: #fca5a5; }
-.ci { background: var(--sf); border-left: 3px solid var(--vm); padding: 16px; margin-bottom: 12px; border-top: 1px solid var(--bd); border-bottom: 1px solid var(--bd); }
+.sm-e.active { background: var(--verde-light); border-color: var(--verde-soft); }
+.sm-s.active { background: var(--yellow-light); border-color:#fcd34d; }
+.sm-b.active { background: var(--rojo-light); border-color:#fca5a5; }
+
+.ci { background: var(--surface); border-left: 3px solid var(--verde-mid); padding: 16px; margin-bottom: 12px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .wo { display: none; position: fixed; inset: 0; background: rgba(17,24,39,0.4); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
 .wo.active { display: flex; }
-.wb { background: var(--sf); border-radius: 16px; max-width: 520px; width: 100%; padding: 28px; }
-.in { width: 100%; background: var(--bg); border: 1.5px solid var(--bd); border-radius: 8px; padding: 10px; margin-top: 6px; outline: none; }
+.wb { background: var(--surface); border-radius: 16px; max-width: 520px; width: 100%; padding: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+.in { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; padding: 10px; margin-top: 6px; outline: none; }
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -72,7 +84,7 @@ td { padding: 14px 20px; font-size: 13px; color: var(--td); }
   <div class="main">
     <div class="page-header">
       <h2 class="page-title">Monitor de Búsquedas Activas</h2>
-      <button style="padding:9px 20px; background:var(--verde); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;" onclick="$('wizard').classList.add('active')">+ Enviar Invitación</button>
+      <button class="btn btn-primary" onclick="$('wizard').classList.add('active')">+ Enviar Invitación</button>
     </div>
     
     <div class="stats-row">
@@ -107,8 +119,8 @@ td { padding: 14px 20px; font-size: 13px; color: var(--td); }
       <option value="Estrato IV">Estrato IV (Gerente General / Director)</option>
     </select>
     <div style="display:flex; justify-content:end; gap:10px; margin-top:24px;">
-      <button onclick="$('wizard').classList.remove('active')" style="padding:8px 16px; background:none; border:1px solid var(--bd); border-radius:6px; cursor:pointer;">Cancelar</button>
-      <button onclick="Dashboard.crearInvitacion()" style="padding:9px 20px; background:var(--verde); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Generar e Inyectar a Firebase</button>
+      <button onclick="$('wizard').classList.remove('active')" class="btn" style="background:none; border:1px solid var(--border);">Cancelar</button>
+      <button onclick="Dashboard.crearInvitacion()" class="btn btn-primary">Generar e Inyectar a Firebase</button>
     </div>
   </div>
 </div>
@@ -116,7 +128,7 @@ td { padding: 14px 20px; font-size: 13px; color: var(--td); }
 <script>
 const $=i=>document.getElementById(i);
 
-// ── REEMPLAZÁ CON TUS CREDENCIALES REALES DE FIREBASE REALTIME DATABASE ──
+// ── REEMPLAZÁ CON TUS CREDENCIALES REALES DE FIREBASE RTDB ──
 const firebaseConfig = {
   apiKey: "TU_API_KEY",
   authDomain: "TU_PROJECT_ID.firebaseapp.com",
@@ -125,7 +137,7 @@ const firebaseConfig = {
   storageBucket: "TU_PROJECT_ID.appspot.com"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const firebaseDB = firebase.database();
 
 const UI = {
   pill: e => {
@@ -147,8 +159,7 @@ const Dashboard = {
   init() {
     $('v_rep').classList.remove('active'); $('v_dash').classList.add('active');
     
-    // Escucha permanente en tiempo real de la base de datos
-    db.ref('potencia_evals').on('value', (snapshot) => {
+    firebaseDB.ref('potencia_evals').on('value', (snapshot) => {
       const data = snapshot.val();
       this.evs = [];
       if (data) {
@@ -189,61 +200,85 @@ const Dashboard = {
   },
 
   verInforme(i) {
-    const e = this.evs[i];
-    if(e.estado === 'pendiente') {
-      alert(`Invitación activa en la nube. URL oficial para el candidato:\nagente_potenciaIA.html?candidato=${encodeURIComponent(e.nombre)}`);
+    const c = this.evs[i];
+    if(c.estado === 'pendiente') {
+      alert(`Invitación activa. URL oficial para el postulante:\nagente_potenciaIA.html?candidato=${encodeURIComponent(c.nombre)}`);
       return;
     }
     $('v_dash').classList.remove('active'); $('v_rep').classList.add('active');
     
     let bannerError = "";
-    if(e.estado === 'error_red') {
+    if(c.estado === 'error_red') {
       bannerError = `
         <div style="background:var(--rl); border:1px solid #fca5a5; padding:16px; border-radius:8px; margin-bottom:20px; font-size:13px; color:var(--r); line-height:1.5;">
-          🚨 <b>Alerta de Enlace Analítico (CORS):</b> El audio se grabó pero las políticas del navegador bloquearon el envío directo a Claude. La transcripción cruda se preservó abajo.
+          🚨 <b>Alerta de Enlace Analítico (CORS):</b> El audio se grabó pero la red bloqueó la llamada analítica a Claude. Transcripción preservada abajo.
         </div>
       `;
     }
 
-    const decisionTitulo = e.rec?.decision === 'avanzar' ? '✓ Avanzar en el proceso' : e.rec?.decision === 'avanzar_con_desarrollo' ? '◐ Avanzar con plan de desarrollo' : '✕ No avanzar para este rol';
-
     $('report_content').innerHTML = `
       <span style="cursor:pointer; color:var(--tm); font-size:13px;" onclick="Dashboard.init()">← Volver al Dashboard</span>
-      <h1 style="font-family:'Syne',sans-serif; font-size:28px; margin-top:12px;">${e.nombre}</h1>
-      <p style="color:var(--tm); font-size:13px; margin-bottom:24px;">${e.puesto} · ID: ${e.id}</p>
       
-      ${bannerError}
-
-      <div style="margin-bottom:24px;">
-        <h3>Ajuste Organizacional (SST)</h3>
-        ${UI.sem(e.fit)}
-        <p style="background:var(--vl); padding:14px; border-left:4px solid var(--vm); font-size:14px; border-radius:6px; margin-top:12px;"><b>Diagnóstico:</b> ${e.fraseEjecutiva}</p>
-      </div>
-
-      <div style="margin-bottom:24px;">
-        <h3>Mapeo de Capacidad Intelectual</h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
-          <div style="background:var(--vl); padding:20px; border-radius:10px; text-align:center;"><h5>Detectada (CPA)</h5><h2>${e.cpa}</h2></div>
-          <div style="background:white; border:1px solid var(--bd); padding:20px; border-radius:10px; text-align:center;"><h5>Requerida por el Puesto</h5><h2>${e.requerido}</h2></div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:32px; margin-top:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:24px;">
+          <div>
+            <h1 style="font-family:'Lora',serif; font-size:28px; color:var(--text); margin-bottom:4px;">${c.nombre}</h1>
+            <div style="font-size:14px; color:var(--text-dim); font-weight:500;">${c.puesto} · <span style="color:var(--text-muted);">Ref: ${c.id}</span></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">Índice de Confianza</div>
+            <div style="font-family:'Lora',serif; font-size:24px; font-weight:700; color:var(--verde-mid);">${c.confianza || 85}%</div>
+          </div>
         </div>
-      </div>
 
-      <div style="margin-bottom:24px;">
-        <h3>Citas Textuales Extraídas (Protocolo Blaistein)</h3>
-        ${e.evidencias && e.evidencias.length ? e.evidencias.map(v => `<div class="ci"><p style="font-style:italic; font-size:14px;">"${v.texto}"</p><span style="font-size:11px; background:var(--vl); color:var(--vm); padding:2px 8px; border-radius:10px; font-weight:600; display:inline-block; margin-top:8px;">${v.indicador}</span></div>`).join('') : '<p style="font-size:13px; color:var(--tm);">Sin evidencias estructuradas por error de red.</p>'}
-      </div>
+        ${bannerError}
 
-      <div style="margin-bottom:24px;">
-        <h3>Línea de Acción Recomendada</h3>
-        <div style="background:white; border:1px solid var(--bd); padding:16px; border-radius:8px; font-size:14px; margin-top:8px; color:var(--td);">
-          <strong style="display:block; margin-bottom:4px; color:var(--vm);">${decisionTitulo}</strong>
-          ${e.rec?.texto || ''}
+        <div style="margin-bottom:32px;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:6px;">AJUSTE CON EL PUESTO (FIT)</div>
+          ${UI.sem(c.fit)}
+          <div style="background:var(--bg); padding:16px; border-left:4px solid var(--verde-mid); border-radius:8px; font-size:14px; line-height:1.6; color:var(--text-dim); margin-top:16px;">
+            <b>Síntesis Ejecutiva:</b> ${c.fraseEjecutiva}
+          </div>
         </div>
-      </div>
 
-      <div>
-        <h3>Transcripción Completa Guardada en Buffer</h3>
-        <textarea style="width:100%; height:150px; margin-top:8px; padding:12px; border:1px solid var(--bd); border-radius:8px; font-size:13px; font-family:monospace; background:var(--bg); color:var(--td);" readonly>${e.transcripcionCompleta || 'Sin texto registrado.'}</textarea>
+        <div style="margin-bottom:32px;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:6px;">ANÁLISIS DE CAPACIDAD COGNITIVA</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
+            <div style="background:var(--vl); border:1.5px solid var(--verde-soft); border-radius:10px; padding:20px; text-align:center;">
+              <div style="font-size:11px; font-weight:600; color:var(--text-dim); text-transform:uppercase; margin-bottom:4px;">Detectada (CPA)</div>
+              <div style="font-family:'Lora',serif; font-size:36px; font-weight:700; color:var(--verde);">${c.cpa}</div>
+            </div>
+            <div style="background:white; border:1.5px solid var(--border); border-radius:10px; padding:20px; text-align:center;">
+              <div style="font-size:11px; font-weight:600; color:var(--text-dim); text-transform:uppercase; margin-bottom:4px;">Requerida por Puesto</div>
+              <div style="font-family:'Lora',serif; font-size:36px; font-weight:700; color:var(--text);">${c.requerido}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:32px;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:6px;">EVIDENCIAS EN EL DISCURSO (MATRIZ BLAISTEIN)</div>
+          <div style="margin-top:12px;">
+            ${c.evidencias ? c.evidencias.map(v => `
+              <div class="ci">
+                <p style="font-style:italic; font-size:14px; color:var(--text-dim); line-height:1.6;">"${v.texto}"</p>
+                <span style="font-size:11px; background:var(--vl); color:var(--verde-mid); padding:2px 8px; border-radius:10px; font-weight:600; display:inline-block; margin-top:8px;">${v.indicador}</span>
+              </div>
+            `).join('') : ''}
+          </div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:6px;">RECOMENDACIÓN</div>
+          <div style="background:${c.fit==='encaja'?'var(--verde-light)':c.fit==='supera'?'var(--yellow-light)':'var(--rojo-light)'}; border:1.5px solid ${c.fit==='encaja'?'var(--verde-soft)':c.fit==='supera'?'#fcd34d':'#fca5a5'}; border-radius:10px; padding:20px 24px;">
+            <div style="font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:${c.fit==='encaja'?'var(--verde)':c.fit==='supera'?'#92400e':'var(--rojo)'}; margin-bottom:8px;">${decisionTitulo}</div>
+            <div style="font-size:14px; color:var(--text-dim); line-height:1.7;">${c.rec?.texto || ''}</div>
+          </div>
+        </div>
+
+        <div style="margin-top:32px;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px;">REGISTRO DE TEXTO COMPLETO (BUFFER DE VOZ)</div>
+          <textarea style="width:100%; height:140px; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:13px; font-family:monospace; background:var(--bg); color:var(--text-dim);" readonly>${c.transcripcionCompleta || 'Sin texto registrado.'}</textarea>
+        </div>
       </div>
     `;
   },
@@ -255,13 +290,12 @@ const Dashboard = {
     this.evs = this.evs.filter(e => e.nombre.toLowerCase().trim() !== n.toLowerCase().trim());
     const nuevoId = 'EV-' + Date.now().toString().slice(-3);
     
-    // Guardado directo en la nube de Firebase Realtime
-    db.ref('potencia_evals/' + nuevoId).set({
+    firebaseDB.ref('potencia_evals/' + nuevoId).set({
       id: nuevoId, nombre: n, puesto: p, requerido: estrato,
       cpa: 'Pendiente', estado: 'pendiente', fit: '-', fraseEjecutiva: 'En espera.', evidencias: [], rec: { decision: 'no_avanzar', texto: 'En espera.' }, confianza: 0, transcripcionCompleta: ''
     });
 
-    alert(`Invitación inyectada a Firebase para: ${n}\nLink del postulante:\nagente_potenciaIA.html?candidato=${encodeURIComponent(n)}`);
+    alert(`Invitación guardada en Firebase para: ${n}\nURL para el Candidato:\nagente_potenciaIA.html?candidato=${encodeURIComponent(n)}`);
     $('wizard').classList.remove('active');
   }
 };

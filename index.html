@@ -436,12 +436,18 @@ window.guardarEvaluacion = async function(data) {
 };
 
 window.actualizarEvaluacion = async function(id, data) {
-  try {
-    await updateDoc(doc(db, 'evaluaciones', id), data);
-    console.log('Evaluacion actualizada:', id);
-  } catch(e) {
-    console.error('Error actualizando Firebase:', e);
+  // Intentar hasta 3 veces con espera entre intentos
+  for (let intento = 1; intento <= 3; intento++) {
+    try {
+      await updateDoc(doc(db, 'evaluaciones', id), data);
+      console.log('Evaluacion actualizada:', id);
+      return true;
+    } catch(e) {
+      console.error(`Error actualizando Firebase (intento ${intento}/3):`, e);
+      if (intento < 3) await new Promise(r => setTimeout(r, 2000 * intento));
+    }
   }
+  return false;
 };
 </script>
 
@@ -901,11 +907,12 @@ function startTimer() {
 
 // ── CIERRE POR SILENCIO ──
 const CLOSING_PHRASES = [
-  'termine','terminé','ya termine','ya terminé','listo termine',
-  'eso es todo','eso sería todo','creo que es todo','hasta acá llego',
-  'no tengo más','no sé qué más decir','no se me ocurre más',
-  'ya dije todo','creo que cubrí todo','no hay mucho más para decir',
-  'nada más','y nada','y bueno nada','y eso','y eso es todo'
+  'termine','terminé','ya termine','ya terminé',
+  'eso es todo lo que tenía','eso sería todo lo que tenía',
+  'no tengo nada más para decir','no se me ocurre nada más para agregar',
+  'ya dije todo lo que tenía','creo que cubrí todo el tema',
+  'listo eso es todo','y bueno eso es todo lo que tengo',
+  'no tengo más para agregar','se me acabaron las ideas',
 ];
 
 function detectsClosingPhrase(text) {
@@ -937,20 +944,21 @@ async function triggerClosingSynthesis() {
   addTranscriptEntry('agent', 'Hacé una síntesis de los puntos más importantes que planteaste.');
 }
 
-// ── SPEECH RECOGNITION ──
-function startContinuousListening() {
+// ── SPEECH RECOGNITION — instancia única durante toda la entrevista ──
+let recognitionInstance = null;
+let flushTimer = null;
+
+function initRecognition() {
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
     alert('Tu navegador no soporta reconocimiento de voz. Usá Chrome.');
-    return;
+    return null;
   }
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   const rec = new SR();
   rec.lang = 'es-AR'; rec.continuous = true; rec.interimResults = true;
 
-  let flushTimer = null;
-
   rec.onresult = (e) => {
-    if (isSpeaking) return;
+    if (isSpeaking || interviewPhase === 'ended') return;
     clearTimeout(flushTimer);
     resetClosingSilenceTimer();
 
@@ -965,37 +973,69 @@ function startContinuousListening() {
             synthesisRequested = true;
             document.getElementById('btnSynthesis').disabled = true;
             setTimeout(() => {
-              if (pendingFinalBuf.trim().length > 10) { addTranscriptEntry('user', pendingFinalBuf.trim()); pendingFinalBuf = ''; }
+              flushPendingText();
               triggerClosingSynthesis();
             }, 1200);
           }
         }
-      } else { interim = e.results[i][0].transcript; }
+      } else {
+        interim = e.results[i][0].transcript;
+      }
     }
 
     const disp = (pendingFinalBuf + interim).slice(-90);
     setStatus('listening', '"' + disp + '"');
     lastUserText = (pendingFinalBuf + interim).trim();
 
-    flushTimer = setTimeout(() => {
-      if (pendingFinalBuf.trim().length > 10) { addTranscriptEntry('user', pendingFinalBuf.trim()); pendingFinalBuf = ''; }
-    }, 4500);
+    flushTimer = setTimeout(() => flushPendingText(), 4500);
   };
 
   rec.onend = () => {
-    if (interviewPhase !== 'ended' && !isSpeaking) {
-      setTimeout(() => { if (interviewPhase !== 'ended') { try { rec.start(); } catch(err) {} } }, 400);
+    // Siempre reiniciar automáticamente salvo que la entrevista haya terminado
+    if (interviewPhase !== 'ended') {
+      setTimeout(() => {
+        if (interviewPhase !== 'ended') {
+          try { rec.start(); } catch(err) {}
+        }
+      }, 300);
     }
   };
 
-  rec.onerror = () => {};
-  rec.start();
-  currentRecognition = rec;
+  rec.onerror = (e) => {
+    if (e.error !== 'no-speech' && e.error !== 'aborted') {
+      console.warn('Speech recognition error:', e.error);
+    }
+    // El onend se encarga de reiniciar
+  };
+
+  return rec;
+}
+
+function flushPendingText() {
+  clearTimeout(flushTimer);
+  // Solo vuelcar pendingFinalBuf — accumulated es acumulativo global y no debe usarse como fallback
+  if (pendingFinalBuf.trim().length > 5) {
+    addTranscriptEntry('user', pendingFinalBuf.trim());
+    pendingFinalBuf = '';
+  }
+}
+
+function startContinuousListening() {
+  if (!recognitionInstance) {
+    recognitionInstance = initRecognition();
+    currentRecognition = recognitionInstance;
+  }
+  if (!recognitionInstance) return;
+  try { recognitionInstance.start(); } catch(err) {}
   setStatus('listening', 'Escuchando...');
 }
 
 function stopListening() {
-  if (currentRecognition) { try { currentRecognition.stop(); } catch(e) {} }
+  // NO destruir la instancia — solo pausarla brevemente mientras habla el agente
+  // El onend la reinicia automáticamente
+  if (recognitionInstance) {
+    try { recognitionInstance.stop(); } catch(e) {}
+  }
 }
 
 // ── INTERRUPCIONES ──
@@ -1003,7 +1043,10 @@ async function triggerInterruption() {
   if (interviewPhase === 'ended') return;
   interviewPhase = 'interrupted';
   stopListening();
-  if (lastUserText.trim().length > 5) addTranscriptEntry('user', lastUserText.trim());
+
+  // Guardar TODO el texto del candidato antes de interrumpir
+  flushPendingText();
+  lastUserText = '';
   document.getElementById('int' + (interruptionCount + 1)).classList.add('done');
   interruptionCount++;
   setStatus('speaking', 'PotenciaIA tiene una intervención...');
@@ -1121,21 +1164,26 @@ async function endInterview() {
   clearInterval(timerInterval);
   clearInterval(waveInterval);
   clearTimeout(closingSilenceTimer);
+  clearTimeout(flushTimer);   // ← evitar que flushPendingText se dispare después
 
   await speak('Muchas gracias. Voy a analizar tu discurso ahora.');
   addTranscriptEntry('agent', 'Muchas gracias. Voy a analizar tu discurso ahora.');
 
   // ── Volcar TODO texto pendiente antes de construir el transcript ──
-  // pendingFinalBuf: texto ya reconocido como final pero no volcado por el flushTimer
   if (pendingFinalBuf.trim().length > 5) {
     addTranscriptEntry('user', pendingFinalBuf.trim());
     pendingFinalBuf = '';
   }
-  // lastUserText: puede tener texto interim adicional
-  if (lastUserText.trim().length > 5 && !transcriptLog.length || 
-      (transcriptLog.length && transcriptLog[transcriptLog.length-1].speaker === 'agent')) {
+  // Seguridad: si lastUserText tiene algo que no quedó en el log, agregarlo
+  if (lastUserText.trim().length > 5 &&
+      transcriptLog.length > 0 &&
+      transcriptLog[transcriptLog.length-1].speaker === 'agent') {
     addTranscriptEntry('user', lastUserText.trim());
   }
+  // Resetear buffers para que no haya artefactos
+  pendingFinalBuf = '';
+  accumulatedUserText = '';
+  lastUserText = '';
 
   document.getElementById('processingOverlay').classList.add('active');
 
@@ -1171,26 +1219,55 @@ async function endInterview() {
     descargarTranscriptEmergencia(fullTranscript, candidatoNombre);
   }
 
-  // ── Análisis con Claude (timeout 60s) ──
+  // ── Análisis con Claude (timeout 90s) ──
   let result;
   let analisisExitoso = false;
+
+  // Mostrar estado en el overlay para que el usuario sepa qué pasa
+  const procText = document.querySelector('.processing-text');
+  const procSub  = document.querySelector('.processing-sub');
+
   try {
+    if (procText) procText.textContent = 'Analizando el discurso...';
+    if (procSub)  procSub.textContent  = 'Esto puede tardar hasta 90 segundos';
+
     const analysisPromise = analyzeWithClaude(fullTranscript);
-    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 60000));
+    const timeoutPromise  = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('timeout_90s')), 90000)
+    );
     result = await Promise.race([analysisPromise, timeoutPromise]);
     analisisExitoso = true;
+
+    if (procText) procText.textContent = 'Guardando resultados...';
+
   } catch(e) {
     console.error('Análisis falló:', e.message);
+
+    // Mostrar el error en el overlay para debugging
+    if (procText) procText.textContent = 'Guardando transcript...';
+    if (procSub)  procSub.textContent  = `Error: ${e.message} — el transcript fue guardado`;
+
     result = {
       estrato: 0, subestrato: 'N/A', modo_procesamiento: 'Análisis pendiente',
-      confianza: 0, nombre_estrato: 'Análisis pendiente',
+      modo_curva: null, confianza: 0, nombre_estrato: 'Análisis pendiente',
       horizonte_implicito: 'N/A',
-      resumen: 'El análisis automático no pudo completarse. El transcript fue guardado.',
-      evidencias: [], alertas: ['Análisis pendiente — transcript guardado correctamente']
+      resumen: `Análisis automático no completado (${e.message}). El transcript fue guardado correctamente en Firebase.`,
+      evidencias: [], alertas: [`Error de análisis: ${e.message}`]
     };
+
+    // Esperar 2s para que el usuario pueda leer el mensaje
+    await new Promise(r => setTimeout(r, 2000));
   }
 
   // ── Actualizar Firebase con resultado del análisis ──
+  // Calcular fit: encaja / supera / no_alcanza
+  let fitResult = null;
+  if (result.estrato > 0 && estratoPuesto) {
+    if (result.estrato === estratoPuesto) fitResult = 'encaja';
+    else if (result.estrato > estratoPuesto) fitResult = 'supera';
+    else fitResult = 'no_alcanza';
+  }
+
   const datosAnalisis = {
     estado:            analisisExitoso ? 'completado' : 'analisis_fallido',
     estrato:           result.estrato,
@@ -1202,15 +1279,22 @@ async function endInterview() {
     confianza:         result.confianza,
     resumen:           result.resumen,
     evidencias:        (result.evidencias||[]).join(' | '),
-    alertas:           (result.alertas||[]).join(' | ')
+    alertas:           (result.alertas||[]).join(' | '),
+    fit:               fitResult
   };
 
-  if (typeof window.actualizarEvaluacion === 'function' && firebaseId) {
-    await window.actualizarEvaluacion(firebaseId, datosAnalisis);
-  } else if (typeof window.guardarEvaluacion === 'function' && !firebaseId) {
-    await window.guardarEvaluacion({ ...datosBase, ...datosAnalisis });
+  // Siempre intentar guardar, pero no bloquear la pantalla de gracias si falla
+  try {
+    if (typeof window.actualizarEvaluacion === 'function' && firebaseId) {
+      await window.actualizarEvaluacion(firebaseId, datosAnalisis);
+    } else if (typeof window.guardarEvaluacion === 'function' && !firebaseId) {
+      await window.guardarEvaluacion({ ...datosBase, ...datosAnalisis });
+    }
+  } catch(e) {
+    console.error('Error guardando análisis en Firebase:', e);
   }
 
+  // Siempre mostrar pantalla de gracias, pase lo que pase
   document.getElementById('processingOverlay').classList.remove('active');
   showScreen('screenThanks');
   speak('Muchas gracias por tu participación. Tu evaluación fue registrada correctamente.');
@@ -1223,6 +1307,30 @@ async function analyzeWithClaude(transcript) {
   if (demoMode) {
     await new Promise(r => setTimeout(r, 2500));
     return DEMO_RESULT;
+  }
+
+  // ── Chequeo de discurso insuficiente ──
+  // Contar solo las líneas del PARTICIPANTE
+  const lineasParticipante = transcript
+    .split('\n')
+    .filter(l => l.includes('PARTICIPANTE:'))
+    .join(' ');
+  const palabrasParticipante = lineasParticipante.split(/\s+/).filter(Boolean).length;
+  const minutosParticipante  = Math.floor(elapsedSeconds / 60);
+
+  if (palabrasParticipante < 80 || minutosParticipante < 2) {
+    return {
+      estrato: 0,
+      subestrato: 'N/A',
+      modo_procesamiento: 'Discurso insuficiente',
+      modo_curva: null,
+      confianza: 0,
+      nombre_estrato: 'Sin clasificación',
+      horizonte_implicito: 'N/A',
+      resumen: `El discurso del participante fue demasiado breve para clasificar (${palabrasParticipante} palabras, ~${minutosParticipante} minutos). Se requieren al menos 2 minutos de discurso continuo para aplicar la metodología de análisis.`,
+      evidencias: [],
+      alertas: [`Discurso insuficiente: ${palabrasParticipante} palabras en ${minutosParticipante} minutos. El transcript completo está disponible para revisión manual.`]
+    };
   }
 
   // Contexto adicional del candidato para el prompt
@@ -1412,16 +1520,26 @@ ${transcript}`;
         messages: [{ role: 'user', content: userMsg }]
       })
     });
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      console.error('API Anthropic error:', res.status, errBody);
+      throw new Error(`API ${res.status}: ${errBody.slice(0,200)}`);
+    }
+
     const data = await res.json();
+
+    if (!data.content || !data.content[0]) {
+      console.error('Respuesta vacía de la API:', data);
+      throw new Error('Respuesta vacía de la API');
+    }
+
     const clean = data.content[0].text.trim().replace(/```json|```/g,'').trim();
     return JSON.parse(clean);
+
   } catch(e) {
-    return {
-      estrato: 0, subestrato: 'N/A', modo_procesamiento: 'Error',
-      confianza: 0, nombre_estrato: 'Error de análisis', horizonte_implicito: 'N/A',
-      resumen: 'No se pudo procesar. Verificá la API key y la conexión.',
-      evidencias: [], alertas: ['Error: ' + e.message]
-    };
+    console.error('analyzeWithClaude falló:', e.message);
+    throw e;  // re-lanzar para que endInterview lo capture y loguee
   }
 }
 
@@ -1431,6 +1549,8 @@ function restart() {
   clearInterval(timerInterval); clearInterval(waveInterval); clearTimeout(closingSilenceTimer);
   elapsedSeconds=0; interruptionCount=0; transcriptLog=[];
   accumulatedUserText=''; lastUserText=''; pendingFinalBuf=''; synthesisRequested=false; interviewPhase='idle';
+  lastSpeechTimestamp=Date.now();
+  recognitionInstance=null; currentRecognition=null; clearTimeout(flushTimer);
   lastSpeechTimestamp=Date.now();
   document.getElementById('warningBox').classList.remove('visible');
   document.getElementById('int1').classList.remove('done');

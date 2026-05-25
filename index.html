@@ -3,23 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PotenciaIA · Evaluación de Potencial</title>
+<title>PotenciaIA · Evaluación</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@700;800&display=swap');
 :root {
   --bg: #ffffff; --surface: #f8f9fb; --surface2: #f0f2f5; --border: #e2e6ea;
   --verde: #27ae60; --verde-light: #eafaf1; --verde-mid: #a9dfbf;
   --rojo: #e74c3c; --rojo-light: #fdf0ee; --azul: #2980b9; --azul-light: #eaf4fb;
   --azul-mid: #a9cce3; --text: #1a1d23; --text-dim: #4a5568; --text-muted: #8a9ab0;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
-.container { max-width: 860px; margin: 0 auto; padding: 40px 24px; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 40px 24px; min-height: 100vh; }
+.container { max-width: 860px; margin: 0 auto; }
 .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 2px solid var(--border); }
 .logo { display: flex; align-items: center; gap: 14px; }
 .logo-icon { width: 46px; height: 46px; background: linear-gradient(135deg, var(--verde), var(--azul)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: white; }
 .logo-text h1 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; background: linear-gradient(90deg, var(--verde), var(--azul)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.screen { display: none; } .screen.active { display: block; }
+.screen { display: none; } .screen.active { display: block; animation: fadeUp 0.3s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 32px; margin-bottom: 20px; }
 .title-large { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; margin-bottom: 12px; }
 .p-desc { color: var(--text-dim); font-size: 15px; line-height: 1.6; margin-bottom: 24px; }
@@ -41,72 +42,68 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 
 <div class="container">
   <div class="header">
-    <div class="logo"><div class="logo-icon">P</div><div class="logo-text"><h1>PotenciaIA</h1><p>Evaluación de Complejidad Cognitiva</p></div></div>
+    <div class="logo"><div class="logo-icon">P</div><div class="logo-text"><h1>PotenciaIA</h1></div></div>
   </div>
 
   <div class="screen active" id="scr_setup">
     <div class="card">
       <h2 class="title-large">Inicialización Segura</h2>
+      <p class="p-desc">El sistema validará su identidad corporativa y preparará un eje argumentativo de forma ciega y aleatoria.</p>
       <div style="margin-bottom: 16px;">
         <label style="display:block; font-size:11px; font-weight:600; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px;">Anthropic API Key</label>
         <input type="password" id="apiKeyInput" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:6px;" placeholder="sk-ant-...">
       </div>
-      <div style="margin-bottom: 18px;">
+      <div style="margin-bottom: 24px;">
         <label style="display:block; font-size:11px; font-weight:600; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px;">Postulante Identificado</label>
         <input type="text" id="candidateNameInput" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:6px; background:var(--surface);" readonly>
       </div>
-      <div style="margin-bottom: 24px;">
-        <label style="display:block; font-size:11px; font-weight:600; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px;">Eje temático de oratoria</label>
-        <select id="topicSelect" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:6px; background:white;">
-          <option>Deserción escolar</option><option>Legalización de la droga</option><option>Inseguridad ciudadana</option><option>Cambio climático</option>
-        </select>
-      </div>
-      <button class="btn btn-primary" onclick="InterviewManager.initSetup()">Confirmar e Iniciar →</button>
+      <button class="btn btn-primary" onclick="InterviewManager.initSetup()">Confirmar Identidad y Avanzar →</button>
     </div>
   </div>
 
   <div class="screen" id="scr_intro">
     <div class="card" style="text-align: center;">
-      <h2 class="title-large">Directrices Orales</h2>
-      <button class="btn btn-primary" id="btnPlayIntro" onclick="InterviewManager.playIntroConsigna()">Escuchar consigna de evaluación →</button>
+      <h2 class="title-large">Instrucciones Orales</h2>
+      <button class="btn btn-primary" id="btnPlayIntro" onclick="InterviewManager.playIntroConsigna()">Escuchar directrices orales →</button>
     </div>
   </div>
 
   <div class="screen" id="scr_countdown">
     <div class="card" style="text-align: center; padding: 50px 32px;">
+      <p style="font-size:12px; text-transform:uppercase; font-weight:600; color:var(--azul); margin-bottom:10px;">Su eje asignado se revelará en</p>
       <div id="countdownNumber" style="font-family:'Syne',sans-serif; font-size:96px; font-weight:800;">3</div>
     </div>
   </div>
 
   <div class="screen" id="scr_interview">
     <div class="card" style="text-align: center;">
-      <h2 class="title-large" id="displayTopic">Tema</h2>
+      <span style="font-size:11px; font-weight:600; color:var(--verde); background:var(--verde-light); padding:4px 12px; border-radius:20px; text-transform:uppercase;">Muestra en progreso</span>
+      <h2 class="title-large" id="displayTopic" style="margin-top:14px;">Tema</h2>
       <div class="timer-container">
         <svg class="svg-ring" width="180" height="180"><circle class="ring-bg" cx="90" cy="90" r="80"/><circle class="ring-prog" id="ringProgress" cx="90" cy="90" r="80"/></svg>
         <div class="timer-text" id="timerClock">00:00</div>
       </div>
-      <div class="warning-box" id="warningBox">Silencio detectado. El agente aguarda la argumentación.</div>
+      <div class="warning-box" id="warningBox">Silencio detectado. El agente aguarda su argumentación.</div>
     </div>
   </div>
 
   <div class="screen" id="scr_analyzing">
     <div class="card" style="text-align: center; padding: 50px 32px;">
-      <h2 class="title-large">Procesando con Claude Sonnet 4.5 e Impactando Firebase...</h2>
+      <h2 class="title-large">Procesando Complejidad Intelectual...</h2>
+      <p class="p-desc" style="margin-bottom:0;">Claude Sonnet 4.5 está evaluando los nexos argumentativos mediante Solaas. Almacenando en la nube.</p>
     </div>
   </div>
 
   <div class="screen" id="scr_done">
     <div class="card" style="text-align: center; padding: 48px 32px;">
       <div style="font-size:32px; color:var(--verde); margin-bottom:16px;">✓</div>
-      <h2 class="title-large">Evaluación Registrada</h2>
+      <h2 class="title-large">Evaluación Completada</h2>
       <p class="p-desc">Gracias, tu evaluación fue registrada correctamente.</p>
     </div>
   </div>
 </div>
 
 <script>
-const $=i=>document.getElementById(i);
-
 const firebaseConfig = {
   apiKey: "TU_API_KEY",
   authDomain: "TU_PROJECT_ID.firebaseapp.com",
@@ -117,10 +114,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const firebaseDB = firebase.database();
 
+function $(id){ return document.getElementById(id); }
+
 const InterviewManager = {
   fase: 'setup', apiKey: '', topic: '', targetCandidato: 'Candidato_Espontaneo',
   timerInterval: null, elapsedSeconds: 0, silenceSeconds: 0, interventionsCount: 0,
   transcript: [], pendingFinalBuf: '', recognition: null,
+  temasVigentes: ["Deserción escolar", "Legalización de la droga", "Inseguridad ciudadana", "Cambio climático"],
 
   init() {
     const params = new URLSearchParams(window.location.search);
@@ -132,14 +132,12 @@ const InterviewManager = {
   setFase(nuevaFase) {
     this.fase = nuevaFase;
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    $(`scr_${nuevaFase}`).classList.add('active');
+    $(`scr_\${nuevaFase}`).classList.add('active');
   },
 
   initSetup() {
     this.apiKey = $('apiKeyInput').value.trim();
-    this.topic = $('topicSelect').value;
     if(!this.apiKey) return alert('API Key requerida.');
-    $('displayTopic').textContent = this.topic;
     this.setFase('intro');
   },
 
@@ -157,7 +155,12 @@ const InterviewManager = {
     const interval = setInterval(() => {
       count--;
       if(count > 0) { $('countdownNumber').textContent = count; } 
-      else { clearInterval(interval); this.startInterview(); }
+      else { 
+        clearInterval(interval); 
+        this.topic = this.temasVigentes[Math.floor(Math.random() * this.temasVigentes.length)];
+        $('displayTopic').textContent = this.topic;
+        this.startInterview(); 
+      }
     }, 1000);
   },
 
@@ -185,7 +188,7 @@ const InterviewManager = {
 
     this.timerInterval = setInterval(() => {
       this.elapsedSeconds++; this.silenceSeconds++;
-      $('timerClock').textContent = `${Math.floor(this.elapsedSeconds/60).toString().padStart(2,'0')}:${(this.elapsedSeconds%60).toString().padStart(2,'0')}`;
+      $('timerClock').textContent = `\${Math.floor(this.elapsedSeconds/60).toString().padStart(2,'0')}:\${(this.elapsedSeconds%60).toString().padStart(2,'0')}`;
       $('ringProgress').style.strokeDashoffset = Math.max(0, 502 - (502 * this.elapsedSeconds) / 600);
       
       if(this.silenceSeconds >= 10) $('warningBox').classList.add('visible');
@@ -199,7 +202,7 @@ const InterviewManager = {
     const contextoReciente = this.transcript.slice(-2).join(' ') || "su planteo";
     
     let preguntaMetodologica = this.interventionsCount === 1 
-      ? `Usted mencionó recién aspectos vinculados a... "${contextoReciente}". ¿Podría profundizar específicamente en la cadena secuencial de causas que generan esa situación y qué consecuencias directas produce?`
+      ? `Usted mencionó recién aspectos vinculados a... "\${contextoReciente}". ¿Podría profundizar específicamente en la cadena secuencial de causas que generan esa situación y qué consecuencias directas produce?`
       : `Entiendo perfectamente esa secuencia. Ahora, si situamos ese escenario en un contexto de alta incertidumbre o si se presentara un modelo totalmente opuesto al suyo, ¿cómo interactuarían ambas realidades y qué dilemas sistémicos surgirían?`;
 
     const u = new SpeechSynthesisUtterance(preguntaMetodologica);
@@ -210,6 +213,7 @@ const InterviewManager = {
 
   async finishInterview() {
     clearInterval(this.timerInterval); this.setFase('analyzing');
+    
     if (this.pendingFinalBuf && this.pendingFinalBuf.trim() !== '') this.transcript.push(this.pendingFinalBuf.trim());
     if(this.recognition) { this.recognition.onend = null; this.recognition.stop(); }
     const textCompleto = this.transcript.join(' ');
@@ -221,7 +225,7 @@ const InterviewManager = {
         body: JSON.stringify({
           model: 'claude-3-5-sonnet-20241022', max_tokens: 1500,
           system: `Evaluador Experto de PotenciaIA. Determina el Estrato Cognitivo (E1-E4) mediante el Algoritmo Solaas basándote en la ARQUITECTURA de las uniones argumentativas. Responde ÚNICAMENTE un JSON plano y directo sin markdown con esta estructura exacta compatible con el Dashboard: {"fit":"encaja|supera|brecha","cpa":"Estrato X","cpaNum":1,"fraseEjecutiva":"Resumen","evidencias":[{"texto":"cita","indicador":"Criterio"}],"rec":{"decision":"avanzar|avanzar_con_desarrollo|no_avanzar","texto":"Línea"},"confianza":85}`,
-          messages: [{role: 'user', content: `Discurso del eje '${this.topic}': "${textCompleto}"`}]
+          messages: [{role: 'user', content: `Discurso del eje '\${this.topic}': "\${textCompleto}"`}]
         })
       });
 

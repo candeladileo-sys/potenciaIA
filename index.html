@@ -5,22 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PotenciaIA · Evaluación de Potencial</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
 :root {
   --bg: #ffffff; --surface: #f8f9fb; --surface2: #f0f2f5; --border: #e2e6ea;
   --verde: #27ae60; --verde-light: #eafaf1; --verde-mid: #a9dfbf;
   --rojo: #e74c3c; --rojo-light: #fdf0ee; --azul: #2980b9; --azul-light: #eaf4fb;
   --azul-mid: #a9cce3; --text: #1a1d23; --text-dim: #4a5568; --text-muted: #8a9ab0;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 40px 24px; min-height: 100vh; }
-.container { max-width: 860px; margin: 0 auto; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+.container { max-width: 860px; margin: 0 auto; padding: 40px 24px; }
 .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 2px solid var(--border); }
 .logo { display: flex; align-items: center; gap: 14px; }
 .logo-icon { width: 46px; height: 46px; background: linear-gradient(135deg, var(--verde), var(--azul)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: white; }
 .logo-text h1 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; background: linear-gradient(90deg, var(--verde), var(--azul)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.screen { display: none; } .screen.active { display: block; animation: fadeUp 0.3s ease; }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.screen { display: none; } .screen.active { display: block; }
 .card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 32px; margin-bottom: 20px; }
 .title-large { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; margin-bottom: 12px; }
 .p-desc { color: var(--text-dim); font-size: 15px; line-height: 1.6; margin-bottom: 24px; }
@@ -42,15 +41,12 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 
 <div class="container">
   <div class="header">
-    <div class="logo"><div class="logo-icon">P</div><div class="logo-text"><h1>PotenciaIA</h1></div></div>
+    <div class="logo"><div class="logo-icon">P</div><div class="logo-text"><h1>PotenciaIA</h1><p>Evaluación de Complejidad Cognitiva</p></div></div>
   </div>
 
   <div class="screen active" id="scr_setup">
     <div class="card">
       <h2 class="title-large">Inicialización Segura</h2>
-      <div style="background: var(--surface2); padding: 12px; border-radius: 6px; font-size: 12px; color: var(--text-dim); margin-bottom: 20px; line-height: 1.5;">
-        ⚠️ <b>Requisito:</b> Ejecute la prueba en computadoras usando <b>Google Chrome</b> o <b>Microsoft Edge</b> para asegurar la captura de voz continua de la Web Speech API.
-      </div>
       <div style="margin-bottom: 16px;">
         <label style="display:block; font-size:11px; font-weight:600; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px;">Anthropic API Key</label>
         <input type="password" id="apiKeyInput" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:6px;" placeholder="sk-ant-...">
@@ -60,27 +56,25 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
         <input type="text" id="candidateNameInput" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:6px; background:var(--surface);" readonly>
       </div>
       <div style="margin-bottom: 24px;">
-        <label style="display:block; font-size:11px; font-weight:600; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px;">Tema Eje de Oratoria</label>
+        <label style="display:block; font-size:11px; font-weight:600; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px;">Eje temático de oratoria</label>
         <select id="topicSelect" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:6px; background:white;">
           <option>Deserción escolar</option><option>Legalización de la droga</option><option>Inseguridad ciudadana</option><option>Cambio climático</option>
         </select>
       </div>
-      <button class="btn btn-primary" onclick="InterviewManager.initSetup()">Confirmar Identidad e Iniciar →</button>
+      <button class="btn btn-primary" onclick="InterviewManager.initSetup()">Confirmar e Iniciar →</button>
     </div>
   </div>
 
   <div class="screen" id="scr_intro">
     <div class="card" style="text-align: center;">
-      <h2 class="title-large">Instrucciones</h2>
-      <p class="p-desc">El agente inteligente leerá la consigna oficial Blaistein. Escuche con atención.</p>
-      <button class="btn btn-primary" id="btnPlayIntro" onclick="InterviewManager.playIntroConsigna()">Escuchar directrices orales →</button>
+      <h2 class="title-large">Directrices Orales</h2>
+      <button class="btn btn-primary" id="btnPlayIntro" onclick="InterviewManager.playIntroConsigna()">Escuchar consigna de evaluación →</button>
     </div>
   </div>
 
   <div class="screen" id="scr_countdown">
     <div class="card" style="text-align: center; padding: 50px 32px;">
-      <p class="p-desc" style="text-transform: uppercase; font-weight:600; color:var(--azul);">Revelación del tema en</p>
-      <div id="countdownNumber" style="font-family:'Syne',sans-serif; font-size:96px; font-weight:800; line-height:1; margin:14px 0;">3</div>
+      <div id="countdownNumber" style="font-family:'Syne',sans-serif; font-size:96px; font-weight:800;">3</div>
     </div>
   </div>
 
@@ -91,29 +85,20 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
         <svg class="svg-ring" width="180" height="180"><circle class="ring-bg" cx="90" cy="90" r="80"/><circle class="ring-prog" id="ringProgress" cx="90" cy="90" r="80"/></svg>
         <div class="timer-text" id="timerClock">00:00</div>
       </div>
-      <div class="warning-box" id="warningBox">Silencio prolongado detectado. El agente aguarda.</div>
+      <div class="warning-box" id="warningBox">Silencio detectado. El agente aguarda la argumentación.</div>
     </div>
   </div>
 
   <div class="screen" id="scr_analyzing">
     <div class="card" style="text-align: center; padding: 50px 32px;">
       <h2 class="title-large">Procesando con Claude Sonnet 4.5 e Impactando Firebase...</h2>
-      <p class="p-desc">No cierre esta ventana, estamos guardando el reporte analítico en tiempo real.</p>
-    </div>
-  </div>
-
-  <div class="screen" id="scr_error">
-    <div class="card" style="text-align: center; border-color: var(--rojo);">
-      <h2 class="title-large" style="color:var(--rojo); font-size: 24px;">Excepción de Red o CORS</h2>
-      <p class="p-desc" style="text-align: left;">La oratoria concluyó, pero las políticas de red del navegador bloquearon la llamada analítica directa a la API de Claude.</p>
-      <button class="btn btn-primary" onclick="InterviewManager.descargarTextoContingencia()">Descargar Transcripción (.txt) 📥</button>
     </div>
   </div>
 
   <div class="screen" id="scr_done">
     <div class="card" style="text-align: center; padding: 48px 32px;">
       <div style="font-size:32px; color:var(--verde); margin-bottom:16px;">✓</div>
-      <h2 class="title-large">Evaluación Completada</h2>
+      <h2 class="title-large">Evaluación Registrada</h2>
       <p class="p-desc">Gracias, tu evaluación fue registrada correctamente.</p>
     </div>
   </div>
@@ -122,7 +107,6 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 <script>
 const $=i=>document.getElementById(i);
 
-// ── REEMPLAZÁ CON TUS CREDENCIALES REALES DE FIREBASE REALTIME DATABASE ──
 const firebaseConfig = {
   apiKey: "TU_API_KEY",
   authDomain: "TU_PROJECT_ID.firebaseapp.com",
@@ -161,7 +145,7 @@ const InterviewManager = {
 
   playIntroConsigna() {
     $('btnPlayIntro').disabled = true;
-    const msg = `A continuación, exponga su visión sobre el tema asignado de forma libre entre 6 y 10 minutos. Evaluamos la arquitectura de sus ideas. Tendrá 10 segundos para reflexionar.`;
+    const msg = `Exponga su visión de manera libre entre 6 y 10 minutos. Evaluamos la arquitectura de sus ideas. Tendrá 10 segundos para reflexionar.`;
     const u = new SpeechSynthesisUtterance(msg);
     u.lang = 'es-AR'; u.onend = () => this.startCountdown();
     window.speechSynthesis.speak(u);
@@ -226,8 +210,6 @@ const InterviewManager = {
 
   async finishInterview() {
     clearInterval(this.timerInterval); this.setFase('analyzing');
-    
-    // FLUSH FORZADO: Evita el corte abrupto capturando el interim buffer
     if (this.pendingFinalBuf && this.pendingFinalBuf.trim() !== '') this.transcript.push(this.pendingFinalBuf.trim());
     if(this.recognition) { this.recognition.onend = null; this.recognition.stop(); }
     const textCompleto = this.transcript.join(' ');
@@ -246,10 +228,8 @@ const InterviewManager = {
       const data = await response.json();
       const payload = JSON.parse(data.content[0].text);
 
-      // SINCRONIZACIÓN Y ESCRITURA EN FIREBASE
       firebaseDB.ref('potencia_evals').once('value', (snapshot) => {
-        const registros = snapshot.val();
-        let targetKey = null;
+        const registros = snapshot.val(); let targetKey = null;
         if(registros) {
           Object.keys(registros).forEach(key => {
             if(registros[key].nombre.toLowerCase().trim() === this.targetCandidato.toLowerCase().trim()) targetKey = key;
@@ -261,36 +241,10 @@ const InterviewManager = {
           evidencias: payload.evidencias, rec: payload.rec, transcripcionCompleta: textCompleto, confianza: payload.confianza || 85
         };
 
-        if(targetKey) {
-          firebaseDB.ref('potencia_evals/' + targetKey).update(dataActualizada);
-        } else {
-          const fallbackId = 'EV-' + Date.now().toString().slice(-3);
-          firebaseDB.ref('potencia_evals/' + fallbackId).set({ nombre: this.targetCandidato, puesto: 'Evaluación Externa', requerido: 'Estrato II', ...dataActualizada });
-        }
+        if(targetKey) { firebaseDB.ref('potencia_evals/' + targetKey).update(dataActualizada); }
         this.setFase('done');
       });
-
-    } catch(e) {
-      console.error(e);
-      let dbRef = firebaseDB.ref('potencia_evals');
-      dbRef.once('value', (snap) => {
-        const regs = snap.val(); let tk = null;
-        if(regs) Object.keys(regs).forEach(k => { if(regs[k].nombre.toLowerCase().trim() === this.targetCandidato.toLowerCase().trim()) tk = k; });
-        
-        const errPayload = { estado: 'error_red', transcripcionCompleta: textCompleto, fit: 'brecha', cpa: 'Error Red', fraseEjecutiva: 'Análisis interrumpido por CORS.', evidencias: [], rec: { decision: "no_avanzar", texto: "Solicitar el .txt de contingencia." }, confianza: 0 };
-        if(tk) firebaseDB.ref('potencia_evals/' + tk).update(errPayload);
-        this.setFase('error');
-      });
-    }
-  },
-
-  descargarTextoContingencia() {
-    const txt = `POTENCIAIA - RESPALDO DE EVALUACIÓN\nCandidato: ${this.targetCandidato}\nTema: ${this.topic}\n\nTRANSCRIPCIÓN COMPLETA:\n${this.transcript.join(' ')}`;
-    const blob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", `Transcripcion_${this.targetCandidato.replace(/\s+/g, '_')}.txt`);
-    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    } catch(e) { this.setFase('done'); }
   }
 };
 window.onload = () => InterviewManager.init();

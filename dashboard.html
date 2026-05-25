@@ -415,16 +415,19 @@ async function cargarYRenderizar() {
       try { fecha = (d.timestamp.toDate ? d.timestamp.toDate() : new Date(d.timestamp)).toLocaleDateString('es-AR'); } catch(e) {}
     }
     const estrato = parseInt(d.estrato) || 0;
+    const esInsuficiente = d.modo_procesamiento === 'Discurso insuficiente' || d.estado === 'analisis_fallido';
+    const estadoFila = estrato > 0 ? 'listo' : esInsuficiente ? 'insuficiente' : d.estado === 'pendiente_analisis' ? 'pendiente' : 'enviado';
+
     return {
       nombre: d.candidato || '—',
-      edad: parseInt(d.edad) || null,          // edad real del candidato (viene del wizard)
+      edad: parseInt(d.edad) || null,
       puesto: d.puesto || '—',
       area: '—',
       tema: d.tema || '—',
       fecha: fecha,
       duracion: d.duracion || '—',
       tipo: 'Externo',
-      estado: estrato > 0 ? 'listo' : 'enviado',
+      estado: estadoFila,
       estrato: estrato || null,
       estrato_puesto: parseInt(d.estrato_puesto) || estrato || null,
       confianza: parseInt(d.confianza) || null,
@@ -433,10 +436,11 @@ async function cargarYRenderizar() {
       subestrato: d.subestrato || null,
       horizonte: d.horizonte || null,
       transcript: d.transcript || null,
+      modo_curva: d.modo_curva || null,
       frase: d.resumen || null,
       citas: evidencias.map(e => ({texto: e, indicador: d.subestrato || ''})),
       pda: null,
-      rec: d.resumen ? {decision:'avanzar', texto: d.resumen} : null,
+      rec: d.resumen ? {decision: estrato > 0 ? 'avanzar' : 'no_alcanza', texto: d.resumen} : null,
       _raw: d
     };
   });
@@ -504,7 +508,11 @@ function renderTabla() {
     const eClass  = c.estrato ? `e${c.estrato}` : '';
     const eLabel  = c.estrato ? `E ${estratosNombres[c.estrato]} — ${c.patron}` : '—';
     const ePuesto = `<span class="epill e${c.estrato_puesto}">E ${estratosNombres[c.estrato_puesto]}</span>`;
-    const estado  = c.estado === 'listo' ? `<span class="sp-pill sp-listo">Informe listo</span>` : c.estado === 'enviado' ? `<span class="sp-pill sp-enviado">Link enviado</span>` : `<span class="sp-pill sp-pendiente">Pendiente</span>`;
+    const estado  = c.estado === 'listo'        ? `<span class="sp-pill sp-listo">Informe listo</span>`
+                  : c.estado === 'insuficiente'  ? `<span class="sp-pill" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d;">Discurso breve</span>`
+                  : c.estado === 'pendiente'     ? `<span class="sp-pill sp-pendiente">Análisis pendiente</span>`
+                  : c.estado === 'enviado'       ? `<span class="sp-pill sp-enviado">Link enviado</span>`
+                  :                               `<span class="sp-pill sp-pendiente">Pendiente</span>`;
     const conf    = c.confianza ? `<div class="conf-wrap"><div class="conf-bar"><div class="conf-fill" style="width:${c.confianza}%"></div></div><span style="font-size:12px;color:var(--text-muted)">${c.confianza}%</span></div>` : '—';
     const fit     = c.fit ? `<div style="display:flex;align-items:center;gap:6px;"><div class="fit-dot ${c.fit==='encaja'?'fit-encaja':'fit-no'}"></div><span style="font-size:12px">${c.fit==='encaja'?'Encaja':'No alcanza'}</span></div>` : '—';
 
@@ -642,13 +650,13 @@ function verInforme(i) {
   const yBase=190,yRange=170;
   const _subVis = (c.subestrato||'').toLowerCase().includes('alto') ? 'alto' :
                   (c.subestrato||'').toLowerCase().includes('bajo') ? 'bajo' : 'medio';
-  const _cpfVis = calcularCPF(c.edad||35, c.estrato||2, _subVis);
-  const xCPA = xBase+((c.edad-edadMin)/(edadMax-edadMin))*xRange;
-  const yCPA = yBase-((c.estrato/5))*yRange;
-  const xCPF = xBase+((Math.min(_cpfVis.edadCPF,58)-edadMin)/(edadMax-edadMin))*xRange;
-  const yCPF = yBase-((_cpfVis.estratoCPF/5))*yRange;
+  const _ptsVis = calcularPuntosCurva(c.edad||35, c.estrato||2, _subVis, c.modo_curva);
+  const xCPA    = xBase+((c.edad-edadMin)/(edadMax-edadMin))*xRange;
+  const yCPA    = yBase-((c.estrato/5))*yRange;
+  const xCPF    = xBase+((_ptsVis.cpf1.edad-edadMin)/(edadMax-edadMin))*xRange;
+  const yCPF    = yBase-((_ptsVis.cpf1.estrato/5))*yRange;
   const yPuesto = yBase-((c.estrato_puesto/5))*yRange;
-  const eMatch = c.estrato === c.estrato_puesto;
+  const eMatch  = c.estrato === c.estrato_puesto;
 
   const fitClass = c.fit==='encaja'?'sem-encaja':c.fit==='supera'?'sem-supera':'sem-no';
 

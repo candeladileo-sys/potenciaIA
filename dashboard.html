@@ -253,6 +253,17 @@ td.td-name{font-weight:600;color:var(--text);font-size:14px;}
     }
   };
 
+  window.eliminarEvaluacion = async function(id) {
+    try {
+      await db.collection('evaluaciones').doc(id).delete();
+      console.log('[Firebase] eliminado:', id);
+      return true;
+    } catch(e) {
+      console.error('[Firebase] error al eliminar:', e.message);
+      return false;
+    }
+  };
+
   window._firebaseReady = true;
   console.log('[Firebase] listo (compat)');
 </script>
@@ -507,7 +518,8 @@ function rellenarResumen(){document.getElementById('r_puesto').textContent=docum
 function generarLink(){
   const nombre=document.getElementById('f_nombre').value.trim();
   if(!nombre){alert('Por favor ingresá el nombre del candidato.');return;}
-  const token=Math.random().toString(36).slice(2,10),_nombre=nombre,edad=document.getElementById('f_edad').value||'',puesto=document.getElementById('f_puesto').value||'',eNum=parseInt(document.getElementById('f_horizonte').value)||0;// eNum es opcional — no bloquearconst apikey=document.getElementById('f_apikey').value.trim();
+  const token=Math.random().toString(36).slice(2,10),_nombre=nombre,edad=document.getElementById('f_edad').value||'',puesto=document.getElementById('f_puesto').value||'',eNum=parseInt(document.getElementById('f_horizonte').value)||0;
+  const apikey=document.getElementById('f_apikey').value.trim();
   // Construir URL — estrato_puesto solo si hay horizonte
   const dgkey=document.getElementById('f_dgkey').value.trim();
   let url='https://candeladileo-sys.github.io/potenciaIA/?token='+token+'&nombre='+encodeURIComponent(_nombre)+'&edad='+edad;

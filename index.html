@@ -114,11 +114,13 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 </head>
 <body>
 
-
-<!-- Firebase Compat (funciona sin módulos ES) -->
+<!-- Firebase Compat -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
+  window._firebaseReady = false;
+  window._db = null;
+
   const firebaseConfig = {
     apiKey:"AIzaSyBHM3tvO-LmzMvTkCIKC476tE3sqmJs1QM",
     authDomain:"potencia-bccf7.firebaseapp.com",
@@ -127,12 +129,20 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     messagingSenderId:"748478455182",
     appId:"1:748478455182:web:191cd421c86f5aad1858df"
   };
-  firebase.initializeApp(firebaseConfig);
-  const _db = firebase.firestore();
+
+  try {
+    firebase.initializeApp(firebaseConfig);
+    window._db = firebase.firestore();
+    window._firebaseReady = true;
+    console.log('[Firebase] listo (compat)');
+  } catch(e) {
+    console.error('[Firebase] error al inicializar:', e.message);
+  }
 
   window.guardarEvaluacion = async function(data) {
+    if (!window._db) { console.error('[Firebase] _db no disponible'); return null; }
     try {
-      const docRef = await _db.collection('evaluaciones').add({
+      const docRef = await window._db.collection('evaluaciones').add({
         ...data,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -145,9 +155,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   };
 
   window.actualizarEvaluacion = async function(id, data) {
+    if (!window._db) { console.error('[Firebase] _db no disponible'); return false; }
     for (let i = 1; i <= 3; i++) {
       try {
-        await _db.collection('evaluaciones').doc(id).update(data);
+        await window._db.collection('evaluaciones').doc(id).update(data);
         console.log('[Firebase] actualizado:', id);
         return true;
       } catch(e) {
@@ -157,9 +168,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     }
     return false;
   };
-
-  window._firebaseReady = true;
-  console.log('[Firebase] listo (compat)');
 </script>
 
 <div class="container">
@@ -201,7 +209,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       <div style="margin-top:20px;padding:16px;background:var(--azul-light);border:1.5px solid var(--azul-mid);border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
         <div>
           <div style="font-size:13px;font-weight:600;color:var(--azul);">Modo Demo</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Probá el flujo completo sin API key. Las intervenciones y el resultado son de ejemplo.</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Probá el flujo completo sin API key.</div>
         </div>
         <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;">
           <input type="checkbox" id="demoToggle" onchange="toggleDemo()" style="opacity:0;width:0;height:0;">
@@ -220,8 +228,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   <div class="screen" id="screenTopic">
     <div class="card">
       <h2>Antes de comenzar</h2>
-      <p>Escuchá la introducción completa antes de ver tu tema. El tema aparecerá en la cuenta regresiva — a partir de ese momento, tenés los segundos del countdown para empezar a pensar.</p>
-      <p>La idea es ver <strong style="color:var(--verde)">cómo organizás tu discurso</strong>. No se realizará ningún juicio de valor sobre lo que digas. Tenés entre 6 y 10 minutos.</p>
+      <p>Escuchá la introducción completa antes de ver tu tema. El tema aparecerá en la cuenta regresiva.</p>
+      <p>La idea es ver <strong style="color:var(--verde)">cómo organizás tu discurso</strong>. Tenés entre 6 y 10 minutos.</p>
     </div>
     <div class="btn-row">
       <button class="btn btn-primary" id="btnStartIntro" onclick="startIntroThenCountdown()">Escuchar introducción →</button>
@@ -286,7 +294,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     </div>
   </div>
 
-  <!-- SCREEN 4: GRACIAS (candidato — nunca ve el análisis) -->
+  <!-- SCREEN 4: GRACIAS -->
   <div class="screen" id="screenThanks">
     <div style="text-align:center;padding:80px 24px;">
       <div class="thanks-check">✓</div>
@@ -315,17 +323,17 @@ const candidatoPuesto = decodeURIComponent(urlParams.get('puesto')  || '');
 const estratoPuesto   = parseInt(urlParams.get('estrato_puesto'))   || null;
 const sessionToken    = urlParams.get('token')                      || '';
 const apiKeyFromUrl   = urlParams.get('api_key')                    || '';
-const dgKeyFromUrl     = urlParams.get('dg_key')                     || '';
+const dgKeyFromUrl    = urlParams.get('dg_key')                     || '';
 
 if (candidatoNombre || candidatoEdad || candidatoPuesto) {
   document.getElementById('candidatoInfo').classList.add('visible');
   if (candidatoNombre) {
     document.getElementById('ciNombre').textContent = candidatoNombre;
-    document.getElementById('welcomeTitle').textContent = `Hola, ${candidatoNombre.split(' ')[0]}`;
+    document.getElementById('welcomeTitle').textContent = 'Hola, ' + candidatoNombre.split(' ')[0];
   }
-  if (candidatoEdad)   document.getElementById('ciEdad').textContent    = candidatoEdad + ' años';
-  if (candidatoPuesto) document.getElementById('ciPuesto').textContent  = candidatoPuesto;
-  if (estratoPuesto)   document.getElementById('ciEstratoPuesto').textContent = `Puesto E ${['','I','II','III','IV','V'][estratoPuesto] || estratoPuesto}`;
+  if (candidatoEdad)   document.getElementById('ciEdad').textContent   = candidatoEdad + ' años';
+  if (candidatoPuesto) document.getElementById('ciPuesto').textContent = candidatoPuesto;
+  if (estratoPuesto)   document.getElementById('ciEstratoPuesto').textContent = 'Puesto E ' + (['','I','II','III','IV','V'][estratoPuesto] || estratoPuesto);
   if (apiKeyFromUrl)   document.getElementById('apiKeyGroup').style.display = 'none';
 }
 
@@ -352,11 +360,12 @@ function toggleDemo() {
 const DEMO_RESULT = {
   estrato:2, subestrato:'E2-medio', modo_procesamiento:'Acumulativo (Y-Y)', modo_curva:'III',
   confianza:65, nombre_estrato:'Acumulación Diagnóstica', horizonte_implicito:'meses',
-  resumen:'MODO DEMO — El participante mostró un patrón acumulativo: acumuló múltiples causas hacia un diagnóstico propio.',
+  resumen:'MODO DEMO — El participante mostró un patrón acumulativo.',
   evidencias:['DEMO: Acumuló causas distintas hacia un diagnóstico central.'],
   alertas:['Resultado de ejemplo — modo demo activo.']
 };
 
+// FIX: selección aleatoria verdadera — nunca repite el mismo tema en la misma sesión
 const TOPICS = [
   'Legalización de la droga',
   'Inseguridad ciudadana',
@@ -364,37 +373,46 @@ const TOPICS = [
   'Deserción escolar'
 ];
 
+// Barajar los temas al cargar la página (Fisher-Yates)
+const TOPICS_SHUFFLED = [...TOPICS];
+for (let i = TOPICS_SHUFFLED.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [TOPICS_SHUFFLED[i], TOPICS_SHUFFLED[j]] = [TOPICS_SHUFFLED[j], TOPICS_SHUFFLED[i]];
+}
+let topicIndex = 0; // avanzamos en la lista barajada
+
 // ══════════════════════════════════════════════════
 // ESTADO GLOBAL
 // ══════════════════════════════════════════════════
-let apiKey             = apiKeyFromUrl || '';
-const DEEPGRAM_KEY     = dgKeyFromUrl; // viene de la URL generada por el dashboard
+let apiKey            = apiKeyFromUrl || '';
+const DEEPGRAM_KEY    = dgKeyFromUrl;
 
-// ── MediaRecorder para grabación de audio completo ──
-let mediaRecorder      = null;
-let audioChunks        = [];
-let audioStream        = null;
-let selectedTopic      = '';
-let timerInterval      = null;
-let elapsedSeconds     = 0;
-let interruptionCount  = 0;
-let transcriptLog      = [];
-let isSpeaking         = false;
-let interviewPhase     = 'idle';
-let lastUserText       = '';
-let accumulatedUserText= '';
-let synthesisRequested = false;
-let waveInterval       = null;
-let interruptionTimes  = [];
-let lastSpeechTimestamp= Date.now();
-let closingSilenceTimer= null;
-let pendingFinalBuf    = '';
-let recognitionInstance= null;
-let flushTimer         = null;
+let mediaRecorder     = null;
+let audioChunks       = [];
+let audioStream       = null;
+let selectedTopic     = '';
+let timerInterval     = null;
+let elapsedSeconds    = 0;
+let interruptionCount = 0;
+let transcriptLog     = [];
+let isSpeaking        = false;
+let interviewPhase    = 'idle';
+let lastUserText      = '';
+let accumulatedUserText = '';
+let synthesisRequested  = false;
+let waveInterval      = null;
+let interruptionTimes = [];
+let lastSpeechTimestamp = Date.now();
+let closingSilenceTimer = null;
+let pendingFinalBuf   = '';
+let recognitionInstance = null;
+let flushTimer        = null;
+// FIX: flag para evitar doble interrupción concurrente
+let interruptionInProgress = false;
 
-const MAX_DURATION    = 600;   // 10 min
-const SYNTHESIS_TIME  = 510;   // 8:30
-const SILENCE_FOR_CLOSE = 20000; // 20s de silencio post-6min
+const MAX_DURATION      = 600;
+const SYNTHESIS_TIME    = 510;
+const SILENCE_FOR_CLOSE = 20000;
 
 // ── UI ──
 function showScreen(id) {
@@ -471,8 +489,8 @@ function speak(text) {
     if (bestVoice) u.voice = bestVoice;
     isSpeaking = true;
     setStatus('speaking', text.length > 80 ? text.slice(0,80)+'...' : text);
-    u.onend = () => { isSpeaking = false; resolve(); };
-    u.onerror = () => { isSpeaking = false; resolve(); };
+    u.onend = () => { isSpeaking = false; setStatus('listening', 'Escuchando...'); resolve(); };
+    u.onerror = () => { isSpeaking = false; setStatus('listening', 'Escuchando...'); resolve(); };
     speechSynthesis.speak(u);
   });
 }
@@ -482,10 +500,10 @@ function startSetup() {
   const inputKey = document.getElementById('apiKeyInput').value.trim();
   if (inputKey) apiKey = inputKey;
   if (!demoMode && !apiKey) { alert('Por favor ingresá tu API Key de Anthropic, o activá el Modo Demo.'); return; }
-  let newTopic, attempts = 0;
-  do { newTopic = TOPICS[Math.floor(Math.random() * TOPICS.length)]; attempts++; }
-  while (newTopic === selectedTopic && TOPICS.length > 1 && attempts < 10);
-  selectedTopic = newTopic;
+  // FIX: tomar el siguiente tema de la lista barajada
+  selectedTopic = TOPICS_SHUFFLED[topicIndex % TOPICS_SHUFFLED.length];
+  topicIndex++;
+  console.log('[Topic] seleccionado:', selectedTopic);
   showScreen('screenTopic');
 }
 
@@ -522,16 +540,16 @@ function triggerCountdown() {
 async function startInterview() {
   elapsedSeconds = 0; interruptionCount = 0; transcriptLog = [];
   accumulatedUserText = ''; lastUserText = ''; pendingFinalBuf = '';
-  synthesisRequested = false; interviewPhase = 'speaking'; lastSpeechTimestamp = Date.now();
+  synthesisRequested = false; interviewPhase = 'speaking';
+  lastSpeechTimestamp = Date.now(); interruptionInProgress = false;
   clearTimeout(closingSilenceTimer);
+  // Tiempos de interrupción: 1ª entre 2:30-3:30, 2ª entre 5:00-6:00
   interruptionTimes = [ 150 + Math.floor(Math.random()*60), 300 + Math.floor(Math.random()*60) ];
   document.getElementById('transcriptArea').innerHTML = '<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px 0">El transcript aparecerá aquí mientras hablás</div>';
   initWaveform(); showScreen('screenInterview');
-  // Arrancar el listening ANTES de hablar — así no perdemos nada si el candidato
-  // empieza a hablar mientras el agente dice la intro
-  startTimer();
+  startAudioRecording();
   startContinuousListening();
-  startAudioRecording(); // ← grabar audio completo con MediaRecorder
+  startTimer();
   const intro = 'Adelante. Tenés entre seis y diez minutos para hablar sobre el tema que acabás de ver. Cuando quieras, comenzá.';
   await speak(intro);
   addTranscriptEntry('agent', intro);
@@ -541,7 +559,7 @@ async function startInterview() {
 
 // ── TIMER ──
 function startTimer() {
-  // Flush periódico cada 60s para no perder texto en discursos largos sin pausa
+  // Flush periódico cada 60s para no perder texto en discursos largos
   const periodicFlush = setInterval(() => {
     if (interviewPhase === 'ended') { clearInterval(periodicFlush); return; }
     if (!isSpeaking && pendingFinalBuf.trim().length > 3) {
@@ -549,22 +567,27 @@ function startTimer() {
       flushPendingText();
     }
   }, 60000);
+
   const ring = document.getElementById('ringProgress');
   const C = 2 * Math.PI * 80;
   timerInterval = setInterval(() => {
     elapsedSeconds++;
     const m = Math.floor(elapsedSeconds/60), s = elapsedSeconds%60;
-    document.getElementById('timerDisplay').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    document.getElementById('timerDisplay').textContent = m + ':' + s.toString().padStart(2,'0');
     ring.style.strokeDashoffset = C - (Math.min(elapsedSeconds/MAX_DURATION,1)*C);
     if (elapsedSeconds >= 60) document.getElementById('btnSynthesis').disabled = false;
     if (elapsedSeconds >= 360) { ring.style.stroke = 'var(--azul)'; document.getElementById('m6').classList.add('active'); }
     if (elapsedSeconds >= SYNTHESIS_TIME && !synthesisRequested) { synthesisRequested = true; triggerSynthesisRequest(); }
     if (elapsedSeconds >= MAX_DURATION) { clearInterval(timerInterval); endInterview(); return; }
-    if (interruptionCount < 2 && !isSpeaking && interviewPhase === 'speaking') {
+
+    // FIX: solo disparar interrupción si no hay una en curso
+    if (interruptionCount < 2 && !isSpeaking && !interruptionInProgress && interviewPhase === 'speaking') {
       const silence = (Date.now() - lastSpeechTimestamp) / 1000;
       const passedMin = elapsedSeconds >= interruptionTimes[interruptionCount];
       const forced    = elapsedSeconds >= interruptionTimes[interruptionCount] + 90;
-      if (passedMin && (silence >= 3 || forced)) triggerInterruption();
+      if (passedMin && (silence >= 3 || forced)) {
+        triggerInterruption();
+      }
     }
   }, 1000);
 }
@@ -598,7 +621,6 @@ function resetClosingSilenceTimer() {
 
 async function triggerClosingSynthesis() {
   if (interviewPhase === 'ended') return;
-  stopListening();
   flushPendingText();
   await new Promise(r => setTimeout(r, 400));
   const wb = document.getElementById('warningBox');
@@ -606,10 +628,6 @@ async function triggerClosingSynthesis() {
   wb.classList.add('visible');
   await speak('Bien, antes de cerrar, hacé una síntesis de los puntos más importantes que planteaste.');
   addTranscriptEntry('agent', 'Hacé una síntesis de los puntos más importantes que planteaste.');
-  if (interviewPhase !== 'ended') {
-    recognitionInstance = null;
-    startContinuousListening();
-  }
 }
 
 // ── SPEECH RECOGNITION ──
@@ -623,25 +641,16 @@ function initRecognition() {
 
   rec.onresult = (e) => {
     if (interviewPhase === 'ended') return;
-    // Si el agente está hablando, igual acumulamos — solo no hacemos UI ni flush
-    if (isSpeaking) {
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (e.results[i].isFinal) {
-          pendingFinalBuf    += e.results[i][0].transcript + ' ';
-          accumulatedUserText += e.results[i][0].transcript + ' ';
-        }
-      }
-      return;
-    }
+    // FIX: acumular incluso cuando el agente está hablando — NUNCA cortar
     clearTimeout(flushTimer);
-    resetClosingSilenceTimer();
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
       if (e.results[i].isFinal) {
         const t = e.results[i][0].transcript;
-        pendingFinalBuf    += t + ' ';
+        pendingFinalBuf     += t + ' ';
         accumulatedUserText += t + ' ';
-        if (!synthesisRequested && interviewPhase === 'speaking' && detectsClosingPhrase(t)) {
+        // Solo procesar cierre si NO está el agente hablando
+        if (!isSpeaking && !synthesisRequested && interviewPhase === 'speaking' && detectsClosingPhrase(t)) {
           clearTimeout(closingSilenceTimer);
           synthesisRequested = true;
           document.getElementById('btnSynthesis').disabled = true;
@@ -651,21 +660,30 @@ function initRecognition() {
         interim = e.results[i][0].transcript;
       }
     }
-    const disp = (pendingFinalBuf + interim).slice(-90);
-    setStatus('listening', '"' + disp + '"');
+    // Solo actualizar UI y timers de silencio cuando no está el agente hablando
+    if (!isSpeaking) {
+      resetClosingSilenceTimer();
+      const disp = (pendingFinalBuf + interim).slice(-90);
+      setStatus('listening', '"' + disp + '"');
+      lastUserText = (pendingFinalBuf + interim).trim();
+      flushTimer = setTimeout(() => flushPendingText(), 2000);
+    }
     console.log('[Speech] final buf:', pendingFinalBuf.length, 'chars | interim:', interim.length);
-    lastUserText = (pendingFinalBuf + interim).trim();
-    flushTimer = setTimeout(() => flushPendingText(), 2000);
   };
 
   rec.onend = () => {
+    // FIX: siempre reiniciar — nunca dejar el recognition muerto durante la entrevista
     if (interviewPhase !== 'ended') {
-      setTimeout(() => { if (interviewPhase !== 'ended') { try { rec.start(); } catch(err) {} } }, 300);
+      setTimeout(() => {
+        if (interviewPhase !== 'ended') {
+          try { rec.start(); } catch(err) { console.warn('[Speech] reinicio:', err.message); }
+        }
+      }, 300);
     }
   };
 
   rec.onerror = (e) => {
-    if (e.error !== 'no-speech' && e.error !== 'aborted') console.warn('[Speech]', e.error);
+    if (e.error !== 'no-speech' && e.error !== 'aborted') console.warn('[Speech] error:', e.error);
   };
 
   return rec;
@@ -682,43 +700,60 @@ function flushPendingText() {
 function startContinuousListening() {
   if (!recognitionInstance) recognitionInstance = initRecognition();
   if (!recognitionInstance) return;
-  try { recognitionInstance.start(); } catch(err) {}
+  try { recognitionInstance.start(); } catch(err) { console.warn('[Speech] start:', err.message); }
   setStatus('listening', 'Escuchando...');
 }
 
-function stopListening() {
-  if (recognitionInstance) { try { recognitionInstance.stop(); } catch(e) {} }
+function stopListeningFinal() {
+  // Solo para el cierre definitivo de la entrevista
+  if (recognitionInstance) {
+    try { recognitionInstance.abort(); } catch(e) {}
+    recognitionInstance = null;
+  }
 }
 
 // ── INTERRUPCIONES ──
+// FIX PRINCIPAL: NO detener el recognition durante la interrupción
+// El recognition sigue corriendo — el agente habla por TTS encima
 async function triggerInterruption() {
-  if (interviewPhase === 'ended') return;
-  interviewPhase = 'interrupted';
-  stopListening();
+  if (interviewPhase === 'ended' || interruptionInProgress) return;
+  interruptionInProgress = true;
+
+  // Volcar texto acumulado antes de interrumpir
   flushPendingText();
   lastUserText = '';
-  // Esperar a que el recognition termine de detenerse
-  await new Promise(r => setTimeout(r, 600));
+
   document.getElementById('int' + (interruptionCount + 1)).classList.add('done');
   interruptionCount++;
   setStatus('speaking', 'PotenciaIA tiene una intervención...');
+
+  // Generar pregunta (recognition sigue corriendo en background)
   const question = await generateInterruptionQuestion(accumulatedUserText.slice(-400));
+
   showQuestionOverlay(question);
-  await speak(question);
+  await speak(question);  // isSpeaking=true durante este tiempo — recognition acumula pero no hace UI
   addTranscriptEntry('agent', question);
+
   setTimeout(() => hideQuestionOverlay(), 1500);
+
   interviewPhase = 'speaking';
-  lastUserText = ''; lastSpeechTimestamp = Date.now();
+  lastUserText = '';
+  lastSpeechTimestamp = Date.now();
+  interruptionInProgress = false;
+
+  // Recognition ya estaba corriendo — solo actualizar status
   setStatus('listening', 'Tu respuesta...');
-  // Reiniciar recognition desde cero para evitar "already started"
-  recognitionInstance = null;
-  startContinuousListening();
 }
 
 async function generateInterruptionQuestion(context) {
   if (demoMode) {
     const lw = context.trim().split(' ').slice(-4).join(' ');
-    const demos = [`Antes dijiste "${lw}", ¿podés ampliar eso?`, '¿Qué más me podés contar sobre eso?', '¿Cómo lo pensás vos?', '¿Podés desarrollar ese punto un poco más?'];
+    const demos = [
+      'Antes dijiste "' + lw + '", ¿podés ampliar eso?',
+      '¿Qué más me podés contar sobre eso?',
+      '¿Cómo lo pensás vos?',
+      '¿Podés desarrollar ese punto un poco más?'
+    ];
     return demos[interruptionCount % demos.length];
   }
   const words = context.trim().split(/\s+/).filter(Boolean);
@@ -726,30 +761,36 @@ async function generateInterruptionQuestion(context) {
     const fallbacks = ['¿Podés contarme más?', '¿Qué más?', '¿Podés desarrollar eso?'];
     return fallbacks[interruptionCount % fallbacks.length];
   }
-  const systemPrompt = `Sos un entrevistador del Método de Análisis del Discurso de Analía Blaistein.
-Tu única función es lograr que el candidato AMPLÍE lo que ya dijo. NO introducís contenido nuevo.
-Solo tomás palabras literales de su discurso y pedís que desarrolle.
-FÓRMULAS: "Antes dijiste [palabras literales], ¿podés ampliar eso?", "¿Qué más?", "¿Cómo lo pensás vos?", "¿A qué te referís con [término exacto]?"
-Máximo 15 palabras. Solo la frase, sin comillas ni prefijos.`;
+  const lastWords = context.trim().split(' ').slice(-6).join(' ');
+  const systemPrompt = 'Sos un entrevistador del Método de Análisis del Discurso de Analía Blaistein. Tu única función es lograr que el candidato AMPLÍE lo que ya dijo. NO introducís contenido nuevo. Solo tomás palabras literales de su discurso y pedís que desarrolle. FÓRMULAS: "Antes dijiste [palabras literales], ¿podés ampliar eso?", "¿Qué más?", "¿Cómo lo pensás vos?", "¿A qué te referís con [término exacto]?" Máximo 15 palabras. Solo la frase, sin comillas ni prefijos.';
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
-      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:80, system:systemPrompt,
-        messages:[{ role:'user', content:`El participante dijo: "${context.slice(-300)}". Generá la intervención.` }] })
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 80,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: 'El participante dijo: "' + context.slice(-300) + '". Generá la intervención anclada en sus últimas palabras: "' + lastWords + '"' }]
+      })
     });
+    if (!res.ok) { throw new Error('API ' + res.status); }
     const data = await res.json();
     return data.content[0].text.trim();
   } catch(e) {
-    const lw = context.split(' ').slice(-5).join(' ');
-    return `Antes dijiste "${lw}", ¿podés ampliar sobre eso?`;
+    console.warn('[InterruptionQ] falló, usando fallback:', e.message);
+    return 'Antes dijiste "' + lastWords + '", ¿podés ampliar sobre eso?';
   }
 }
 
 // ── SÍNTESIS ──
 async function triggerSynthesisRequest() {
   if (interviewPhase === 'ended') return;
-  stopListening();
   flushPendingText();
   await new Promise(r => setTimeout(r, 400));
   const wb = document.getElementById('warningBox');
@@ -757,40 +798,31 @@ async function triggerSynthesisRequest() {
   wb.classList.add('visible');
   await speak('Llevás ya más de ocho minutos. Te pido que hagas una síntesis de los puntos más importantes que planteaste.');
   addTranscriptEntry('agent', 'Te pido una síntesis de los puntos más importantes que planteaste.');
-  if (interviewPhase !== 'ended') {
-    recognitionInstance = null;
-    startContinuousListening();
-  }
 }
 
 async function requestSynthesis() {
   if (synthesisRequested) return;
   synthesisRequested = true;
   document.getElementById('btnSynthesis').disabled = true;
-  stopListening();
   flushPendingText();
   await new Promise(r => setTimeout(r, 400));
   await speak('Bien. ¿Podés hacer una síntesis de lo que planteaste hasta ahora?');
   addTranscriptEntry('agent', '¿Podés hacer una síntesis de lo que planteaste hasta ahora?');
-  if (interviewPhase !== 'ended') {
-    recognitionInstance = null;
-    startContinuousListening();
-  }
 }
 
 // ── RESPALDO TXT ──
 function descargarTranscriptEmergencia(transcript, nombre) {
   try {
     const fecha = new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
-    const archivo = `PotenciaIA_${(nombre||'candidato').replace(/\s+/g,'_')}_${fecha}.txt`;
+    const archivo = 'PotenciaIA_' + (nombre||'candidato').replace(/\s+/g,'_') + '_' + fecha + '.txt';
     const contenido = [
       '═══════════════════════════════',
       'POTENCIAÍA · Transcript evaluación',
       '═══════════════════════════════',
-      `Candidato: ${nombre || 'No registrado'}`,
-      `Tema: ${selectedTopic}`,
-      `Fecha: ${new Date().toLocaleString('es-AR')}`,
-      `Duración: ${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
+      'Candidato: ' + (nombre || 'No registrado'),
+      'Tema: ' + selectedTopic,
+      'Fecha: ' + new Date().toLocaleString('es-AR'),
+      'Duración: ' + Math.floor(elapsedSeconds/60) + ' min ' + (elapsedSeconds%60) + ' seg',
       '═══════════════════════════════',
       '', transcript
     ].join('\n');
@@ -802,17 +834,14 @@ function descargarTranscriptEmergencia(transcript, nombre) {
   } catch(err) { console.error('[TXT backup]', err); }
 }
 
-// ══════════════════════════════════════════════════
-// FIN DE ENTREVISTA
-// ══════════════════════════════════════════════════
-// ── GRABACIÓN DE AUDIO (MediaRecorder) ──
+// ── GRABACIÓN DE AUDIO ──
 async function startAudioRecording() {
   try {
     audioChunks = [];
     audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
     mediaRecorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm' });
     mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
-    mediaRecorder.start(1000); // chunk cada 1 segundo
+    mediaRecorder.start(1000);
     console.log('[Audio] grabación iniciada');
   } catch(e) {
     console.warn('[Audio] no se pudo iniciar grabación:', e.message);
@@ -834,188 +863,154 @@ function stopAudioRecording() {
 }
 
 async function transcribirConDeepgram(audioBlob) {
-  if (!audioBlob || audioBlob.size < 1000) {
-    console.warn('[Deepgram] audio demasiado corto o vacío');
-    return null;
-  }
+  if (!audioBlob || audioBlob.size < 1000) { console.warn('[Deepgram] audio demasiado corto'); return null; }
+  if (!DEEPGRAM_KEY) { console.warn('[Deepgram] sin key'); return null; }
   try {
-    console.log('[Deepgram] enviando audio para transcribir...');
+    console.log('[Deepgram] enviando audio...');
     const res = await fetch('https://api.deepgram.com/v1/listen?model=nova-3&language=es&punctuate=true&paragraphs=true', {
       method: 'POST',
-      headers: {
-        'Authorization': 'Token ' + DEEPGRAM_KEY,
-        'Content-Type': 'audio/webm',
-      },
+      headers: { 'Authorization': 'Token ' + DEEPGRAM_KEY, 'Content-Type': 'audio/webm' },
       body: audioBlob
     });
-    if (!res.ok) {
-      const err = await res.text();
-      console.error('[Deepgram] error:', res.status, err);
-      return null;
-    }
+    if (!res.ok) { const err = await res.text(); console.error('[Deepgram] error:', res.status, err); return null; }
     const data = await res.json();
     const transcript = data?.results?.channels?.[0]?.alternatives?.[0]?.transcript || '';
     console.log('[Deepgram] transcript recibido:', transcript.length, 'chars');
     return transcript;
-  } catch(e) {
-    console.error('[Deepgram] falló:', e.message);
-    return null;
-  }
+  } catch(e) { console.error('[Deepgram] falló:', e.message); return null; }
 }
 
+// ══════════════════════════════════════════════════
+// FIN DE ENTREVISTA
+// ══════════════════════════════════════════════════
 async function endInterview() {
   if (interviewPhase === 'ended') return;
   interviewPhase = 'ended';
 
-  // 1. Detener timers inmediatamente
   clearInterval(timerInterval); clearInterval(waveInterval);
   clearTimeout(closingSilenceTimer); clearTimeout(flushTimer);
 
-  // 2. Detener grabación y reconocimiento simultáneamente
-  const audioPromise = stopAudioRecording(); // ← inicia el stop de MediaRecorder
-  stopListening();
-  await new Promise(r => setTimeout(r, 1500)); // esperar últimos resultados de Web Speech
+  // Iniciar stop de audio
+  const audioPromise = stopAudioRecording();
 
-  // 3. Volcar TODO el texto pendiente AHORA (después de la espera)
+  // FIX: detener recognition SOLO al finalizar definitivamente
+  stopListeningFinal();
+  speechSynthesis.cancel();
+
+  // Esperar últimos resultados
+  await new Promise(r => setTimeout(r, 1500));
+
+  // Volcar todo el texto pendiente
   flushPendingText();
-  // Si hay texto acumulado que no fue flusheado (lastUserText contiene interim+final)
   if (lastUserText.trim().length > 3) {
     const lastEntry = transcriptLog[transcriptLog.length - 1];
     if (!lastEntry || lastEntry.speaker === 'agent') {
       addTranscriptEntry('user', lastUserText.trim());
-    } else if (lastEntry.speaker === 'user') {
-      // Añadir al último entry si es continuación
-      const extra = lastUserText.trim();
-      if (!lastEntry.text.includes(extra.slice(0, 20))) {
-        transcriptLog[transcriptLog.length - 1].text += ' ' + extra;
-      }
     }
   }
   pendingFinalBuf = ''; accumulatedUserText = ''; lastUserText = '';
 
-  // 4. Construir el transcript COMPLETO antes de hablar
+  // Construir transcript completo
   const fullTranscript = transcriptLog
     .map(e => '[' + Math.floor(e.time/60) + ':' + String(e.time%60).padStart(2,'0') + '] ' + (e.speaker==='agent'?'AGENTE':'PARTICIPANTE') + ': ' + e.text)
     .join('\n\n');
 
-  console.log('%c[TRANSCRIPT] total entradas: ' + transcriptLog.length + ' | palabras PARTICIPANTE: ' + fullTranscript.split('\\n').filter(l=>l.includes('PARTICIPANTE:')).join(' ').split(/\\s+/).length, 'background:#27ae60;color:white;font-size:14px;padding:4px 8px;');
-    console.log('[TRANSCRIPT COMPLETO]\n' + fullTranscript);
+  console.log('[TRANSCRIPT] total entradas:', transcriptLog.length);
+  console.log('[TRANSCRIPT COMPLETO]\n' + fullTranscript);
   console.log('[Transcript] palabras PARTICIPANTE:', fullTranscript.split('\n').filter(l=>l.includes('PARTICIPANTE:')).join(' ').split(/\s+/).length);
   console.log('[Transcript] preview:', fullTranscript.slice(0, 300));
 
-  // 5. RECIÉN AHORA hablar (isSpeaking no puede bloquear el onresult porque ya paramos)
   addTranscriptEntry('agent', 'Muchas gracias. Voy a analizar tu discurso ahora.');
   await speak('Muchas gracias. Voy a analizar tu discurso ahora.');
 
   document.getElementById('processingOverlay').classList.add('active');
 
-  // ── Obtener transcript de Deepgram (fuente principal) ──
   const _pt = document.querySelector('.processing-text');
   const _ps = document.querySelector('.processing-sub');
   if (_pt) _pt.textContent = 'Transcribiendo audio...';
   if (_ps) _ps.textContent = 'Esto puede tardar unos segundos';
 
-  let transcriptFinal = fullTranscript; // fallback = Web Speech
+  let transcriptFinal = fullTranscript;
   try {
     const audioBlob = await audioPromise;
     const dgTranscript = await transcribirConDeepgram(audioBlob);
     if (dgTranscript && dgTranscript.trim().length > 50) {
-      // Construir transcript enriquecido: header del agente + cuerpo de Deepgram
       const headerLines = transcriptLog
         .filter(e => e.speaker === 'agent')
         .map(e => '['+Math.floor(e.time/60)+':'+String(e.time%60).padStart(2,'0')+'] AGENTE: '+e.text)
         .join('\n\n');
       transcriptFinal = headerLines + '\n\n[TRANSCRIPT COMPLETO - Deepgram]\n' + dgTranscript;
-      console.log('%c[Deepgram] ✅ Transcript completo listo', 'background:#27ae60;color:white;padding:4px 8px;');
+      console.log('[Deepgram] ✅ Transcript completo listo');
     } else {
       console.warn('[Deepgram] falló o vacío, usando Web Speech como fallback');
     }
-  } catch(e) {
-    console.warn('[Deepgram] error, usando Web Speech:', e.message);
-  }
+  } catch(e) { console.warn('[Deepgram] error, usando Web Speech:', e.message); }
 
-  // ── Guardar transcript base en Firebase (con retry) ──
+  // Guardar en Firebase
   const datosBase = {
-    candidato:      candidatoNombre || 'Candidato',
-    edad:           candidatoEdad   || null,
-    puesto:         candidatoPuesto || null,
-    estrato_puesto: estratoPuesto   || null,
-    token:          sessionToken    || null,
-    tema:           selectedTopic,
-    duracion:       `${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
-    duracion_segundos: elapsedSeconds,
-    transcript:     transcriptFinal,
-    estado:         'pendiente_analisis',
-    estrato:        null, confianza: null,
-    resumen:        'Análisis en proceso...',
-    evidencias:     '', alertas: ''
+    candidato: candidatoNombre || 'Candidato', edad: candidatoEdad || null,
+    puesto: candidatoPuesto || null, estrato_puesto: estratoPuesto || null,
+    token: sessionToken || null, tema: selectedTopic,
+    duracion: Math.floor(elapsedSeconds/60) + ' min ' + (elapsedSeconds%60) + ' seg',
+    duracion_segundos: elapsedSeconds, transcript: transcriptFinal,
+    estado: 'pendiente_analisis', estrato: null, confianza: null,
+    resumen: 'Análisis en proceso...', evidencias: '', alertas: ''
   };
 
-  // Esperar hasta que Firebase esté listo (máx 8s)
   let firebaseId = null;
   let fbWait = 0;
-  while (!window._firebaseReady && fbWait < 8000) {
-    await new Promise(r => setTimeout(r, 200)); fbWait += 200;
-  }
+  while (!window._firebaseReady && fbWait < 8000) { await new Promise(r => setTimeout(r, 200)); fbWait += 200; }
   if (typeof window.guardarEvaluacion === 'function') {
     firebaseId = await window.guardarEvaluacion(datosBase);
-  console.log('[Firebase] ID guardado:', firebaseId, '| transcript chars:', fullTranscript.length);
+    console.log('[Firebase] ID guardado:', firebaseId, '| transcript chars:', transcriptFinal.length);
   }
   if (!firebaseId) {
-    console.warn('[Firebase] no se pudo guardar el base — descargando TXT de emergencia');
+    console.warn('[Firebase] no se pudo guardar — descargando TXT de emergencia');
     descargarTranscriptEmergencia(fullTranscript, candidatoNombre);
   }
 
-  // ── Análisis con Claude ──
-  const procText = document.querySelector('.processing-text');
-  const procSub  = document.querySelector('.processing-sub');
+  // Análisis con Claude
+  if (_pt) _pt.textContent = 'Analizando el discurso...';
+  if (_ps) _ps.textContent = 'Puede tardar hasta 90 segundos';
+
   let result;
   let analisisExitoso = false;
-
   try {
-    if (procText) procText.textContent = 'Analizando el discurso...';
-    if (procSub)  procSub.textContent  = 'Puede tardar hasta 90 segundos';
     const analysisPromise = analyzeWithClaude(transcriptFinal);
     const timeoutPromise  = new Promise((_,reject) => setTimeout(() => reject(new Error('timeout_90s')), 90000));
     result = await Promise.race([analysisPromise, timeoutPromise]);
     analisisExitoso = true;
-    if (procText) procText.textContent = 'Guardando resultados...';
+    if (_pt) _pt.textContent = 'Guardando resultados...';
   } catch(e) {
     console.error('[Análisis] falló:', e.message);
-    if (procText) procText.textContent = 'Guardando transcript...';
-    if (procSub)  procSub.textContent  = `Error: ${e.message} — el transcript fue guardado`;
+    if (_pt) _pt.textContent = 'Guardando transcript...';
+    if (_ps) _ps.textContent = 'Error: ' + e.message + ' — el transcript fue guardado';
     result = {
       estrato:0, subestrato:'N/A', modo_procesamiento:'Análisis pendiente',
       modo_curva:null, confianza:0, nombre_estrato:'Sin clasificación',
       horizonte_implicito:'N/A',
-      resumen:`Análisis automático no completado (${e.message}). Transcript guardado en Firebase para revisión manual.`,
-      evidencias:[], alertas:[`Error: ${e.message}`]
+      resumen: 'Análisis automático no completado (' + e.message + '). Transcript guardado.',
+      evidencias:[], alertas:['Error: ' + e.message]
     };
     await new Promise(r => setTimeout(r, 2000));
   }
 
-  // Calcular fit
   let fitResult = null;
   if (result.estrato > 0 && estratoPuesto) {
-    if (result.estrato === estratoPuesto)      fitResult = 'encaja';
-    else if (result.estrato > estratoPuesto)   fitResult = 'supera';
-    else                                        fitResult = 'no_alcanza';
+    if (result.estrato === estratoPuesto)    fitResult = 'encaja';
+    else if (result.estrato > estratoPuesto) fitResult = 'supera';
+    else                                      fitResult = 'no_alcanza';
   }
 
   const datosAnalisis = {
-    estado:             analisisExitoso ? 'completado' : 'analisis_fallido',
-    estrato:            result.estrato,
-    subestrato:         result.subestrato,
-    modo_procesamiento: result.modo_procesamiento,
-    modo_curva:         result.modo_curva || null,
-    nombre_estrato:     result.nombre_estrato,
-    horizonte:          result.horizonte_implicito,
-    confianza:          result.confianza,
-    resumen:            result.resumen,
-    evidencias:         (result.evidencias||[]).join(' | '),
-    alertas:            (result.alertas||[]).join(' | '),
-    fit:                fitResult,
-    transcript:         transcriptFinal
+    estado: analisisExitoso ? 'completado' : 'analisis_fallido',
+    estrato: result.estrato, subestrato: result.subestrato,
+    modo_procesamiento: result.modo_procesamiento, modo_curva: result.modo_curva || null,
+    nombre_estrato: result.nombre_estrato, horizonte: result.horizonte_implicito,
+    confianza: result.confianza, resumen: result.resumen,
+    evidencias: (result.evidencias||[]).join(' | '),
+    alertas: (result.alertas||[]).join(' | '),
+    fit: fitResult, transcript: transcriptFinal
   };
 
   try {
@@ -1026,11 +1021,7 @@ async function endInterview() {
     }
   } catch(e) {
     console.error('[Firebase] error guardando análisis:', e);
-    // Último recurso: descargar TXT con análisis
-    descargarTranscriptEmergencia(
-      fullTranscript + '\n\n---ANÁLISIS---\n' + JSON.stringify(datosAnalisis, null, 2),
-      candidatoNombre
-    );
+    descargarTranscriptEmergencia(fullTranscript + '\n\n---ANÁLISIS---\n' + JSON.stringify(datosAnalisis, null, 2), candidatoNombre);
   }
 
   document.getElementById('processingOverlay').classList.remove('active');
@@ -1039,7 +1030,7 @@ async function endInterview() {
 }
 
 // ══════════════════════════════════════════════════
-// ANÁLISIS CON CLAUDE — Algoritmo Solaas / Blaistein
+// ANÁLISIS CON CLAUDE
 // ══════════════════════════════════════════════════
 async function analyzeWithClaude(transcript) {
   if (demoMode) { await new Promise(r => setTimeout(r, 2500)); return DEMO_RESULT; }
@@ -1051,16 +1042,16 @@ async function analyzeWithClaude(transcript) {
       estrato:0, subestrato:'N/A', modo_procesamiento:'Discurso insuficiente',
       modo_curva:null, confianza:0, nombre_estrato:'Sin clasificación',
       horizonte_implicito:'N/A',
-      resumen:`El discurso fue demasiado breve (${palabrasParticipante} palabras, ~${Math.floor(elapsedSeconds/60)} min). Se requieren al menos 2 min continuos.`,
-      evidencias:[], alertas:[`Discurso insuficiente: ${palabrasParticipante} palabras en ${Math.floor(elapsedSeconds/60)} min.`]
+      resumen: 'El discurso fue demasiado breve (' + palabrasParticipante + ' palabras, ~' + Math.floor(elapsedSeconds/60) + ' min). Se requieren al menos 2 min continuos.',
+      evidencias:[], alertas:['Discurso insuficiente: ' + palabrasParticipante + ' palabras en ' + Math.floor(elapsedSeconds/60) + ' min.']
     };
   }
 
   const contextoExtra = [
-    candidatoNombre  ? `Nombre del candidato: ${candidatoNombre}` : '',
-    candidatoEdad    ? `Edad del candidato: ${candidatoEdad} años` : '',
-    candidatoPuesto  ? `Puesto al que aplica: ${candidatoPuesto}` : '',
-    estratoPuesto    ? `Estrato requerido por el puesto: E${['','I','II','III','IV','V'][estratoPuesto]||estratoPuesto}` : '',
+    candidatoNombre  ? 'Nombre del candidato: ' + candidatoNombre : '',
+    candidatoEdad    ? 'Edad del candidato: ' + candidatoEdad + ' años' : '',
+    candidatoPuesto  ? 'Puesto al que aplica: ' + candidatoPuesto : '',
+    estratoPuesto    ? 'Estrato requerido por el puesto: E' + (['','I','II','III','IV','V'][estratoPuesto]||estratoPuesto) : '',
   ].filter(Boolean).join('\n');
 
   const systemPrompt = `Sos un evaluador especializado en la Teoría de Sistemas Estratificados de Elliott Jaques, aplicando la metodología de Analía Blaistein para análisis del discurso oral.
@@ -1068,147 +1059,28 @@ async function analyzeWithClaude(transcript) {
 Tu tarea: clasificar el MODO DE PROCESAMIENTO MENTAL del participante según su discurso libre sobre un tema de opinión.
 
 PREMISA CENTRAL
-No clasificás por cargo, conocimiento del tema ni volumen de palabras. Clasificás ÚNICAMENTE por la ARQUITECTURA DEL RAZONAMIENTO. El mismo contenido puede expresarse en cualquier estrato — lo que clasifica es la ESTRUCTURA.
+No clasificás por cargo, conocimiento del tema ni volumen de palabras. Clasificás ÚNICAMENTE por la ARQUITECTURA DEL RAZONAMIENTO.
 
-════════════════════════════
-GUÍA RÁPIDA DE 5 PASOS (Blaistein)
-════════════════════════════
-1. ESCUCHAR Y SEGMENTAR: Identificá las ideas principales del discurso.
-2. BUSCAR INDICADORES en cada idea: tiempo, conectores, variables, condicionalidad, incertidumbre, perspectiva.
-3. COMPARAR CON LA MATRIZ: ¿Qué nivel describe mejor lo observado?
-4. DETECTAR PATRÓN DOMINANTE: ¿Qué nivel predomina? ¿Hay niveles combinados?
-5. VALIDAR COMPLEJIDAD: Validá según integración, relaciones, proyección temporal y manejo de incertidumbre.
+ALGORITMO DE CLASIFICACIÓN (Solaas):
+PASO 1 — ¿Hay SERIES? (mínimo 2 nexos / 3 elementos concatenados donde cada uno lleva lógicamente al siguiente)
+→ SÍ: PASO 2
+→ NO: ¿Hay ACUMULATIVO? → SÍ: E2 / NO: E1
 
-TABLA DE INDICADORES:
-- TIEMPO: Atemporal/Presente inmediato → bajo. Secuencia/Futuro/Escenarios → alto.
-- CONECTORES: Escasos/"y"/"además" → bajo. "porque"/"entonces"/"si... entonces"/"depende de" → alto.
-- VARIABLES: Aisladas/Sueltas → bajo. Relacionadas/Interdependientes → alto.
-- ORGANIZACIÓN: Lista/Afirmaciones sueltas → bajo. Proceso lógico/Estructura ramificada → alto.
-- INCERTIDUMBRE: Negada/Ignorada → bajo. Considerada/Integrada → alto.
-- PERSPECTIVA: Única/Fija → bajo. Múltiple/Sistémica → alto.
+PASO 2 — ¿Hay PARALELO? (series relacionadas entre sí, fundamentación requiere más de una serie)
+→ SÍ: E4 / NO: E3
 
-CONSEJO FINAL: Ningún discurso es 100% de un solo nivel. Observá qué predomina y cómo se combinan los niveles para interpretar con mayor precisión.
+ESTRATO I — DECLARATIVO: Declara opiniones independientes sin nexo causal. Soluciones operativas directas. Experiencia personal directa.
+ESTRATO II — ACUMULATIVO: Junta causas/evidencias hacia un diagnóstico propio. Una conclusión central.
+ESTRATO III — SERIAL: Cadena causal de mínimo 3 eslabones. Cada uno es condición del siguiente. Plan secuencial.
+ESTRATO IV — PARALELO: Múltiples cadenas alternativas comparadas con criterios sistémicos. Trade-offs. Supuestos propios.
 
-════════════════════════════
-ALGORITMO DE CLASIFICACIÓN (Solaas / Jaques) — seguí este orden exacto:
-════════════════════════════
-PASO 1 — ¿Hay SERIES?
-¿Existen elementos concatenados donde cada uno lleva lógicamente al siguiente? (Mínimo 2 nexos / 3 elementos)
-→ SÍ: ir al PASO 2
-→ NO: ir a ¿Hay ACUMULATIVO?
+TRAMPAS:
+- Volumen ≠ complejidad
+- Jerga técnica ≠ pensamiento complejo
+- Un destello no mueve el estrato — clasificar por patrón dominante sostenido
+- En caso de duda: nivel más bajo consistente
 
-PASO 2 — ¿Hay PARALELO?
-¿Las series están relacionadas entre sí? ¿La fundamentación requiere más de una serie a la vez?
-→ SÍ: ESTRATO IV
-→ NO: ESTRATO III
-
-Si no hay series:
-¿Hay ACUMULATIVO? ¿Junta causas/evidencias hacia un diagnóstico propio?
-→ SÍ: ESTRATO II
-→ NO: ESTRATO I
-
-════════════════════════════
-ESTRATO I — DECLARATIVO (O-O)
-════════════════════════════
-Horizonte: presente inmediato (1 día a 3 meses).
-Verbos típicos: ejecutar, realizar, aplicar, cumplir, seguir, repetir, verificar.
-Declara opiniones independientes sin nexo causal. Soluciones operativas directas. Sin secuencia ni acumulación.
-Conectores: escasos o ausentes. Temporalidad: atemporal. Abstracción: general y rígida.
-Condicionalidad: ausente. Manejo de incertidumbre: negado. Perspectiva: única y fija.
-Vocabulario: "es", "son", "siempre", "nunca", "habría que", "yo digo que", "y se terminó".
-
-CASO REAL CALIBRADO E1 — Maestra 48 años, tema DESERCIÓN ESCOLAR (Blaistein):
-"Entonces si ellos volvieran a tener esa autoridad como tenían antes, yo creo que muchos chicos no abandonarían el colegio, muchos chicos aprenderían no solamente para la prueba, sino que aprenderían para la vida. Cosa que nosotros cuando éramos más chicos aprendimos. Entonces, eso es un versus contra un versus. O sea, la calidad que están entregando ahora es muy baja. No es en cantidad, sino es en calidad lo que te están entregando. (...) A corto plazo qué sería, reducir la cantidad de alumnos en sala, ver la infraestructura de los colegios, que sean menos alumnos en clase para que el profesor pueda entregar todo lo que es lo que están, todos los conocimientos que deben entregar de la forma correcta... Ah, sí, ya listo por llenar, sí, se pasó el tema, vamos, pasemos al otro. (...) debería volver como al sistema antiguo, porque el profesor tiene la autoridad dentro del aula, ver qué pasa y que no haya tanta deserción."
-→ POR QUÉ ES E1: Basado en experiencia personal directa como estudiante (antes vs. ahora). Soluciones operativas directas (menos alumnos por clase, volver al sistema antiguo). Sin diagnóstico acumulado ni cadena causal. Horizonte: hechos del pasado reciente sin proyección.
-
-CASO SINTÉTICO CALIBRADO E1 — Legalización (Blaistein):
-"Y mirá, yo digo que la legalicen. Total, el que quiere consumir consume igual. Yo tengo un primo que fuma porro desde los 16 y no le pasó nada. Si legalizaran no habría tanto delincuente, eso seguro. Legalicen y se terminó."
-→ Razonamiento basado en experiencia personal directa. Causalidad de un solo paso. Horizonte: hechos recientes del barrio. "Y se terminó" — solución completa en una frase.
-
-════════════════════════════
-ESTRATO II — ACUMULATIVO (Y-Y)
-════════════════════════════
-Horizonte: 3 meses a 1 año.
-Verbos típicos: resolver, diagnosticar, analizar, identificar, reconocer patrones, comparar, priorizar, organizar.
-Junta observaciones en patrones. Conecta causas y consecuencias visibles. Una línea narrativa principal con evidencia.
-Conectores: "y", "también", "además", "pero también". Suma de causas → una conclusión central.
-Frente al futuro: anticipa consecuencias inmediatas de hechos actuales.
-
-CASO REAL CALIBRADO E2 — Ingeniero 26 años, tema DESERCIÓN ESCOLAR (Blaistein):
-"Eh, en general, es más común en los países en desarrollo, eh, donde los chicos tienen que desde temprano salir a trabajar, eh, para comer... es menos gente capacitada en el mercado laboral, es menos actividad económica por eso, es menos innovación, es menos, eh, menos mano de obra calificada... pienso en las elecciones acá en Argentina... en los debates presidenciales... en los padres que piensan en el colegio de los chicos... Si quiere aspirar a crecer, si quiere aspirar a vender servicios, a vender productos, a emprender... empieza con tener gente calificada."
-→ POR QUÉ ES E2 (consolidado): Acumula ejemplos uno tras otro (países en desarrollo, mercado laboral, actividad económica, innovación) sin construir verdaderas rutas alternativas. Los condicionales que aparecen son simples y aislados, no arquitecturas encadenadas. Una sola conclusión central.
-→ DESTELLOS E3 presentes pero no sostenidos: "si no tenés las condiciones en tu casa para estudiar, no tenés una mesa, no tenés acceso a las fotocopias... todo vuelve a la misma causa raíz" — construye cadena condicional pero no la ramifica. "capaz que no es una inversión que te da un retorno enseguida, por eso capaz es más difícil para algunos pensar en esa importancia" — reconoce rutas alternativas en forma tímida.
-
-CASO SINTÉTICO CALIBRADO E2 — Legalización (Blaistein):
-"Yo estoy a favor de legalizar, pero con regulación. Hace como tres o cuatro años atrás casi no había problema con la marihuana. Pero desde la pandemia para acá noté que cambió. Aparecieron cosas peores, tusi, pastillas raras, y los pibes no saben lo que están consumiendo. Mi argumento es así: si lo dejás todo prohibido, los pibes consumen igual pero compran cualquier cosa en la esquina, sin saber qué tiene. Si lo regulás, al menos sabés qué se está vendiendo, hay control sanitario, podés hacer campañas serias."
-→ Junta observaciones acumuladas hacia un diagnóstico propio. Distingue matices. Conecta con casos comparables. Horizonte de algunos años.
-
-CASO CALIBRADO E2-Alto (pasaje inminente a E3 — el más difícil de clasificar):
-"Lo que noto es que cuando el equipo no tiene claro para dónde va, empieza a haber fricciones. Yo vengo viendo eso hace un tiempo... la gente trabaja pero sin dirección, y eso genera un clima que después es difícil de revertir. Creo que el líder tiene que poder anticipar eso, no solo reaccionar cuando ya está el problema."
-→ POR QUÉ ES E2-Alto y NO E3: Acumula observaciones hacia un diagnóstico. Menciona anticipación pero NO construye cadena de pasos explícitos. No hay "si hago A primero, entonces B es posible".
-
-════════════════════════════
-ESTRATO III — SERIAL (Si→Entonces)
-════════════════════════════
-Horizonte: 1 a 2 años.
-Verbos típicos: diseñar, estructurar, construir (procesos/sistemas), desarrollar, definir criterios, establecer mecanismos, integrar, articular, planificar, anticipar (escenarios), implementar, gestionar (sistemas).
-Cadena causal de MÍNIMO 3 eslabones donde cada uno es condición del siguiente. Diseña un único plan con etapas dependientes explícitas.
-Conectores: "si... entonces", "porque eso me llevará a", "una vez que esté, recién ahí".
-Diseña un camino dominante con sub-frentes integrados. Identifica riesgos con mitigaciones.
-
-DIFERENCIA CRÍTICA E2 vs E3:
-E2: "El problema viene de la educación, y también de la pobreza, y también de los intereses creados." → SUMA de causas independientes.
-E3: "Si no despenalizamos primero, no podemos construir capacidad regulatoria, y sin esa capacidad, cualquier legalización posterior queda mal implementada." → CADENA donde A habilita B que habilita C.
-
-CASO SINTÉTICO CALIBRADO E3 — Legalización (Blaistein):
-"Mi posición es que tendría que haber una secuencia clara. La primera etapa sería despenalización del consumo y regulación medicinal — esto te permite descomprimir el sistema judicial Y construir capacidad regulatoria. La segunda etapa, legalización regulada tipo Uruguay — la regulación tiene que llegar ANTES que el mercado, porque si liberás sin estructura te quedan problemas nuevos. Cada etapa depende de la anterior."
-→ Dos etapas con dependencias explícitas. Cada etapa es condición de la siguiente. Horizonte 1-2 años.
-
-════════════════════════════
-ESTRATO IV — PARALELO (A si y solo si B)
-════════════════════════════
-Horizonte: 2 a 5 años.
-Verbos típicos: conceptualizar, formular, definir (estrategia), establecer (marcos), decidir (bajo incertidumbre), proyectar estratégicamente, reencuadrar, transformar, gobernar, liderar, incidir.
-Sostiene MÚLTIPLES cadenas alternativas en paralelo y las COMPARA con criterios sistémicos.
-Identifica trade-offs: "el camino A optimiza X pero deteriora Y". Ve interacciones entre subsistemas.
-Reconoce supuestos propios. Reflexión meta sobre las condiciones del debate.
-
-CASO CALIBRADO E4 — Legalización (Blaistein):
-"Hay tres modelos. El mercado tipo California: maximiza recaudación pero concentra y publicita. El Estado tipo Uruguay: recaudación menor pero preserva salud pública. El modelo Portugal: despenaliza sin tocar el mercado. Cada modelo excluye en parte a los otros, y la elección depende de qué variable priorizás. La discusión actual mezcla los tres marcos sin distinguirlos, y eso fragiliza cualquier defensa. Mi inclinación es que el camino sustentable combina salud pública y justicia social, dejando derechos como horizonte aspiracional — pero esto supone que el sistema de salud mantiene capacidad institucional, lo cual es problemático."
-→ Tres modelos en paralelo. Comparados en múltiples ejes. Reconoce trade-offs y supuestos propios. Reflexión meta sobre condiciones del debate. Horizonte estructural.
-
-════════════════════════════
-TRAMPAS CRÍTICAS — NUNCA IGNORAR
-════════════════════════════
-1. VOLUMEN ≠ COMPLEJIDAD. Un discurso extenso y coherente puede ser E1. El Caso A (maestra E1) habla mucho y con soluciones detalladas, pero todo es operativo y basado en experiencia directa.
-2. JERGA ≠ PENSAMIENTO. "Sistémico", "estructural", "estratégico" son palabras, no estructura.
-3. DESTELLO ≠ ESTRATO. Una cadena Si→Entonces aislada no mueve a E3. El caso de deserción tiene destellos E3 pero clasifica E2 porque el patrón dominante sostenido es acumulativo.
-4. DOMINIO: Si el tema es lejano a la experiencia del candidato, puede aparecer más bajo. Notarlo en alertas.
-5. DISCURSO BREVE: menos de 3 min → confianza máxima 45%.
-6. DESEMPATE: Si dudás entre dos estratos → clasificá por el NIVEL MÁS BAJO CONSISTENTE.
-7. PISTA RÁPIDA:
-   - ¿La persona habla desde experiencia personal directa? → I
-   - ¿La persona junta evidencia acumulada en un patrón con una conclusión? → II
-   - ¿La persona construye un plan secuencial multi-etapa con dependencias? → III
-   - ¿La persona compara modelos alternativos con trade-offs sistémicos? → IV
-
-SUBESTRATOS:
-• bajo: modo incipiente, aparece pero no consolidado
-• medio: modo predominante y consistente
-• alto: consolidado con destellos del nivel siguiente (indica pasaje próximo)
-
-CAMPO modo_curva (CRÍTICO para el Gráfico de Progreso del Potencial de Jaques):
-Cruzá estrato + subestrato + edad estimada:
-- E1 Bajo/Medio → "I" o "II"
-- E1 Alto / E2 Bajo → "II"
-- E2 Medio → "III"
-- E2 Alto → "III" (candidatos jóvenes < 28 → puede ser "IV")
-- E3 Bajo/Medio → "IV"
-- E3 Alto / E4 Bajo → "IV" o "V"
-- E4 Medio/Alto → "V" o "VI"
-Sin edad disponible: estimá por estrato y subestrato únicamente.
-
-Respondé ÚNICAMENTE con JSON válido (sin markdown, sin backticks, sin texto antes o después):
+Respondé ÚNICAMENTE con JSON válido (sin markdown, sin backticks):
 {
   "estrato": 2,
   "subestrato": "E2-medio",
@@ -1217,35 +1089,30 @@ Respondé ÚNICAMENTE con JSON válido (sin markdown, sin backticks, sin texto a
   "confianza": 78,
   "nombre_estrato": "Acumulación Diagnóstica",
   "horizonte_implicito": "meses",
-  "resumen": "2-3 frases describiendo el patrón cognitivo dominante con evidencia concreta del discurso.",
-  "evidencias": [
-    "Cita o patrón del discurso + señal cognitiva que ilustra por qué corresponde a ese estrato",
-    "Segunda evidencia concreta con cita",
-    "Tercera evidencia"
-  ],
-  "alertas": [
-    "Solo si hay algo relevante: discurso breve, destellos del nivel superior, dominio ajeno, posible ansiedad, etc."
-  ]
+  "resumen": "2-3 frases con evidencia concreta del discurso.",
+  "evidencias": ["Cita o patrón + señal cognitiva", "Segunda evidencia", "Tercera evidencia"],
+  "alertas": ["Solo si hay algo relevante"]
 }`;
 
-  const userMsg = `Analizá el siguiente transcript de evaluación PotenciaIA.
-
-TEMA: "${selectedTopic}"
-DURACIÓN: ${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg
-INTERVENCIONES DEL AGENTE: ${interruptionCount}
-${contextoExtra ? '\nCONTEXTO DEL CANDIDATO:\n' + contextoExtra : ''}
-
-TRANSCRIPT COMPLETO:
-${transcript}`;
+  const userMsg = 'Analizá el siguiente transcript de evaluación PotenciaIA.\n\nTEMA: "' + selectedTopic + '"\nDURACIÓN: ' + Math.floor(elapsedSeconds/60) + ' min ' + (elapsedSeconds%60) + ' seg\nINTERVENCIONES DEL AGENTE: ' + interruptionCount + '\n' + (contextoExtra ? '\nCONTEXTO DEL CANDIDATO:\n' + contextoExtra + '\n' : '') + '\nTRANSCRIPT COMPLETO:\n' + transcript;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
-      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1400, system:systemPrompt,
-        messages:[{ role:'user', content:userMsg }] })
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 1400,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMsg }]
+      })
     });
-    if (!res.ok) { const errBody = await res.text(); throw new Error(`API ${res.status}: ${errBody.slice(0,200)}`); }
+    if (!res.ok) { const errBody = await res.text(); throw new Error('API ' + res.status + ': ' + errBody.slice(0,200)); }
     const data = await res.json();
     if (!data.content || !data.content[0]) throw new Error('Respuesta vacía de la API');
     const clean = data.content[0].text.trim().replace(/```json|```/g,'').trim();
@@ -1258,11 +1125,14 @@ ${transcript}`;
 
 // ── RESTART ──
 function restart() {
-  speechSynthesis.cancel(); stopListening();
-  clearInterval(timerInterval); clearInterval(waveInterval); clearTimeout(closingSilenceTimer); clearTimeout(flushTimer);
+  speechSynthesis.cancel();
+  stopListeningFinal();
+  clearInterval(timerInterval); clearInterval(waveInterval);
+  clearTimeout(closingSilenceTimer); clearTimeout(flushTimer);
   elapsedSeconds=0; interruptionCount=0; transcriptLog=[];
-  accumulatedUserText=''; lastUserText=''; pendingFinalBuf=''; synthesisRequested=false; interviewPhase='idle';
-  lastSpeechTimestamp=Date.now(); recognitionInstance=null;
+  accumulatedUserText=''; lastUserText=''; pendingFinalBuf='';
+  synthesisRequested=false; interviewPhase='idle';
+  lastSpeechTimestamp=Date.now(); recognitionInstance=null; interruptionInProgress=false;
   document.getElementById('warningBox').classList.remove('visible');
   document.getElementById('int1').classList.remove('done');
   document.getElementById('int2').classList.remove('done');

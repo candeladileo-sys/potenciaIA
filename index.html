@@ -1035,8 +1035,18 @@ async function endInterview() {
 async function analyzeWithClaude(transcript) {
   if (demoMode) { await new Promise(r => setTimeout(r, 2500)); return DEMO_RESULT; }
 
-  const lineasParticipante = transcript.split('\n').filter(l => l.includes('PARTICIPANTE:')).join(' ');
-  const palabrasParticipante = lineasParticipante.split(/\s+/).filter(Boolean).length;
+  // Contar palabras: si el transcript tiene formato PARTICIPANTE: usarlo, si no (Deepgram plano) contar el bloque completo
+  let palabrasParticipante = 0;
+  const lineasPart = transcript.split('\n').filter(l => l.includes('PARTICIPANTE:')).join(' ');
+  if (lineasPart.trim().length > 0) {
+    palabrasParticipante = lineasPart.split(/\s+/).filter(Boolean).length;
+  } else {
+    const bloqueDeepgram = transcript.includes('[TRANSCRIPT COMPLETO - Deepgram]')
+      ? transcript.split('[TRANSCRIPT COMPLETO - Deepgram]')[1] || transcript
+      : transcript;
+    palabrasParticipante = bloqueDeepgram.trim().split(/\s+/).filter(Boolean).length;
+  }
+  console.log('[Análisis] palabras detectadas:', palabrasParticipante, '| segundos:', elapsedSeconds);
   if (palabrasParticipante < 30 || elapsedSeconds < 60) {
     return {
       estrato:0, subestrato:'N/A', modo_procesamiento:'Discurso insuficiente',

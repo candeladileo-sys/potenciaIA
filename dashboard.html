@@ -441,9 +441,9 @@ function renderInformeCompleto(c) {
   const fD=c.fit==='encaja'?'La CPA del candidato es igual al estrato requerido por el puesto.':c.fit==='supera'?'La CPA supera el puesto. Riesgo de frustración o subutilización.':'La CPA está por debajo del puesto. Posible estrés o decisiones erróneas.';
   const CRV=window._CURVA_B64||'';
   let html='<div class="informe-wrap" style="animation:fadeUp .3s ease">';
-  html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);">';
-  html+='<div class="inf-back" style="margin-bottom:0;" onclick="go(&apos;dashboard&apos;)">&#8592; Volver al dashboard</div>';
-  html+='<button onclick="descargarInformePDF()" style="background:var(--verde);color:white;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;display:flex;align-items:center;gap:8px;">&#8595; Descargar PDF</button>';
+  html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px;">';
+  html+='<span class="inf-back" style="margin-bottom:0;" onclick="go(&apos;dashboard&apos;)">&#8592; Volver al dashboard</span>';
+  html+='<button onclick="descargarInformePDF()" style="background:var(--verde);color:white;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">&#8595; Descargar PDF</button>';
   html+='</div>';
   html+='<div style="margin-bottom:28px;"><div style="font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--verde);margin-bottom:8px;">INFORME DE POTENCIAL</div>';
   html+='<div style="font-family:Lora,serif;font-size:28px;font-weight:600;">'+c.nombre+'</div>';

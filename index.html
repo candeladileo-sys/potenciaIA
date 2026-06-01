@@ -1089,7 +1089,7 @@ Máximo 15 palabras. Solo la frase, sin comillas ni prefijos.`;
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 80,
         system: systemPrompt,
         messages: [{ role: 'user', content: `El participante dijo: "${context.slice(-250)}". Generá la intervención.` }]
@@ -1483,7 +1483,7 @@ ${transcript}`;
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 1200,
         system: systemPrompt,
         messages: [{ role: 'user', content: userMsg }]

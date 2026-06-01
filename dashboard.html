@@ -940,7 +940,6 @@ function generarLink(){
   const estratoNum=document.getElementById('f_horizonte').value||'';
   const anthropicKey=document.getElementById('f_anthropic_key').value.trim();
   const deepgramKey=document.getElementById('f_deepgram_key').value.trim();
-  if(!estratoNum){alert('Por favor seleccioná el horizonte temporal del puesto.');return;}
   if(!anthropicKey){alert('Por favor ingresá la Anthropic API Key.');return;}
   if(!deepgramKey){alert('Por favor ingresá la Deepgram API Key.');return;}
   const url=`https://candeladileo-sys.github.io/potenciaIA/?token=${token}&nombre=${encodeURIComponent(nombre)}&edad=${edad}&puesto=${encodeURIComponent(puesto)}&estrato_puesto=${estratoNum}&anthropic_key=${encodeURIComponent(anthropicKey)}&dg_key=${encodeURIComponent(deepgramKey)}`;

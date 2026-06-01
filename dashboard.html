@@ -525,7 +525,7 @@ function renderTabla() {
   tbody.innerHTML = candidatos.map((c,i) => {
     const eClass  = c.estrato ? `e${c.estrato}` : '';
     const eLabel  = c.estrato ? `E ${estratosNombres[c.estrato]} — ${c.patron}` : '—';
-    const ePuesto = `<span class="epill e${c.estrato_puesto}">E ${estratosNombres[c.estrato_puesto]}</span>`;
+    const ePuesto = c.estrato_puesto ? `<span class="epill e${c.estrato_puesto}">E ${estratosNombres[c.estrato_puesto]}</span>` : '—';
     const estado  = c.estado === 'listo'        ? `<span class="sp-pill sp-listo">Informe listo</span>`
                   : c.estado === 'insuficiente'  ? `<span class="sp-pill" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d;">Discurso breve</span>`
                   : c.estado === 'pendiente'     ? `<span class="sp-pill sp-pendiente">Análisis pendiente</span>`

@@ -940,6 +940,7 @@ function generarLink(){
   const estratoNum=document.getElementById('f_horizonte').value||'';
   const anthropicKey=document.getElementById('f_anthropic_key').value.trim();
   const deepgramKey=document.getElementById('f_deepgram_key').value.trim();
+  if(!estratoNum){alert('Por favor seleccioná el horizonte temporal del puesto.');return;}
   if(!anthropicKey){alert('Por favor ingresá la Anthropic API Key.');return;}
   if(!deepgramKey){alert('Por favor ingresá la Deepgram API Key.');return;}
   const url=`https://candeladileo-sys.github.io/potenciaIA/?token=${token}&nombre=${encodeURIComponent(nombre)}&edad=${edad}&puesto=${encodeURIComponent(puesto)}&estrato_puesto=${estratoNum}&anthropic_key=${encodeURIComponent(anthropicKey)}&dg_key=${encodeURIComponent(deepgramKey)}`;
@@ -1186,173 +1187,200 @@ function renderInformeCompleto(c, CURVA_IMG) {
   const estrato = c.estrato || 2;
   const CURVA   = CURVA_IMG || window._CURVA_B64 || '';
   const ROM     = ['','I','II','III','IV','V','VI'];
-  const SNOMB   = { bajo:'Bajo', medio:'Medio', alto:'Alto' };
-  const HORIZ   = { 1:'1 día – 3 meses', 2:'3 meses – 1 año', 3:'1 – 2 años', 4:'2 – 5 años', 5:'5 – 10 años' };
-  const nombreCandidato = c.nombre || 'El candidato';
+  const SNOMB   = { bajo:'bajo', medio:'medio', alto:'alto' };
+  const nombreCandidato = (c.nombre || 'El candidato').split(' ')[0];
   const enPasaje = sub === 'alto';
+  const estratoSig = Math.min(estrato + 1, 5);
 
-  // Calcular los 3 puntos usando la función de progresión sobre la curva superior
+  const TEXTOS_CPA = {
+    1: {
+      parrafos: [
+        `En este estrato, ${nombreCandidato} podrá seguir un camino lineal prescripto hacia la meta según la continua retroalimentación que reciba, recurriendo a un método aprendido previamente para superar los obstáculos encontrados. Las tareas se le asignan en términos de resultados a lograr, que se podrían ilustrar de modo concreto mediante dibujos o ejemplos. Requiere que se le especifique tanto el método a emplear como los recursos que debe usar.`,
+        `La forma de resolver problemas consiste en superarlos a medida que surgen. Ante un problema, debe cambiar el curso de acción prescrito y tomar otro para el cual ha sido entrenado previamente. Debe usar su juicio práctico en la forma de prueba y error en la acción directa. Si a pesar de esto no puede resolver el problema, debe recurrir a su jefe/a.`,
+        `Se puede manejar en un marco de reglas preestablecidas. Se encuentra habilitado/a para desarrollar tareas operativas y afrontar problemas prácticos. Requiere de un encuadre de trabajo claramente establecido y definido a través de una meta concreta y parámetros dentro de los cuales desenvolverse.`,
+      ],
+      horizonte: 'desde un día hasta tres meses',
+    },
+    2: {
+      parrafos: [
+        `En este estrato, la producción de cada tarea no puede ser especificada totalmente: exige cierta interpretación. Para resolver los problemas, ${nombreCandidato} es capaz de exponer y acumular datos significativos a medida que se avanza, de modo de contar al final con la información apropiada para la resolución.`,
+        `Puede superar los obstáculos inmediatos mediante su acción directa, y además es capaz de tener en cuenta diversas variables al mismo tiempo y extraer conclusiones propias. Debe acumular y seleccionar deliberadamente datos que le permitan establecer los problemas que puedan surgir y tomar medidas para evitarlos o superarlos.`,
+        `Aún trabaja dentro de un marco estipulado de reglas. Aumenta la complejidad y ambigüedad de los temas a tratar, pero cada problema es afrontado en forma separada. La respuesta puede verse en términos de diferentes alternativas posibles.`,
+        `Es capaz de desarrollar las tareas de un primer nivel de conducción; es decir, analizar e interpretar datos e información con el objetivo de diagnosticar una problemática, reflexionar sobre lo que ocurre, de modo de detectar aquello que pudiera indicar problemas y obstáculos potenciales y tomar medidas para impedirlos o superarlos.`,
+      ],
+      horizonte: 'de 12 a 18 meses aproximadamente',
+    },
+    3: {
+      parrafos: [
+        `Para resolver los problemas de este estrato, ${nombreCandidato} ante todo examina la situación y establece varios caminos o rutas alternativas. Debe emplear no sólo su juicio directo y la acumulación diagnóstica, sino que es capaz de enmarcar todo el proceso en un plan que lleve a la meta a través de un cierto curso de acción previsto al principio. Puede definir un curso para los problemas de corto plazo y al mismo tiempo dar los primeros pasos hacia las metas de largo plazo.`,
+        `Será capaz de realizar extrapolaciones de tendencias dentro de ciertas reglas dadas. Une las instancias singulares y las ve como un sistema seriado que se desarrolla en el tiempo. Los caminos hacia la meta se ordenan como un árbol lógico.`,
+        `Esto habilita para desarrollar las tareas de una Gerencia Táctica de conducción directa: organizar actividades de corto plazo junto con otras de largo plazo, planificar recursos y costos y desarrollar sistemas de trabajo con un contacto directo con el nivel operacional.`,
+        `Puede paulatinamente comenzar a implementar el control y seguimiento de las políticas definidas por el nivel superior, extraer conclusiones lógicas a partir de los hechos cotidianos, establecer una cadena seriada de causas y efectos, detectar tendencias y realizar predicciones, planear tácticamente representándose mentalmente un campo amplio de responsabilidades.`,
+      ],
+      horizonte: 'entre 1 y 2 años',
+    },
+    4: {
+      parrafos: [
+        `En este estrato, ${nombreCandidato} debe procesar en paralelo varios proyectos que se afectan mutuamente, armonizándolos entre sí tanto en lo que hace a los tiempos como a los recursos. Para avanzar en estos cursos de acción múltiples puede hacer concesiones recíprocas entre las tareas a fin de seguir avanzando hacia la meta a lo largo de la ruta combinada.`,
+        `El trabajo en las tareas específicas tendrá siempre un doble objetivo: resolver el problema, y resolverlo creando principios generales que permitan en el futuro solucionar otros problemas del mismo tipo.`,
+        `Puede dirigir sub-proyectos desarrollados por otros, cada uno con su modalidad y tiempo, pero entre los que deberá mantener sincronía recíproca y ofrecer caminos alternativos si fuera necesario.`,
+      ],
+      horizonte: 'entre 2 y 5 años',
+    },
+    5: {
+      parrafos: [
+        `En este estrato, ${nombreCandidato} debe enfrentar con su acción directa a un calidoscopio de hechos y de consecuencias en cambio permanente, con una cantidad de variables excesivamente grande como para poder ser reflejadas en gráficos o instrumentos de planificación. Debe mantener el registro de las conexiones recíprocas entre las variables de la organización y del entorno e introducir ajustes de modo continuo.`,
+        `Aquí se pasa de la planificación predictiva a vislumbrar a largo plazo lo que se quiere lograr en los futuros 10 o 20 años, aunque no sea posible planear con recursos y presupuestos concretos. Debe juzgar cuál será la repercusión probable de los sucesos o cambios en cualquier parte del sistema y anticipar en forma activa los cambios que posiblemente sobrevendrán.`,
+      ],
+      horizonte: '5 a 10 años',
+    },
+  };
+
+  const TEXTOS_CPF = {
+    1: {
+      parrafos: [
+        `En este estrato, ${nombreCandidato} podrá no sólo superar los obstáculos inmediatos mediante su acción directa, sino que además será capaz de tener en cuenta diversas variables al mismo tiempo y extraer conclusiones propias. Podrá acumular y seleccionar deliberadamente datos que le permitan establecer los problemas que puedan surgir.`,
+        `Podrá reflexionar y analizar datos para obtener conclusiones y diagnósticos, acumular información presente y pasada, desarrollar un primer nivel de abstracción representándose el objetivo y los resultados a alcanzar. Podrá optar por distintas soluciones posibles, manejar más de una tarea o problema por vez pero dentro de una complejidad operativa.`,
+      ],
+      horizonte: 'hasta 12 meses aproximadamente',
+    },
+    2: {
+      parrafos: [
+        `En este estrato podrá delinear varias alternativas y diferentes aproximaciones al problema. Además, realizar el control y producción de manera directa. Le será posible cambiar la alternativa para enfrentar con mayor eficiencia los problemas que se vayan planteando en el trayecto hacia la meta. Podrá implementar, realizar el seguimiento y control del avance de una tarea o proyecto.`,
+        `Logrará extraer conclusiones lógicas a partir de los hechos y establecer una cadena seriada de causas y efectos. Será capaz de enmarcar todo el proceso en un plan que lleve a la meta a través de un cierto curso de acción previsto al principio.`,
+        `Podrá definir un curso para los problemas de corto plazo y al mismo tiempo dar los primeros pasos hacia las metas de largo plazo. Será capaz de cambiar hacia otros cursos de acción previstos de antemano si el elegido no resulta.`,
+      ],
+      horizonte: 'entre 1 y 2 años',
+    },
+    3: {
+      parrafos: [
+        `En este estrato podrá procesar en paralelo varios proyectos que se afectan mutuamente, armonizándolos entre sí tanto en lo que hace a los tiempos como a los recursos. Para avanzar en estos cursos de acción múltiples podrá hacer concesiones recíprocas entre las tareas a fin de seguir avanzando hacia la meta a lo largo de la ruta combinada.`,
+        `El trabajo en las tareas específicas tendrá siempre un doble objetivo: resolver el problema, y resolverlo creando principios generales que permitan en el futuro solucionar otros problemas del mismo tipo. Podrá dirigir sub-proyectos desarrollados por otros, manteniendo sincronía recíproca entre ellos y ofreciendo caminos alternativos si fuera necesario.`,
+      ],
+      horizonte: 'entre 2 y 5 años',
+    },
+    4: {
+      parrafos: [
+        `En este estrato podrá enfrentar con su acción directa a un calidoscopio de hechos y de consecuencias en cambio permanente. Deberá mantener el registro de las conexiones recíprocas entre las variables de la organización y del entorno e introducir ajustes de modo continuo.`,
+        `Aquí se pasa de la planificación predictiva a vislumbrar a largo plazo lo que se quiere lograr en los futuros 10 o 20 años, aunque no sea posible planear con recursos y presupuestos concretos.`,
+      ],
+      horizonte: '5 a 10 años',
+    },
+    5: {
+      parrafos: [
+        `En este nivel podrá desarrollar redes para acumular información diagnóstica que le permita crear un entorno propicio a los negocios en el cual se puedan analizar las prioridades de inversión, incrementar el valor de los activos y propender a su éxito y supervivencia en el largo plazo.`,
+      ],
+      horizonte: '10 a 20 años',
+    },
+  };
+
+  const textoCPA = TEXTOS_CPA[estrato] || TEXTOS_CPA[2];
+  const textoCPF = TEXTOS_CPF[estrato] || TEXTOS_CPF[2];
+
   const pts = calcularPuntosCurva(edad, estrato, sub, c.modo_curva);
   const cpa  = { edad, estrato, subnivel: sub };
-  const cpf1 = pts.cpf1;   // +5 años
-  const cpf2 = pts.cpf2;   // +10 años
+  const cpf1 = pts.cpf1;
+  const cpf2 = pts.cpf2;
 
-  // SVG — viewBox coincide con las dimensiones de la imagen (552×623 → usamos proporciones)
-  // El SVG se posiciona absolute sobre la imagen con preserveAspectRatio="none"
   const svgW = 552, svgH = 623;
-
-  function dot(edad, est, sub) {
-    return coordenadasCurva(edad, est, sub, svgW, svgH);
-  }
-
+  function dot(e, est, s) { return coordenadasCurva(e, est, s, svgW, svgH); }
   const pCPA  = dot(cpa.edad,  cpa.estrato,  cpa.subnivel);
   const pCPF1 = dot(cpf1.edad, cpf1.estrato, cpf1.subnivel);
   const pCPF2 = dot(cpf2.edad, cpf2.estrato, cpf2.subnivel);
 
-  // Línea punteada SVG
-  function dashed(p1, p2, color) {
-    return `<line x1="${p1.x.toFixed(1)}" y1="${p1.y.toFixed(1)}" 
-                  x2="${p2.x.toFixed(1)}" y2="${p2.y.toFixed(1)}"
-                  stroke="${color}" stroke-width="1.8" stroke-dasharray="5 3" opacity="0.85"/>`;
+  function dashed(p1, p2) {
+    return `<line x1="${p1.x.toFixed(1)}" y1="${p1.y.toFixed(1)}" x2="${p2.x.toFixed(1)}" y2="${p2.y.toFixed(1)}" stroke="#1d4e3f" stroke-width="1.8" stroke-dasharray="5 3" opacity="0.8"/>`;
   }
 
-  const descripcionesEstrato = {
-    1: { actual:`puede resolver problemas operativos de forma directa, supera obstáculos inmediatos dentro de un marco estipulado de reglas.`, horizonte:'1 día a 3 meses' },
-    2: { actual:`puede analizar e interpretar datos para diagnosticar problemáticas, acumular evidencia y detectar obstáculos potenciales. Cada problema es afrontado en forma separada.`, horizonte:'3 meses a 1 año' },
-    3: { actual:`puede organizar actividades de corto y largo plazo, establecer cadenas causales y planear tácticamente con un horizonte amplio de responsabilidades.`, horizonte:'1 a 2 años' },
-    4: { actual:`puede procesar en paralelo varios proyectos que se afectan mutuamente, dirigir sub-proyectos y ofrecer caminos alternativos ante cambios.`, horizonte:'2 a 5 años' },
-    5: { actual:`puede enfrentar un caleidoscopio de hechos en cambio permanente, manteniendo las conexiones recíprocas entre variables de la organización y el entorno.`, horizonte:'5 a 10 años' },
-  };
-  const desc = descripcionesEstrato[estrato] || descripcionesEstrato[2];
-  const descFut = descripcionesEstrato[cpf2.estrato] || descripcionesEstrato[3];
+  let introCorto;
+  if (sub === 'alto') {
+    introCorto = `En el corto plazo, ${nombreCandidato} habrá concretado su pasaje al Estrato ${ROM[estratoSig]}, significando esto un salto cualitativo en su curva de madurez. A mediano plazo se habrá asentado en el nivel bajo del mismo, continuando su recorrido en la curva hasta alcanzar el nivel alto en el largo plazo.`;
+  } else if (sub === 'medio') {
+    introCorto = `En el mediano plazo, ${nombreCandidato} se irá asentando progresivamente en este estrato, alcanzando el nivel alto del mismo. En el largo plazo concretará su pasaje al Estrato ${ROM[estratoSig]}, continuando su recorrido sobre la curva de maduración.`;
+  } else {
+    introCorto = `En el corto y mediano plazo, ${nombreCandidato} irá consolidando su nivel dentro del Estrato ${ROM[estrato]}, avanzando progresivamente hasta alcanzar el nivel alto del mismo. En el largo plazo transitará hacia el Estrato ${ROM[estratoSig]}.`;
+  }
+
+  const notaPasaje = enPasaje
+    ? `<p style="font-size:14px;line-height:1.9;color:#222;margin-bottom:14px;">Es importante tener en cuenta que, dado que se encuentra en pasaje al siguiente estrato, está transitando por un período de adaptación a este escenario nuevo, por ende, requerirá soporte en algunas cuestiones que, de momento, puedan excederle.</p>`
+    : '';
 
   return `
-    <div style="max-width:860px;margin:0 auto;padding:32px 24px;font-family:'DM Sans',sans-serif;">
+    <div style="max-width:800px;margin:0 auto;padding:48px 40px;font-family:Georgia,'Times New Roman',serif;color:#111;line-height:1.9;background:white;">
 
-      <!-- Encabezado -->
-      <div style="text-align:center;margin-bottom:32px;padding-bottom:24px;border-bottom:2px solid var(--verde-light);">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--verde);margin-bottom:8px;">INFORME DE POTENCIAL</div>
-        <div style="font-family:'Lora',serif;font-size:28px;font-weight:600;color:var(--text);">${nombreCandidato}</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-top:6px;">${c.puesto||''} · ${c.fecha||''} · ${edad} años · Modo ${c.modo_curva||'—'}</div>
+      <h1 style="font-size:18px;font-weight:bold;text-align:center;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">INFORME DE POTENCIAL</h1>
+      <p style="text-align:center;font-size:13px;color:#555;margin-bottom:40px;">${nombreCandidato} · ${c.puesto||''} · ${edad} años</p>
+
+      <h2 style="font-size:14px;font-weight:bold;text-transform:uppercase;letter-spacing:.06em;margin-bottom:18px;border-bottom:1px solid #ccc;padding-bottom:6px;">CAPACIDAD POTENCIAL ACTUAL</h2>
+
+      <p style="font-size:14px;line-height:1.9;color:#222;margin-bottom:14px;">
+        La Capacidad Potencial Actual de ${nombreCandidato} se encuentra en el Estrato ${ROM[estrato]} ${sub}${enPasaje ? ', en su pasaje al ' + ROM[estratoSig] : ''}.
+      </p>
+
+      ${textoCPA.parrafos.map(p => `<p style="font-size:14px;line-height:1.9;color:#222;margin-bottom:14px;">${p}</p>`).join('')}
+
+      <p style="font-size:14px;line-height:1.9;color:#222;margin-bottom:32px;">
+        El horizonte de planeamiento es ${textoCPA.horizonte}.
+      </p>
+
+      <h2 style="font-size:14px;font-weight:bold;text-transform:uppercase;letter-spacing:.06em;margin-bottom:18px;border-bottom:1px solid #ccc;padding-bottom:6px;">CAPACIDAD POTENCIAL FUTURA</h2>
+
+      <p style="font-size:14px;line-height:1.9;color:#222;margin-bottom:14px;">${introCorto}</p>
+
+      <p style="font-size:14px;line-height:1.9;color:#222;margin-bottom:14px;">
+        Puede decirse que su carrera laboral transcurrirá en el Estrato ${ROM[estratoSig]}, llegando a niveles de mayor consolidación hacia los tramos intermedios y finales de su carrera profesional.
+      </p>
+
+      ${textoCPF.parrafos.map(p => `<p style="font-size:14px;line-height:1.9;color:#222;margin-bottom:14px;">${p}</p>`).join('')}
+
+      ${notaPasaje}
+
+      <p style="font-size:14px;line-height:1.9;color:#222;margin-bottom:40px;">
+        Su Horizonte de Planificación se irá expandiendo hasta alcanzar ${textoCPF.horizonte} de proyección aproximadamente.
+      </p>
+
+      <h2 style="font-size:14px;font-weight:bold;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;border-bottom:1px solid #ccc;padding-bottom:6px;">GRÁFICO DE PROGRESO DEL POTENCIAL</h2>
+      <p style="font-size:12px;color:#666;margin-bottom:12px;">Curva de maduración · Metodología Elliott Jaques</p>
+
+      <div style="position:relative;margin-bottom:16px;border:1px solid #ddd;">
+        <img src="data:image/jpeg;base64,${CURVA}" style="width:100%;display:block;" alt="Curva de Jaques"/>
+        <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 552 623" preserveAspectRatio="none">
+          ${dashed(pCPA, pCPF1)}
+          ${dashed(pCPF1, pCPF2)}
+          <circle cx="${pCPF2.x.toFixed(1)}" cy="${pCPF2.y.toFixed(1)}" r="6" fill="#1d4e3f" opacity="0.95"/>
+          <circle cx="${pCPF2.x.toFixed(1)}" cy="${pCPF2.y.toFixed(1)}" r="2.5" fill="white"/>
+          <circle cx="${pCPF1.x.toFixed(1)}" cy="${pCPF1.y.toFixed(1)}" r="6" fill="#27ae60" opacity="0.95"/>
+          <circle cx="${pCPF1.x.toFixed(1)}" cy="${pCPF1.y.toFixed(1)}" r="2.5" fill="white"/>
+          <circle cx="${pCPA.x.toFixed(1)}" cy="${pCPA.y.toFixed(1)}" r="7" fill="#c0392b" opacity="0.95"/>
+          <circle cx="${pCPA.x.toFixed(1)}" cy="${pCPA.y.toFixed(1)}" r="3" fill="white"/>
+        </svg>
       </div>
 
-      <!-- GRÁFICO con 3 puntos superpuestos -->
-      <div style="margin-bottom:28px;">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--verde);margin-bottom:10px;">GRÁFICO DE PROGRESO DEL POTENCIAL</div>
-        <div style="position:relative;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:white;">
-          <img src="data:image/jpeg;base64,${CURVA}" style="width:100%;display:block;" alt="Curva de Jaques"/>
-          <svg style="position:absolute;inset:0;width:100%;height:100%;"
-               viewBox="0 0 552 623" preserveAspectRatio="none">
-
-            <!-- Líneas punteadas -->
-            ${dashed(pCPA, pCPF1, '#27ae60')}
-            ${dashed(pCPF1, pCPF2, '#27ae60')}
-
-            <!-- CPA — rojo sólido, r=6 -->
-            <circle cx="${pCPA.x.toFixed(1)}"  cy="${pCPA.y.toFixed(1)}"  r="6" fill="#c0392b" opacity="0.95"/>
-            <circle cx="${pCPA.x.toFixed(1)}"  cy="${pCPA.y.toFixed(1)}"  r="2.5" fill="white"/>
-
-            <!-- CPF +5 — verde claro, r=5 -->
-            <circle cx="${pCPF1.x.toFixed(1)}" cy="${pCPF1.y.toFixed(1)}" r="5" fill="#27ae60" opacity="0.95"/>
-            <circle cx="${pCPF1.x.toFixed(1)}" cy="${pCPF1.y.toFixed(1)}" r="2" fill="white"/>
-
-            <!-- CPF +10 — verde oscuro, r=5 -->
-            <circle cx="${pCPF2.x.toFixed(1)}" cy="${pCPF2.y.toFixed(1)}" r="5" fill="#1d4e3f" opacity="0.95"/>
-            <circle cx="${pCPF2.x.toFixed(1)}" cy="${pCPF2.y.toFixed(1)}" r="2" fill="white"/>
-          </svg>
+      <div style="display:flex;gap:24px;font-size:12px;color:#444;margin-bottom:8px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:#c0392b;flex-shrink:0;"></div>
+          <span><strong>Capacidad Potencial Actual</strong> — E ${ROM[cpa.estrato]} ${cpa.subnivel} · ${edad} años</span>
         </div>
-
-        <!-- Leyenda -->
-        <div style="display:flex;gap:20px;margin-top:10px;font-size:11px;color:var(--text-muted);flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;gap:6px;">
-            <div style="width:10px;height:10px;border-radius:50%;background:#c0392b;flex-shrink:0;"></div>
-            <span><strong>CPA</strong> — E ${ROM[cpa.estrato]} ${SNOMB[cpa.subnivel]} · ${edad} años</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <div style="width:10px;height:10px;border-radius:50%;background:#27ae60;flex-shrink:0;"></div>
-            <span><strong>+5 años</strong> — E ${ROM[cpf1.estrato]} ${SNOMB[cpf1.subnivel]} · ${cpf1.edad} años</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <div style="width:10px;height:10px;border-radius:50%;background:#1d4e3f;flex-shrink:0;"></div>
-            <span><strong>+10 años</strong> — E ${ROM[cpf2.estrato]} ${SNOMB[cpf2.subnivel]} · ${cpf2.edad} años</span>
-          </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:#27ae60;flex-shrink:0;"></div>
+          <span><strong>CPF a 5 años aprox.</strong> — E ${ROM[cpf1.estrato]} ${cpf1.subnivel} · ${cpf1.edad} años</span>
         </div>
-      </div>
-
-      <!-- RESUMEN de los 3 puntos -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:32px;">
-        <div style="background:#fef5f5;border:1.5px solid #f5a8a0;border-radius:10px;padding:16px;">
-          <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#c0392b;margin-bottom:6px;">Hoy · CPA</div>
-          <div style="font-family:'Lora',serif;font-size:20px;font-weight:600;color:#c0392b;">E ${ROM[cpa.estrato]}</div>
-          <div style="font-size:11px;color:var(--text-dim);margin-top:3px;">${SNOMB[cpa.subnivel]} · ${edad} años</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${HORIZ[cpa.estrato]||''}</div>
-        </div>
-        <div style="background:#f0faf4;border:1.5px solid #a8dfc0;border-radius:10px;padding:16px;">
-          <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#27ae60;margin-bottom:6px;">+5 años · CPF</div>
-          <div style="font-family:'Lora',serif;font-size:20px;font-weight:600;color:#27ae60;">E ${ROM[cpf1.estrato]}</div>
-          <div style="font-size:11px;color:var(--text-dim);margin-top:3px;">${SNOMB[cpf1.subnivel]} · ${cpf1.edad} años</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${HORIZ[cpf1.estrato]||''}</div>
-        </div>
-        <div style="background:#eef6f2;border:1.5px solid #8cc4ae;border-radius:10px;padding:16px;">
-          <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#1d4e3f;margin-bottom:6px;">+10 años · Visión</div>
-          <div style="font-family:'Lora',serif;font-size:20px;font-weight:600;color:#1d4e3f;">E ${ROM[cpf2.estrato]}</div>
-          <div style="font-size:11px;color:var(--text-dim);margin-top:3px;">${SNOMB[cpf2.subnivel]} · ${cpf2.edad} años</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${HORIZ[cpf2.estrato]||''}</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:#1d4e3f;flex-shrink:0;"></div>
+          <span><strong>CPF a 10 años aprox.</strong> — E ${ROM[cpf2.estrato]} ${cpf2.subnivel} · ${cpf2.edad} años</span>
         </div>
       </div>
 
-      <!-- CPA narrativo -->
-      <div style="margin-bottom:28px;">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--verde);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);">CAPACIDAD POTENCIAL ACTUAL</div>
-        <p style="font-size:14px;line-height:1.8;color:var(--text-dim);margin-bottom:12px;">
-          La Capacidad Potencial Actual de <strong>${nombreCandidato}</strong> se encuentra en el Estrato <strong>${ROM[estrato]} ${SNOMB[sub]}</strong>${enPasaje ? ', en su pasaje al Estrato ' + ROM[Math.min(estrato+1,5)] : ''}.
-        </p>
-        <p style="font-size:14px;line-height:1.8;color:var(--text-dim);margin-bottom:12px;">En este estrato, ${nombreCandidato} ${desc.actual}</p>
-        ${enPasaje ? `<p style="font-size:14px;line-height:1.8;color:var(--text-dim);margin-bottom:12px;">Dado que se encuentra en subnivel Alto, está transitando hacia el estrato siguiente y puede requerir soporte en situaciones que aún puedan excederle.</p>` : ''}
-        <p style="font-size:14px;line-height:1.8;color:var(--text-dim);">Horizonte de planeamiento actual: <strong>${desc.horizonte}</strong>.</p>
-      </div>
-
-      <!-- CPF narrativo -->
-      <div style="margin-bottom:28px;">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--verde);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);">CAPACIDAD POTENCIAL FUTURA</div>
-        <p style="font-size:14px;line-height:1.8;color:var(--text-dim);margin-bottom:12px;">
-          En los próximos <strong>5 años</strong> (~${cpf1.edad} años), <strong>${nombreCandidato}</strong> habrá avanzado al Estrato <strong>${ROM[cpf1.estrato]} ${SNOMB[cpf1.subnivel]}</strong>, continuando su recorrido sobre la curva de crecimiento.
-        </p>
-        <p style="font-size:14px;line-height:1.8;color:var(--text-dim);margin-bottom:12px;">
-          A los <strong>10 años</strong> (~${cpf2.edad} años) se proyecta en el Estrato <strong>${ROM[cpf2.estrato]} ${SNOMB[cpf2.subnivel]}</strong>. ${descFut.actual}
-        </p>
-        <p style="font-size:14px;line-height:1.8;color:var(--text-dim);">Su horizonte de planificación se irá expandiendo hasta alcanzar <strong>${HORIZ[cpf2.estrato]||''}</strong> de proyección.</p>
-      </div>
-
-      <!-- Evidencias -->
-      <div style="margin-bottom:28px;">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--verde);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);">EVIDENCIAS DEL DISCURSO</div>
-        ${(c.citas||[]).map(ci => `
-          <div style="background:var(--verde-light);border-left:3px solid var(--verde-mid);border-radius:8px;padding:14px 18px;margin-bottom:12px;">
-            <div style="font-family:'Lora',serif;font-size:14px;font-style:italic;color:var(--text-dim);line-height:1.7;margin-bottom:6px;">"${ci.texto}"</div>
-            <div style="font-size:11px;font-weight:600;color:var(--verde);">${ci.indicador}</div>
-          </div>
-        `).join('')}
-      </div>
-
-      <!-- Recomendación -->
-      <div style="margin-bottom:28px;">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--verde);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);">RECOMENDACIÓN</div>
-        <div style="background:${c.fit==='encaja'?'var(--verde-light)':c.fit==='supera'?'var(--yellow-light)':'var(--rojo-light)'};border:1.5px solid ${c.fit==='encaja'?'var(--verde-soft)':c.fit==='supera'?'#fcd34d':'#fca5a5'};border-radius:10px;padding:20px 24px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${c.fit==='encaja'?'var(--verde)':c.fit==='supera'?'#92400e':'var(--rojo)'};margin-bottom:8px;">${c.rec?.decision==='avanzar'?'✓ Avanzar en el proceso':c.rec?.decision==='avanzar_con_desarrollo'?'◐ Avanzar con plan de desarrollo':'✕ No avanzar para este rol'}</div>
-          <div style="font-size:14px;color:var(--text-dim);line-height:1.7;">${c.rec?.texto||''}</div>
-        </div>
-      </div>
-
-      <!-- Nota pie -->
-      <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid var(--border);line-height:1.7;">
-        PotenciaIA es una herramienta de apoyo a la decisión. El juicio final corresponde al equipo de RRHH.<br>
-        El candidato no tuvo acceso a ninguno de estos resultados. · Metodología Analía Blaistein · Basado en la teoría de E. Jaques
+      <div style="margin-top:48px;padding-top:20px;border-top:1px solid #ccc;font-size:11px;color:#777;text-align:center;line-height:1.7;">
+        Las curvas que se muestran en el gráfico son estadísticas y orientadoras.<br>
+        PotenciaIA · Metodología Analía Blaistein · Basado en la Teoría de Sistemas Estratificados de Elliott Jaques.<br>
+        El candidato no tuvo acceso a estos resultados.
       </div>
 
     </div>
   `;
 }
+
   
 // INIT
 setTimeout(async () => {

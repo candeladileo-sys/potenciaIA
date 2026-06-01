@@ -4,173 +4,450 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PotenciaIA · Evaluación de Potencial</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
 :root {
-  --verde:#27ae60; --verde-light:#eafaf1; --verde-mid:#a9dfbf;
-  --rojo:#e74c3c;  --rojo-light:#fdf0ee;
-  --azul:#2980b9;  --azul-light:#eaf4fb; --azul-mid:#a9cce3;
-  --bg:#fff; --surface:#f8f9fb; --surface2:#f0f2f5;
-  --border:#e2e6ea; --border-dark:#cdd3da;
-  --text:#1a1d23; --text-dim:#4a5568; --text-muted:#8a9ab0;
-  --yellow:#f39c12; --yellow-light:#fef9e7;
+  --bg:          #ffffff;
+  --surface:     #f8f9fb;
+  --surface2:    #f0f2f5;
+  --border:      #e2e6ea;
+  --border-dark: #cdd3da;
+  --verde:       #27ae60;
+  --verde-light: #eafaf1;
+  --verde-mid:   #a9dfbf;
+  --rojo:        #e74c3c;
+  --rojo-light:  #fdf0ee;
+  --azul:        #2980b9;
+  --azul-light:  #eaf4fb;
+  --azul-mid:    #a9cce3;
+  --text:        #1a1d23;
+  --text-dim:    #4a5568;
+  --text-muted:  #8a9ab0;
+  --yellow:      #f39c12;
+  --yellow-light:#fef9e7;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
-.container{max-width:860px;margin:0 auto;padding:40px 24px 60px;}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;padding-bottom:24px;border-bottom:2px solid var(--border);gap:16px;}
-.logo{display:flex;align-items:center;gap:14px;}
-.logo-icon{width:46px;height:46px;background:linear-gradient(135deg,var(--verde),var(--azul));border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:white;box-shadow:0 4px 12px rgba(39,174,96,.25);flex-shrink:0;}
-.logo-text h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(90deg,var(--verde),var(--azul));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.02em;}
-.logo-text p{font-size:12px;color:var(--text-muted);font-weight:400;margin-top:2px;}
-.phase-badge{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--azul);background:var(--azul-light);border:1px solid var(--azul-mid);padding:6px 14px;border-radius:20px;white-space:nowrap;}
-.screen{display:none;animation:fadeUp .3s ease;}
-.screen.active{display:block;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:32px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
-.card h2{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:12px;}
-.card p{font-size:14px;line-height:1.7;color:var(--text-dim);margin-bottom:10px;}
-.card p:last-of-type{margin-bottom:0;}
-.rule-list{list-style:none;margin:20px 0;}
-.rule-list li{font-size:13px;color:var(--text-dim);padding:10px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;line-height:1.5;}
-.rule-list li:last-child{border-bottom:none;}
-.rule-list li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--verde);flex-shrink:0;margin-top:5px;}
-.candidato-info{background:var(--verde-light);border:1.5px solid var(--verde-mid);border-radius:10px;padding:16px 20px;margin-bottom:20px;display:none;}
-.candidato-info.visible{display:block;}
-.candidato-info .ci-nombre{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--verde);margin-bottom:4px;}
-.candidato-info .ci-meta{font-size:12px;color:var(--text-muted);display:flex;gap:16px;flex-wrap:wrap;}
-.api-input-group{margin-top:24px;}
-.api-input-group label{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
-.api-input-group input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:12px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;}
-.api-input-group input:focus{border-color:var(--verde);box-shadow:0 0 0 3px rgba(39,174,96,.12);}
-.btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;padding:12px 28px;border:none;border-radius:8px;cursor:pointer;transition:all .2s;}
-.btn-primary{background:var(--verde);color:white;box-shadow:0 2px 8px rgba(39,174,96,.3);}
-.btn-primary:hover{background:#219a52;transform:translateY(-1px);box-shadow:0 4px 12px rgba(39,174,96,.35);}
-.btn-secondary{background:white;color:var(--text-dim);border:1.5px solid var(--border);}
-.btn-secondary:hover{border-color:var(--azul);color:var(--azul);}
-.btn-danger{background:white;color:var(--rojo);border:1.5px solid var(--rojo);}
-.btn-danger:hover{background:var(--rojo);color:white;}
-.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:none!important;}
-.btn-row{display:flex;gap:12px;flex-wrap:wrap;}
-.countdown-overlay{display:none;position:fixed;inset:0;background:white;z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:24px;}
-.countdown-overlay.active{display:flex;}
-.countdown-brand{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;background:linear-gradient(90deg,var(--verde),var(--azul));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.countdown-topic-label{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);}
-.countdown-topic-text{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--text);text-align:center;max-width:560px;padding:0 24px;line-height:1.35;}
-.countdown-number{font-family:'Syne',sans-serif;font-size:140px;font-weight:800;color:var(--verde);line-height:1;letter-spacing:-.05em;animation:countPulse .85s ease-out;min-width:180px;text-align:center;}
-.countdown-number.go{color:var(--azul);font-size:64px;letter-spacing:.05em;}
-@keyframes countPulse{0%{transform:scale(1.5);opacity:.1}100%{transform:scale(1);opacity:1}}
-.countdown-instruction{font-size:13px;color:var(--text-muted);font-weight:500;}
-.question-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,.92);z-index:150;align-items:center;justify-content:center;padding:32px;backdrop-filter:blur(8px);}
-.question-overlay.active{display:flex;}
-.question-overlay-inner{background:white;border-radius:16px;border:2px solid var(--azul);padding:40px 48px;max-width:600px;width:100%;text-align:center;animation:fadeUp .3s ease;box-shadow:0 20px 60px rgba(41,128,185,.15);position:relative;overflow:hidden;}
-.question-overlay-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--verde),var(--azul),var(--rojo));}
-.question-badge{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--azul);margin-bottom:16px;}
-.question-overlay-text{font-family:'Syne',sans-serif;font-size:22px;font-weight:600;color:var(--text);line-height:1.4;}
-.timer-ring-container{display:flex;justify-content:center;margin-bottom:28px;}
-.timer-ring{position:relative;width:180px;height:180px;}
-.timer-ring svg{transform:rotate(-90deg);}
-.ring-bg{fill:none;stroke:var(--border);stroke-width:6;}
-.ring-progress{fill:none;stroke:var(--verde);stroke-width:6;stroke-linecap:round;stroke-dasharray:502;stroke-dashoffset:502;transition:stroke-dashoffset 1s linear,stroke .5s;}
-.timer-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.timer-display{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;color:var(--text);letter-spacing:-.03em;}
-.timer-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px;}
-.time-markers{display:flex;justify-content:space-between;margin-bottom:12px;padding:0 4px;}
-.time-marker{font-size:11px;color:var(--text-muted);font-weight:500;}
-.time-marker.active{color:var(--verde);font-weight:600;}
-.interruption-counter{display:flex;gap:8px;margin-bottom:18px;align-items:center;}
-.interruption-counter span{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);}
-.int-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--border-dark);background:white;transition:all .3s;}
-.int-dot.done{background:var(--azul);border-color:var(--azul);box-shadow:0 0 0 3px var(--azul-light);}
-.status-panel{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:16px;min-height:68px;display:flex;align-items:center;gap:14px;}
-.status-indicator{width:10px;height:10px;border-radius:50%;flex-shrink:0;background:var(--border-dark);transition:all .3s;}
-.status-indicator.listening{background:var(--verde);box-shadow:0 0 0 4px var(--verde-light);animation:pulse 1.5s infinite;}
-.status-indicator.speaking{background:var(--azul);box-shadow:0 0 0 4px var(--azul-light);animation:pulse 1s infinite;}
-.status-indicator.processing{background:var(--yellow);box-shadow:0 0 0 4px var(--yellow-light);animation:pulse .5s infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.status-text{font-size:13px;color:var(--text-dim);font-weight:400;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.waveform-container{display:flex;align-items:center;justify-content:center;height:44px;gap:3px;margin-bottom:16px;}
-.wave-bar{width:3px;background:var(--verde);border-radius:3px;height:4px;opacity:.35;transition:height .1s;}
-.transcript-area{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;max-height:200px;overflow-y:auto;}
-.transcript-area::-webkit-scrollbar{width:4px;}
-.transcript-area::-webkit-scrollbar-thumb{background:var(--verde-mid);border-radius:2px;}
-.transcript-entry{font-size:13px;line-height:1.65;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);}
-.transcript-entry:last-child{border-bottom:none;margin-bottom:0;}
-.transcript-entry .speaker{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
-.transcript-entry .speaker.agent{color:var(--azul);}
-.transcript-entry .speaker.user{color:var(--verde);}
-.transcript-entry .content{color:var(--text-dim);}
-.warning-box{background:var(--yellow-light);border:1.5px solid #f0d080;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#7d5a00;font-weight:500;display:none;}
-.warning-box.visible{display:block;}
-.processing-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,.95);z-index:100;flex-direction:column;align-items:center;justify-content:center;gap:20px;backdrop-filter:blur(4px);}
-.processing-overlay.active{display:flex;}
-.processing-spinner{width:52px;height:52px;border:3px solid var(--border);border-top-color:var(--verde);border-right-color:var(--azul);border-radius:50%;animation:spin .7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.processing-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text);}
-.processing-sub{font-size:12px;color:var(--text-muted);font-weight:500;}
-.thanks-check{width:80px;height:80px;border-radius:50%;background:var(--verde-light);border:2px solid var(--verde-mid);display:flex;align-items:center;justify-content:center;margin:0 auto 28px;font-size:36px;}
-@media(max-width:600px){.card{padding:20px;}.countdown-number{font-size:100px;}.countdown-topic-text{font-size:20px;}.question-overlay-inner{padding:28px 20px;}.question-overlay-text{font-size:18px;}.header{flex-direction:column;align-items:flex-start;}}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+}
+
+/* ── HEADER ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--border);
+  gap: 16px;
+}
+
+.logo { display: flex; align-items: center; gap: 14px; }
+
+.logo-icon {
+  width: 46px; height: 46px;
+  background: linear-gradient(135deg, var(--verde), var(--azul));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 20px; color: white;
+  box-shadow: 0 4px 12px rgba(39,174,96,0.25);
+  flex-shrink: 0;
+}
+
+.logo-text h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 800;
+  background: linear-gradient(90deg, var(--verde), var(--azul));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; letter-spacing: -0.02em;
+}
+
+.logo-text p {
+  font-size: 12px; color: var(--text-muted);
+  font-weight: 400; margin-top: 2px;
+}
+
+.phase-badge {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--azul);
+  background: var(--azul-light);
+  border: 1px solid var(--azul-mid);
+  padding: 6px 14px; border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* ── SCREENS ── */
+.screen { display: none; animation: fadeUp 0.3s ease; }
+.screen.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.card h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700;
+  color: var(--text); margin-bottom: 12px;
+}
+
+.card p {
+  font-size: 14px; line-height: 1.7;
+  color: var(--text-dim); margin-bottom: 10px;
+}
+
+.card p:last-of-type { margin-bottom: 0; }
+
+.rule-list { list-style: none; margin: 20px 0; }
+
+.rule-list li {
+  font-size: 13px; color: var(--text-dim);
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  display: flex; gap: 12px; align-items: flex-start; line-height: 1.5;
+}
+
+.rule-list li:last-child { border-bottom: none; }
+
+.rule-list li::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--verde); flex-shrink: 0; margin-top: 5px;
+}
+
+/* INFO CANDIDATO */
+.candidato-info {
+  background: var(--verde-light);
+  border: 1.5px solid var(--verde-mid);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: none;
+}
+.candidato-info.visible { display: block; }
+.candidato-info .ci-nombre {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px; font-weight: 700; color: var(--verde);
+  margin-bottom: 4px;
+}
+.candidato-info .ci-meta {
+  font-size: 12px; color: var(--text-muted);
+  display: flex; gap: 16px; flex-wrap: wrap;
+}
+
+/* API INPUT */
+.api-input-group { margin-top: 24px; }
+
+.api-input-group label {
+  display: block; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 8px;
+}
+
+.api-input-group input {
+  width: 100%; background: var(--surface);
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 12px 16px; color: var(--text);
+  font-family: 'Inter', sans-serif; font-size: 14px;
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.api-input-group input:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 0 3px rgba(39,174,96,0.12);
+}
+
+/* ── BUTTONS ── */
+.btn {
+  font-family: 'Inter', sans-serif; font-size: 13px;
+  font-weight: 600; letter-spacing: 0.04em;
+  padding: 12px 28px; border: none; border-radius: 8px;
+  cursor: pointer; transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--verde); color: white;
+  box-shadow: 0 2px 8px rgba(39,174,96,0.3);
+}
+.btn-primary:hover { background: #219a52; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(39,174,96,0.35); }
+
+.btn-secondary {
+  background: white; color: var(--text-dim);
+  border: 1.5px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--azul); color: var(--azul); }
+
+.btn-danger {
+  background: white; color: var(--rojo);
+  border: 1.5px solid var(--rojo);
+}
+.btn-danger:hover { background: var(--rojo); color: white; }
+
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+.btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* ── COUNTDOWN OVERLAY ── */
+.countdown-overlay {
+  display: none; position: fixed; inset: 0;
+  background: white; z-index: 200;
+  flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+}
+.countdown-overlay.active { display: flex; }
+
+.countdown-brand {
+  font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+  background: linear-gradient(90deg, var(--verde), var(--azul));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.countdown-topic-label {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-muted);
+}
+
+.countdown-topic-text {
+  font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700;
+  color: var(--text); text-align: center; max-width: 560px;
+  padding: 0 24px; line-height: 1.35;
+}
+
+.countdown-number {
+  font-family: 'Syne', sans-serif; font-size: 140px; font-weight: 800;
+  color: var(--verde); line-height: 1; letter-spacing: -0.05em;
+  animation: countPulse 0.85s ease-out; min-width: 180px; text-align: center;
+}
+.countdown-number.go { color: var(--azul); font-size: 64px; letter-spacing: 0.05em; }
+
+@keyframes countPulse {
+  0%   { transform: scale(1.5); opacity: 0.1; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+.countdown-instruction { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
+/* ── QUESTION OVERLAY ── */
+.question-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(255,255,255,0.92);
+  z-index: 150; align-items: center; justify-content: center;
+  padding: 32px; backdrop-filter: blur(8px);
+}
+.question-overlay.active { display: flex; }
+
+.question-overlay-inner {
+  background: white; border-radius: 16px;
+  border: 2px solid var(--azul);
+  padding: 40px 48px; max-width: 600px; width: 100%;
+  text-align: center; animation: fadeUp 0.3s ease;
+  box-shadow: 0 20px 60px rgba(41,128,185,0.15);
+  position: relative; overflow: hidden;
+}
+
+.question-overlay-inner::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--verde), var(--azul), var(--rojo));
+}
+
+.question-badge {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--azul); margin-bottom: 16px;
+}
+
+.question-overlay-text {
+  font-family: 'Syne', sans-serif; font-size: 22px;
+  font-weight: 600; color: var(--text); line-height: 1.4;
+}
+
+/* ── INTERVIEW ── */
+.timer-ring-container { display: flex; justify-content: center; margin-bottom: 28px; }
+
+.timer-ring { position: relative; width: 180px; height: 180px; }
+.timer-ring svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(--border); stroke-width: 6; }
+.ring-progress {
+  fill: none; stroke: var(--verde); stroke-width: 6;
+  stroke-linecap: round; stroke-dasharray: 502; stroke-dashoffset: 502;
+  transition: stroke-dashoffset 1s linear, stroke 0.5s;
+}
+
+.timer-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+
+.timer-display {
+  font-family: 'Syne', sans-serif; font-size: 40px; font-weight: 800;
+  color: var(--text); letter-spacing: -0.03em;
+}
+
+.timer-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; }
+
+.time-markers { display: flex; justify-content: space-between; margin-bottom: 12px; padding: 0 4px; }
+.time-marker { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.time-marker.active { color: var(--verde); font-weight: 600; }
+
+.interruption-counter { display: flex; gap: 8px; margin-bottom: 18px; align-items: center; }
+.interruption-counter span { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.int-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--border-dark); background: white; transition: all 0.3s; }
+.int-dot.done { background: var(--azul); border-color: var(--azul); box-shadow: 0 0 0 3px var(--azul-light); }
+
+/* STATUS */
+.status-panel {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 16px 20px; margin-bottom: 16px;
+  min-height: 68px; display: flex; align-items: center; gap: 14px;
+}
+
+.status-indicator {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  background: var(--border-dark); transition: all 0.3s;
+}
+
+.status-indicator.listening  { background: var(--verde); box-shadow: 0 0 0 4px var(--verde-light); animation: pulse 1.5s infinite; }
+.status-indicator.speaking   { background: var(--azul);  box-shadow: 0 0 0 4px var(--azul-light);  animation: pulse 1s infinite; }
+.status-indicator.processing { background: var(--yellow); box-shadow: 0 0 0 4px var(--yellow-light); animation: pulse 0.5s infinite; }
+
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+.status-text { font-size: 13px; color: var(--text-dim); font-weight: 400; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* WAVEFORM */
+.waveform-container { display: flex; align-items: center; justify-content: center; height: 44px; gap: 3px; margin-bottom: 16px; }
+.wave-bar { width: 3px; background: var(--verde); border-radius: 3px; height: 4px; opacity: 0.35; transition: height 0.1s; }
+
+/* TRANSCRIPT */
+.transcript-area {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 16px; margin-bottom: 16px;
+  max-height: 190px; overflow-y: auto;
+}
+.transcript-area::-webkit-scrollbar { width: 4px; }
+.transcript-area::-webkit-scrollbar-thumb { background: var(--verde-mid); border-radius: 2px; }
+
+.transcript-entry { font-size: 13px; line-height: 1.65; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.transcript-entry:last-child { border-bottom: none; margin-bottom: 0; }
+.transcript-entry .speaker { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+.transcript-entry .speaker.agent { color: var(--azul); }
+.transcript-entry .speaker.user  { color: var(--verde); }
+.transcript-entry .content { color: var(--text-dim); }
+
+/* WARNING */
+.warning-box {
+  background: var(--yellow-light); border: 1.5px solid #f0d080;
+  border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+  font-size: 13px; color: #7d5a00; font-weight: 500; display: none;
+}
+.warning-box.visible { display: block; }
+
+/* ── PROCESSING OVERLAY ── */
+.processing-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(255,255,255,0.95); z-index: 100;
+  flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+  backdrop-filter: blur(4px);
+}
+.processing-overlay.active { display: flex; }
+
+.processing-spinner {
+  width: 52px; height: 52px;
+  border: 3px solid var(--border);
+  border-top-color: var(--verde); border-right-color: var(--azul);
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.processing-text { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--text); }
+.processing-sub { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+/* ── PANTALLA GRACIAS ── */
+.thanks-check {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: var(--verde-light); border: 2px solid var(--verde-mid);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 28px; font-size: 36px;
+}
+
+@media (max-width: 600px) {
+  .card { padding: 20px; }
+  .countdown-number { font-size: 100px; }
+  .countdown-topic-text { font-size: 20px; }
+  .question-overlay-inner { padding: 28px 20px; }
+  .question-overlay-text { font-size: 18px; }
+  .header { flex-direction: column; align-items: flex-start; }
+}
 </style>
 </head>
 <body>
 
-<!-- Firebase Compat -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script>
-  window._firebaseReady = false;
-  window._db = null;
+<!-- ── FIREBASE ── -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, addDoc, doc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  const firebaseConfig = {
-    apiKey:"AIzaSyBHM3tvO-LmzMvTkCIKC476tE3sqmJs1QM",
-    authDomain:"potencia-bccf7.firebaseapp.com",
-    projectId:"potencia-bccf7",
-    storageBucket:"potencia-bccf7.firebasestorage.app",
-    messagingSenderId:"748478455182",
-    appId:"1:748478455182:web:191cd421c86f5aad1858df"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyBHM3tvO-LmzMvTkCIKC476tE3sqmJs1QM",
+  authDomain: "potencia-bccf7.firebaseapp.com",
+  projectId: "potencia-bccf7",
+  storageBucket: "potencia-bccf7.firebasestorage.app",
+  messagingSenderId: "748478455182",
+  appId: "1:748478455182:web:191cd421c86f5aad1858df"
+};
 
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.guardarEvaluacion = async function(data) {
   try {
-    firebase.initializeApp(firebaseConfig);
-    window._db = firebase.firestore();
-    window._firebaseReady = true;
-    console.log('[Firebase] listo (compat)');
+    const docRef = await addDoc(collection(db, 'evaluaciones'), {
+      ...data,
+      timestamp: serverTimestamp()
+    });
+    console.log('Guardado en Firebase:', docRef.id);
+    return docRef.id;
   } catch(e) {
-    console.error('[Firebase] error al inicializar:', e.message);
+    console.error('Error Firebase:', e);
+    return null;
   }
+};
 
-  window.guardarEvaluacion = async function(data) {
-    if (!window._db) { console.error('[Firebase] _db no disponible'); return null; }
-    try {
-      const docRef = await window._db.collection('evaluaciones').add({
-        ...data,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      console.log('[Firebase] guardado:', docRef.id);
-      return docRef.id;
-    } catch(e) {
-      console.error('[Firebase] error guardar:', e.code, e.message);
-      return null;
-    }
-  };
-
-  window.actualizarEvaluacion = async function(id, data) {
-    if (!window._db) { console.error('[Firebase] _db no disponible'); return false; }
-    for (let i = 1; i <= 3; i++) {
-      try {
-        await window._db.collection('evaluaciones').doc(id).update(data);
-        console.log('[Firebase] actualizado:', id);
-        return true;
-      } catch(e) {
-        console.error('[Firebase] error actualizar (intento ' + i + '/3):', e.code, e.message);
-        if (i < 3) await new Promise(r => setTimeout(r, 2000 * i));
-      }
-    }
-    return false;
-  };
+window.actualizarEvaluacion = async function(id, data) {
+  try {
+    await updateDoc(doc(db, 'evaluaciones', id), data);
+    console.log('Evaluacion actualizada:', id);
+  } catch(e) {
+    console.error('Error actualizando Firebase:', e);
+  }
+};
 </script>
 
 <div class="container">
+
+  <!-- HEADER -->
   <div class="header">
     <div class="logo">
       <div class="logo-icon">P</div>
@@ -184,6 +461,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 
   <!-- SCREEN 1: SETUP -->
   <div class="screen active" id="screenSetup">
+
+    <!-- Banner candidato (visible cuando llega por link con token) -->
     <div class="candidato-info" id="candidatoInfo">
       <div class="ci-nombre" id="ciNombre"></div>
       <div class="ci-meta">
@@ -192,6 +471,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
         <span id="ciEstratoPuesto"></span>
       </div>
     </div>
+
     <div class="card">
       <h2 id="welcomeTitle">Bienvenido/a a PotenciaIA</h2>
       <p>Este sistema evalúa tu capacidad de procesamiento mental a través del discurso oral libre. No hay respuestas correctas ni incorrectas — lo que se analiza es <strong style="color:var(--verde)">cómo organizás tu pensamiento</strong>, no el contenido de lo que decís.</p>
@@ -202,19 +482,22 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
         <li>No hay juicio de valor sobre tus opiniones ni tu postura</li>
         <li>Todo el intercambio es por voz</li>
       </ul>
+
+      <!-- API key: solo visible si no viene por link -->
       <div class="api-input-group" id="apiKeyGroup">
         <label>API Key de Anthropic</label>
-        <input type="password" id="apiKeyInput" placeholder="sk-ant-..."/>
+        <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
       </div>
-      <div style="margin-top:20px;padding:16px;background:var(--azul-light);border:1.5px solid var(--azul-mid);border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+
+      <div style="margin-top:20px; padding:16px; background:var(--azul-light); border:1.5px solid var(--azul-mid); border-radius:8px; display:flex; align-items:center; justify-content:space-between; gap:16px;">
         <div>
-          <div style="font-size:13px;font-weight:600;color:var(--azul);">Modo Demo</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Probá el flujo completo sin API key.</div>
+          <div style="font-size:13px; font-weight:600; color:var(--azul);">Modo Demo</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Probá el flujo completo sin API key. Las intervenciones y el resultado son de ejemplo.</div>
         </div>
-        <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;">
-          <input type="checkbox" id="demoToggle" onchange="toggleDemo()" style="opacity:0;width:0;height:0;">
-          <span id="demoSlider" style="position:absolute;cursor:pointer;inset:0;background:#cdd3da;border-radius:24px;transition:.3s;">
-            <span style="position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;display:block;" id="demoKnob"></span>
+        <label style="position:relative; display:inline-block; width:44px; height:24px; flex-shrink:0;">
+          <input type="checkbox" id="demoToggle" onchange="toggleDemo()" style="opacity:0; width:0; height:0;">
+          <span id="demoSlider" style="position:absolute; cursor:pointer; inset:0; background:#cdd3da; border-radius:24px; transition:0.3s;">
+            <span style="position:absolute; height:18px; width:18px; left:3px; bottom:3px; background:white; border-radius:50%; transition:0.3s; display:block;" id="demoKnob"></span>
           </span>
         </label>
       </div>
@@ -228,8 +511,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   <div class="screen" id="screenTopic">
     <div class="card">
       <h2>Antes de comenzar</h2>
-      <p>Escuchá la introducción completa antes de ver tu tema. El tema aparecerá en la cuenta regresiva.</p>
-      <p>La idea es ver <strong style="color:var(--verde)">cómo organizás tu discurso</strong>. Tenés entre 6 y 10 minutos.</p>
+      <p>Escuchá la introducción completa antes de ver tu tema. El tema aparecerá en la cuenta regresiva — a partir de ese momento, tenés los segundos del countdown para empezar a pensar.</p>
+      <p>La idea es ver <strong style="color:var(--verde)">cómo organizás tu discurso</strong>. No se realizará ningún juicio de valor sobre lo que digas. Tenés entre 6 y 10 minutos.</p>
     </div>
     <div class="btn-row">
       <button class="btn btn-primary" id="btnStartIntro" onclick="startIntroThenCountdown()">Escuchar introducción →</button>
@@ -268,41 +551,48 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
         </div>
       </div>
     </div>
+
     <div class="time-markers">
       <span class="time-marker">0:00</span>
       <span class="time-marker" id="m6">6 min</span>
       <span class="time-marker" id="m8">8:30</span>
       <span class="time-marker">10 min</span>
     </div>
+
     <div class="interruption-counter">
       <span>Intervenciones:</span>
       <div class="int-dot" id="int1"></div>
       <div class="int-dot" id="int2"></div>
     </div>
+
     <div class="status-panel">
       <div class="status-indicator" id="statusDot"></div>
       <div class="status-text" id="statusText">Iniciando...</div>
     </div>
+
     <div class="waveform-container" id="waveform"></div>
     <div class="warning-box" id="warningBox"></div>
+
     <div class="transcript-area" id="transcriptArea">
       <div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px 0">El transcript aparecerá aquí mientras hablás</div>
     </div>
+
     <div class="btn-row">
       <button class="btn btn-secondary" id="btnSynthesis" onclick="requestSynthesis()" disabled>Pedir síntesis</button>
       <button class="btn btn-danger" onclick="endInterview()">Finalizar</button>
     </div>
   </div>
 
-  <!-- SCREEN 4: GRACIAS -->
+  <!-- SCREEN 4: GRACIAS (candidato) -->
   <div class="screen" id="screenThanks">
     <div style="text-align:center;padding:80px 24px;">
       <div class="thanks-check">✓</div>
-      <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;margin-bottom:14px;">¡Muchas gracias!</div>
+      <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;">¡Muchas gracias!</div>
       <div style="font-size:15px;color:var(--text-dim);line-height:1.7;max-width:400px;margin:0 auto;">Tu evaluación fue registrada correctamente. El equipo de selección recibirá los resultados en breve.</div>
     </div>
     <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">PotenciaIA · Metodología Blaistein · Basado en la teoría de E. Jaques</div>
   </div>
+
 </div>
 
 <!-- PROCESSING OVERLAY -->
@@ -314,58 +604,67 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 
 <script>
 // ══════════════════════════════════════════════════
-// PARÁMETROS DE URL
+// LEER PARÁMETROS DE URL (vienen del wizard del dashboard)
 // ══════════════════════════════════════════════════
-const urlParams       = new URLSearchParams(window.location.search);
-const candidatoNombre = decodeURIComponent(urlParams.get('nombre')  || '');
-const candidatoEdad   = parseInt(urlParams.get('edad'))             || null;
-const candidatoPuesto = decodeURIComponent(urlParams.get('puesto')  || '');
-const estratoPuesto   = parseInt(urlParams.get('estrato_puesto'))   || null;
-const sessionToken    = urlParams.get('token')                      || '';
-const apiKeyFromUrl   = urlParams.get('api_key')                    || '';
-const dgKeyFromUrl    = urlParams.get('dg_key')                     || '';
+const urlParams = new URLSearchParams(window.location.search);
+const candidatoNombre  = decodeURIComponent(urlParams.get('nombre')  || '');
+const candidatoEdad    = parseInt(urlParams.get('edad'))              || null;
+const candidatoPuesto  = decodeURIComponent(urlParams.get('puesto')  || '');
+const estratoPuesto    = parseInt(urlParams.get('estrato_puesto'))    || null;
+const sessionToken     = urlParams.get('token')                       || '';
+const apiKeyFromUrl    = urlParams.get('anthropic_key') || urlParams.get('api_key') || '';  // opcional
 
+// Mostrar banner si vino por link
 if (candidatoNombre || candidatoEdad || candidatoPuesto) {
-  document.getElementById('candidatoInfo').classList.add('visible');
+  const info = document.getElementById('candidatoInfo');
+  info.classList.add('visible');
   if (candidatoNombre) {
     document.getElementById('ciNombre').textContent = candidatoNombre;
-    document.getElementById('welcomeTitle').textContent = 'Hola, ' + candidatoNombre.split(' ')[0];
+    document.getElementById('welcomeTitle').textContent = `Hola, ${candidatoNombre.split(' ')[0]}`;
   }
-  if (candidatoEdad)   document.getElementById('ciEdad').textContent   = candidatoEdad + ' años';
-  if (candidatoPuesto) document.getElementById('ciPuesto').textContent = candidatoPuesto;
-  if (estratoPuesto)   document.getElementById('ciEstratoPuesto').textContent = 'Puesto E ' + (['','I','II','III','IV','V'][estratoPuesto] || estratoPuesto);
-  if (apiKeyFromUrl)   document.getElementById('apiKeyGroup').style.display = 'none';
+  if (candidatoEdad)   document.getElementById('ciEdad').textContent    = `${candidatoEdad} años`;
+  if (candidatoPuesto) document.getElementById('ciPuesto').textContent  = candidatoPuesto;
+  if (estratoPuesto)   document.getElementById('ciEstratoPuesto').textContent = `Puesto E ${['','I','II','III','IV','V'][estratoPuesto] || estratoPuesto}`;
+  // Ocultar el campo de API key si ya viene configurado o en modo candidato
+  if (apiKeyFromUrl) {
+    document.getElementById('apiKeyGroup').style.display = 'none';
+  }
 }
 
 // ══════════════════════════════════════════════════
 // MODO DEMO
 // ══════════════════════════════════════════════════
 let demoMode = false;
+
 function toggleDemo() {
   demoMode = document.getElementById('demoToggle').checked;
-  const slider = document.getElementById('demoSlider');
-  const knob   = document.getElementById('demoKnob');
-  const input  = document.getElementById('apiKeyInput');
+  const slider  = document.getElementById('demoSlider');
+  const knob    = document.getElementById('demoKnob');
+  const apiInput = document.getElementById('apiKeyInput');
   if (demoMode) {
     slider.style.background = 'var(--verde)';
     knob.style.transform = 'translateX(20px)';
-    input.disabled = true; input.placeholder = 'No requerida en modo demo'; input.style.opacity = '.4';
+    apiInput.disabled = true;
+    apiInput.placeholder = 'No requerida en modo demo';
+    apiInput.style.opacity = '0.4';
   } else {
     slider.style.background = '#cdd3da';
     knob.style.transform = 'translateX(0)';
-    input.disabled = false; input.placeholder = 'sk-ant-...'; input.style.opacity = '1';
+    apiInput.disabled = false;
+    apiInput.placeholder = 'sk-ant-...';
+    apiInput.style.opacity = '1';
   }
 }
 
 const DEMO_RESULT = {
-  estrato:2, subestrato:'E2-medio', modo_procesamiento:'Acumulativo (Y-Y)', modo_curva:'III',
-  confianza:65, nombre_estrato:'Acumulación Diagnóstica', horizonte_implicito:'meses',
-  resumen:'MODO DEMO — El participante mostró un patrón acumulativo.',
-  evidencias:['DEMO: Acumuló causas distintas hacia un diagnóstico central.'],
-  alertas:['Resultado de ejemplo — modo demo activo.']
+  estrato: 2, subestrato: 'E2-medio',
+  modo_procesamiento: 'Acumulativo (Y-Y)', confianza: 65,
+  nombre_estrato: 'Acumulación Diagnóstica', horizonte_implicito: 'meses',
+  resumen: 'MODO DEMO — El participante mostró un patrón acumulativo: juntó múltiples causas hacia un diagnóstico propio.',
+  evidencias: ['DEMO: Acumuló causas distintas hacia un diagnóstico central.'],
+  alertas: ['Resultado de ejemplo — modo demo activo.']
 };
 
-// FIX: selección aleatoria verdadera — nunca repite el mismo tema en la misma sesión
 const TOPICS = [
   'Legalización de la droga',
   'Inseguridad ciudadana',
@@ -373,69 +672,62 @@ const TOPICS = [
   'Deserción escolar'
 ];
 
-// Barajar los temas al cargar la página (Fisher-Yates)
-const TOPICS_SHUFFLED = [...TOPICS];
-for (let i = TOPICS_SHUFFLED.length - 1; i > 0; i--) {
-  const j = Math.floor(Math.random() * (i + 1));
-  [TOPICS_SHUFFLED[i], TOPICS_SHUFFLED[j]] = [TOPICS_SHUFFLED[j], TOPICS_SHUFFLED[i]];
-}
-let topicIndex = 0; // avanzamos en la lista barajada
-
 // ══════════════════════════════════════════════════
 // ESTADO GLOBAL
 // ══════════════════════════════════════════════════
-let apiKey            = apiKeyFromUrl || '';
-const DEEPGRAM_KEY    = dgKeyFromUrl;
-
-let mediaRecorder     = null;
-let audioChunks       = [];
-let audioStream       = null;
-let selectedTopic     = '';
-let timerInterval     = null;
-let elapsedSeconds    = 0;
+let apiKey = apiKeyFromUrl || '';
+let selectedTopic = '';
+let timerInterval = null;
+let elapsedSeconds = 0;
 let interruptionCount = 0;
-let transcriptLog     = [];
-let isSpeaking        = false;
-let interviewPhase    = 'idle';
-let lastUserText      = '';
+let transcriptLog = [];
+let currentRecognition = null;
+let isSpeaking = false;
+let interviewPhase = 'idle';
+let lastUserText = '';
 let accumulatedUserText = '';
-let synthesisRequested  = false;
-let waveInterval      = null;
+let synthesisRequested = false;
+let waveInterval = null;
 let interruptionTimes = [];
 let lastSpeechTimestamp = Date.now();
 let closingSilenceTimer = null;
-let pendingFinalBuf   = '';
-let recognitionInstance = null;
-let flushTimer        = null;
-// FIX: flag para evitar doble interrupción concurrente
-let interruptionInProgress = false;
+let pendingFinalBuf = '';   // ← texto reconocido pero aún no volcado al transcript
 
-const MAX_DURATION      = 600;
-const SYNTHESIS_TIME    = 510;
+const MAX_DURATION  = 600;
+const SYNTHESIS_TIME = 510;
 const SILENCE_FOR_CLOSE = 20000;
 
 // ── UI ──
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  const labels = { screenSetup:'Inicio', screenTopic:'Preparación', screenInterview:'Entrevista', screenThanks:'Finalizado' };
+  const labels = {
+    screenSetup: 'Inicio', screenTopic: 'Preparación',
+    screenInterview: 'Entrevista', screenThanks: 'Finalizado'
+  };
   document.getElementById('phaseBadge').textContent = labels[id] || '';
 }
 
 function initWaveform() {
   const wf = document.getElementById('waveform');
   wf.innerHTML = '';
-  for (let i = 0; i < 26; i++) { const b = document.createElement('div'); b.className = 'wave-bar'; wf.appendChild(b); }
+  for (let i = 0; i < 26; i++) {
+    const b = document.createElement('div');
+    b.className = 'wave-bar';
+    wf.appendChild(b);
+  }
 }
 
 function setWaveActive(active) {
   clearInterval(waveInterval);
   const bars = document.querySelectorAll('.wave-bar');
   if (active) {
-    bars.forEach(b => { b.style.height = (4 + Math.random()*28)+'px'; b.style.opacity='.6'; });
-    waveInterval = setInterval(() => bars.forEach(b => { b.style.height = (4 + Math.random()*30)+'px'; }), 140);
+    bars.forEach(b => { b.style.height = (4 + Math.random()*28)+'px'; b.style.opacity='0.6'; });
+    waveInterval = setInterval(() => {
+      bars.forEach(b => { b.style.height = (4 + Math.random()*30)+'px'; });
+    }, 140);
   } else {
-    bars.forEach(b => { b.style.height='4px'; b.style.opacity='.3'; });
+    bars.forEach(b => { b.style.height='4px'; b.style.opacity='0.3'; });
   }
 }
 
@@ -456,7 +748,8 @@ function addTranscriptEntry(speaker, text) {
   const ct = document.createElement('div');
   ct.className = 'content';
   ct.textContent = text;
-  entry.appendChild(sp); entry.appendChild(ct);
+  entry.appendChild(sp);
+  entry.appendChild(ct);
   area.appendChild(entry);
   area.scrollTop = area.scrollHeight;
   transcriptLog.push({ speaker, text, time: elapsedSeconds });
@@ -466,6 +759,7 @@ function showQuestionOverlay(text) {
   document.getElementById('questionOverlayText').textContent = text;
   document.getElementById('questionOverlay').classList.add('active');
 }
+
 function hideQuestionOverlay() {
   document.getElementById('questionOverlay').classList.remove('active');
 }
@@ -489,8 +783,8 @@ function speak(text) {
     if (bestVoice) u.voice = bestVoice;
     isSpeaking = true;
     setStatus('speaking', text.length > 80 ? text.slice(0,80)+'...' : text);
-    u.onend = () => { isSpeaking = false; setStatus('listening', 'Escuchando...'); resolve(); };
-    u.onerror = () => { isSpeaking = false; setStatus('listening', 'Escuchando...'); resolve(); };
+    u.onend = () => { isSpeaking = false; resolve(); };
+    u.onerror = () => { isSpeaking = false; resolve(); };
     speechSynthesis.speak(u);
   });
 }
@@ -499,17 +793,23 @@ function speak(text) {
 function startSetup() {
   const inputKey = document.getElementById('apiKeyInput').value.trim();
   if (inputKey) apiKey = inputKey;
-  if (!demoMode && !apiKey) { alert('Por favor ingresá tu API Key de Anthropic, o activá el Modo Demo.'); return; }
-  // FIX: tomar el siguiente tema de la lista barajada
-  selectedTopic = TOPICS_SHUFFLED[topicIndex % TOPICS_SHUFFLED.length];
-  topicIndex++;
-  console.log('[Topic] seleccionado:', selectedTopic);
+  if (!demoMode && !apiKey) {
+    alert('Por favor ingresá tu API Key de Anthropic, o activá el Modo Demo.');
+    return;
+  }
+  let newTopic, attempts = 0;
+  do {
+    newTopic = TOPICS[Math.floor(Math.random() * TOPICS.length)];
+    attempts++;
+  } while (newTopic === selectedTopic && TOPICS.length > 1 && attempts < 10);
+  selectedTopic = newTopic;
   showScreen('screenTopic');
 }
 
 async function startIntroThenCountdown() {
   const btn = document.getElementById('btnStartIntro');
-  btn.disabled = true; btn.textContent = 'Escuchando...';
+  btn.disabled = true;
+  btn.textContent = 'Escuchando...';
   const intro = 'Te voy a pedir que hables sobre un tema que te voy a indicar. La idea es ver cómo organizás tu discurso. No voy a realizar ningún juicio de valor sobre lo que digas ni sobre el contenido. Puedo hacerte alguna pregunta para que te explayés más, pero la consigna es que hables durante al menos diez minutos sobre el tema. En unos segundos vas a ver tu tema.';
   await speak(intro);
   triggerCountdown();
@@ -523,13 +823,21 @@ function triggerCountdown() {
   document.getElementById('countdownTopicText').textContent = selectedTopic;
   overlay.classList.add('active');
   let count = 3;
+
   function tick() {
-    numEl.style.animation = 'none'; numEl.offsetHeight; numEl.style.animation = 'countPulse .85s ease-out';
+    numEl.style.animation = 'none';
+    numEl.offsetHeight;
+    numEl.style.animation = 'countPulse 0.85s ease-out';
     if (count > 0) {
-      numEl.textContent = count; numEl.classList.remove('go'); instrEl.textContent = 'Preparate para hablar...';
-      count--; setTimeout(tick, 1000);
+      numEl.textContent = count;
+      numEl.classList.remove('go');
+      instrEl.textContent = 'Preparate para hablar...';
+      count--;
+      setTimeout(tick, 1000);
     } else {
-      numEl.textContent = '¡YA!'; numEl.classList.add('go'); instrEl.textContent = 'Empezá a hablar ahora';
+      numEl.textContent = '¡YA!';
+      numEl.classList.add('go');
+      instrEl.textContent = 'Empezá a hablar ahora';
       setTimeout(() => { overlay.classList.remove('active'); startInterview(); }, 700);
     }
   }
@@ -539,67 +847,68 @@ function triggerCountdown() {
 // ── INTERVIEW ──
 async function startInterview() {
   elapsedSeconds = 0; interruptionCount = 0; transcriptLog = [];
-  accumulatedUserText = ''; lastUserText = ''; pendingFinalBuf = '';
-  synthesisRequested = false; interviewPhase = 'speaking';
-  lastSpeechTimestamp = Date.now(); interruptionInProgress = false;
+  accumulatedUserText = ''; lastUserText = ''; synthesisRequested = false;
+  interviewPhase = 'speaking'; lastSpeechTimestamp = Date.now();
   clearTimeout(closingSilenceTimer);
-  // Tiempos de interrupción: 1ª entre 2:30-3:30, 2ª entre 5:00-6:00
-  interruptionTimes = [ 150 + Math.floor(Math.random()*60), 300 + Math.floor(Math.random()*60) ];
+
+  interruptionTimes = [
+    240 + Math.floor(Math.random() * 30),
+    420 + Math.floor(Math.random() * 30)
+  ];
+
   document.getElementById('transcriptArea').innerHTML = '<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px 0">El transcript aparecerá aquí mientras hablás</div>';
-  initWaveform(); showScreen('screenInterview');
-  startAudioRecording();
-  startContinuousListening();
-  startTimer();
-  const intro = 'Adelante. Tenés entre seis y diez minutos para hablar sobre el tema que acabás de ver. Cuando quieras, comenzá.';
+  initWaveform();
+  showScreen('screenInterview');
+
+  const intro = 'Adelante. La idea es ver cómo organizás tu discurso sobre el tema que acabás de ver. Tenés entre seis y diez minutos. Cuando quieras, comenzá.';
   await speak(intro);
   addTranscriptEntry('agent', intro);
   interviewPhase = 'speaking';
-  lastSpeechTimestamp = Date.now();
+  startTimer();
+  startContinuousListening();
 }
 
 // ── TIMER ──
 function startTimer() {
-  // Flush periódico cada 60s para no perder texto en discursos largos
-  const periodicFlush = setInterval(() => {
-    if (interviewPhase === 'ended') { clearInterval(periodicFlush); return; }
-    if (!isSpeaking && pendingFinalBuf.trim().length > 3) {
-      console.log('[PeriodicFlush] volcando', pendingFinalBuf.length, 'chars');
-      flushPendingText();
-    }
-  }, 60000);
-
   const ring = document.getElementById('ringProgress');
   const C = 2 * Math.PI * 80;
+
   timerInterval = setInterval(() => {
     elapsedSeconds++;
     const m = Math.floor(elapsedSeconds/60), s = elapsedSeconds%60;
-    document.getElementById('timerDisplay').textContent = m + ':' + s.toString().padStart(2,'0');
+    document.getElementById('timerDisplay').textContent = `${m}:${s.toString().padStart(2,'0')}`;
     ring.style.strokeDashoffset = C - (Math.min(elapsedSeconds/MAX_DURATION,1)*C);
+
     if (elapsedSeconds >= 60) document.getElementById('btnSynthesis').disabled = false;
-    if (elapsedSeconds >= 360) { ring.style.stroke = 'var(--azul)'; document.getElementById('m6').classList.add('active'); }
-    if (elapsedSeconds >= SYNTHESIS_TIME && !synthesisRequested) { synthesisRequested = true; triggerSynthesisRequest(); }
+    if (elapsedSeconds >= 360) {
+      ring.style.stroke = 'var(--azul)';
+      document.getElementById('m6').classList.add('active');
+    }
+    if (elapsedSeconds >= SYNTHESIS_TIME && !synthesisRequested) {
+      synthesisRequested = true;
+      triggerSynthesisRequest();
+    }
     if (elapsedSeconds >= MAX_DURATION) { clearInterval(timerInterval); endInterview(); return; }
 
-    // FIX: solo disparar interrupción si no hay una en curso
-    if (interruptionCount < 2 && !isSpeaking && !interruptionInProgress && interviewPhase === 'speaking') {
+    if (interruptionCount < 2 && !isSpeaking && interviewPhase === 'speaking') {
       const silence = (Date.now() - lastSpeechTimestamp) / 1000;
       const passedMin = elapsedSeconds >= interruptionTimes[interruptionCount];
       const forced    = elapsedSeconds >= interruptionTimes[interruptionCount] + 90;
-      if (passedMin && (silence >= 3 || forced)) {
-        triggerInterruption();
-      }
+      if (passedMin && (silence >= 3 || forced)) triggerInterruption();
     }
   }, 1000);
 }
 
 // ── CIERRE POR SILENCIO ──
 const CLOSING_PHRASES = [
-  'termine','terminé','ya termine','ya terminé','eso es todo lo que tenía',
-  'eso sería todo lo que tenía','no tengo nada más para decir',
-  'no se me ocurre nada más para agregar','ya dije todo lo que tenía',
-  'creo que cubrí todo el tema','listo eso es todo','y bueno eso es todo lo que tengo',
+  'termine','terminé','ya termine','ya terminé',
+  'eso es todo lo que tenía','eso sería todo lo que tenía',
+  'no tengo nada más para decir','no se me ocurre nada más para agregar',
+  'ya dije todo lo que tenía','creo que cubrí todo el tema',
+  'listo eso es todo','y bueno eso es todo lo que tengo',
   'no tengo más para agregar','se me acabaron las ideas',
 ];
+
 function detectsClosingPhrase(text) {
   const lower = text.toLowerCase();
   return CLOSING_PHRASES.some(p => lower.includes(p));
@@ -621,8 +930,7 @@ function resetClosingSilenceTimer() {
 
 async function triggerClosingSynthesis() {
   if (interviewPhase === 'ended') return;
-  flushPendingText();
-  await new Promise(r => setTimeout(r, 400));
+  if (lastUserText.trim().length > 5) { addTranscriptEntry('user', lastUserText.trim()); lastUserText = ''; }
   const wb = document.getElementById('warningBox');
   wb.textContent = 'Bien. Antes de cerrar, hacé una síntesis de los puntos más importantes que planteaste.';
   wb.classList.add('visible');
@@ -630,60 +938,68 @@ async function triggerClosingSynthesis() {
   addTranscriptEntry('agent', 'Hacé una síntesis de los puntos más importantes que planteaste.');
 }
 
-// ── SPEECH RECOGNITION ──
+// ── SPEECH RECOGNITION — instancia única durante toda la entrevista ──
+let recognitionInstance = null;
+let flushTimer = null;
+
 function initRecognition() {
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert('Tu navegador no soporta reconocimiento de voz. Usá Chrome.'); return null;
+    alert('Tu navegador no soporta reconocimiento de voz. Usá Chrome.');
+    return null;
   }
-  const SR  = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   const rec = new SR();
   rec.lang = 'es-AR'; rec.continuous = true; rec.interimResults = true;
 
   rec.onresult = (e) => {
-    if (interviewPhase === 'ended') return;
-    // FIX: acumular incluso cuando el agente está hablando — NUNCA cortar
+    if (isSpeaking || interviewPhase === 'ended') return;
     clearTimeout(flushTimer);
+    resetClosingSilenceTimer();
+
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
       if (e.results[i].isFinal) {
-        const t = e.results[i][0].transcript;
-        pendingFinalBuf     += t + ' ';
-        accumulatedUserText += t + ' ';
-        // Solo procesar cierre si NO está el agente hablando
-        if (!isSpeaking && !synthesisRequested && interviewPhase === 'speaking' && detectsClosingPhrase(t)) {
-          clearTimeout(closingSilenceTimer);
-          synthesisRequested = true;
-          document.getElementById('btnSynthesis').disabled = true;
-          setTimeout(() => { flushPendingText(); triggerClosingSynthesis(); }, 1200);
+        pendingFinalBuf += e.results[i][0].transcript + ' ';
+        accumulatedUserText += e.results[i][0].transcript + ' ';
+        if (!synthesisRequested && interviewPhase === 'speaking') {
+          if (detectsClosingPhrase(e.results[i][0].transcript)) {
+            clearTimeout(closingSilenceTimer);
+            synthesisRequested = true;
+            document.getElementById('btnSynthesis').disabled = true;
+            setTimeout(() => {
+              flushPendingText();
+              triggerClosingSynthesis();
+            }, 1200);
+          }
         }
       } else {
         interim = e.results[i][0].transcript;
       }
     }
-    // Solo actualizar UI y timers de silencio cuando no está el agente hablando
-    if (!isSpeaking) {
-      resetClosingSilenceTimer();
-      const disp = (pendingFinalBuf + interim).slice(-90);
-      setStatus('listening', '"' + disp + '"');
-      lastUserText = (pendingFinalBuf + interim).trim();
-      flushTimer = setTimeout(() => flushPendingText(), 2000);
-    }
-    console.log('[Speech] final buf:', pendingFinalBuf.length, 'chars | interim:', interim.length);
+
+    const disp = (pendingFinalBuf + interim).slice(-90);
+    setStatus('listening', '"' + disp + '"');
+    lastUserText = (pendingFinalBuf + interim).trim();
+
+    flushTimer = setTimeout(() => flushPendingText(), 4500);
   };
 
   rec.onend = () => {
-    // FIX: siempre reiniciar — nunca dejar el recognition muerto durante la entrevista
+    // Siempre reiniciar automáticamente salvo que la entrevista haya terminado
     if (interviewPhase !== 'ended') {
       setTimeout(() => {
         if (interviewPhase !== 'ended') {
-          try { rec.start(); } catch(err) { console.warn('[Speech] reinicio:', err.message); }
+          try { rec.start(); } catch(err) {}
         }
       }, 300);
     }
   };
 
   rec.onerror = (e) => {
-    if (e.error !== 'no-speech' && e.error !== 'aborted') console.warn('[Speech] error:', e.error);
+    if (e.error !== 'no-speech' && e.error !== 'aborted') {
+      console.warn('Speech recognition error:', e.error);
+    }
+    // El onend se encarga de reiniciar
   };
 
   return rec;
@@ -691,78 +1007,78 @@ function initRecognition() {
 
 function flushPendingText() {
   clearTimeout(flushTimer);
-  if (pendingFinalBuf.trim().length > 3) {
+  if (pendingFinalBuf.trim().length > 5) {
     addTranscriptEntry('user', pendingFinalBuf.trim());
     pendingFinalBuf = '';
   }
 }
 
 function startContinuousListening() {
-  if (!recognitionInstance) recognitionInstance = initRecognition();
+  if (!recognitionInstance) {
+    recognitionInstance = initRecognition();
+    currentRecognition = recognitionInstance;
+  }
   if (!recognitionInstance) return;
-  try { recognitionInstance.start(); } catch(err) { console.warn('[Speech] start:', err.message); }
+  try { recognitionInstance.start(); } catch(err) {}
   setStatus('listening', 'Escuchando...');
 }
 
-function stopListeningFinal() {
-  // Solo para el cierre definitivo de la entrevista
+function stopListening() {
+  // NO destruir la instancia — solo pausarla brevemente mientras habla el agente
+  // El onend la reinicia automáticamente
   if (recognitionInstance) {
-    try { recognitionInstance.abort(); } catch(e) {}
-    recognitionInstance = null;
+    try { recognitionInstance.stop(); } catch(e) {}
   }
 }
 
 // ── INTERRUPCIONES ──
-// FIX PRINCIPAL: NO detener el recognition durante la interrupción
-// El recognition sigue corriendo — el agente habla por TTS encima
 async function triggerInterruption() {
-  if (interviewPhase === 'ended' || interruptionInProgress) return;
-  interruptionInProgress = true;
+  if (interviewPhase === 'ended') return;
+  interviewPhase = 'interrupted';
+  stopListening();
 
-  // Volcar texto acumulado antes de interrumpir
+  // Guardar TODO el texto del candidato antes de interrumpir
   flushPendingText();
   lastUserText = '';
-
   document.getElementById('int' + (interruptionCount + 1)).classList.add('done');
   interruptionCount++;
   setStatus('speaking', 'PotenciaIA tiene una intervención...');
-
-  // Generar pregunta (recognition sigue corriendo en background)
-  const question = await generateInterruptionQuestion(accumulatedUserText.slice(-400));
-
+  const question = await generateInterruptionQuestion(accumulatedUserText.slice(-300));
   showQuestionOverlay(question);
-  await speak(question);  // isSpeaking=true durante este tiempo — recognition acumula pero no hace UI
+  await speak(question);
   addTranscriptEntry('agent', question);
-
   setTimeout(() => hideQuestionOverlay(), 1500);
-
   interviewPhase = 'speaking';
   lastUserText = '';
   lastSpeechTimestamp = Date.now();
-  interruptionInProgress = false;
-
-  // Recognition ya estaba corriendo — solo actualizar status
   setStatus('listening', 'Tu respuesta...');
+  startContinuousListening();
 }
 
 async function generateInterruptionQuestion(context) {
   if (demoMode) {
     const lw = context.trim().split(' ').slice(-4).join(' ');
     const demos = [
-      'Antes dijiste "' + lw + '", ¿podés ampliar eso?',
+      `Antes dijiste "${lw}", ¿podés ampliar eso?`,
       '¿Qué más me podés contar sobre eso?',
       '¿Cómo lo pensás vos?',
       '¿Podés desarrollar ese punto un poco más?'
     ];
     return demos[interruptionCount % demos.length];
   }
+
   const words = context.trim().split(/\s+/).filter(Boolean);
-  if (words.length < 15) {
+  if (words.length < 20) {
     const fallbacks = ['¿Podés contarme más?', '¿Qué más?', '¿Podés desarrollar eso?'];
     return fallbacks[interruptionCount % fallbacks.length];
   }
-  const lastWords = context.trim().split(' ').slice(-6).join(' ');
-  const systemPrompt = 'Sos un entrevistador del Método de Análisis del Discurso de Analía Blaistein. Tu única función es lograr que el candidato AMPLÍE lo que ya dijo. NO introducís contenido nuevo. Solo tomás palabras literales de su discurso y pedís que desarrolle. FÓRMULAS: "Antes dijiste [palabras literales], ¿podés ampliar eso?", "¿Qué más?", "¿Cómo lo pensás vos?", "¿A qué te referís con [término exacto]?" Máximo 15 palabras. Solo la frase, sin comillas ni prefijos.';
+
+  const systemPrompt = `Sos un entrevistador del Método de Análisis del Discurso de Analía Blaistein.
+Tu única función es lograr que el candidato AMPLÍE lo que ya dijo. NO introducís contenido nuevo.
+Solo tomás palabras literales de su discurso y pedís que desarrolle.
+FÓRMULAS: "Antes dijiste [palabras literales], ¿podés ampliar eso?", "¿Qué más?", "¿Cómo lo pensás vos?", "¿A qué te referís con [término exacto]?"
+Máximo 15 palabras. Solo la frase, sin comillas ni prefijos.`;
+
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -773,26 +1089,23 @@ async function generateInterruptionQuestion(context) {
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 80,
         system: systemPrompt,
-        messages: [{ role: 'user', content: 'El participante dijo: "' + context.slice(-300) + '". Generá la intervención anclada en sus últimas palabras: "' + lastWords + '"' }]
+        messages: [{ role: 'user', content: `El participante dijo: "${context.slice(-250)}". Generá la intervención.` }]
       })
     });
-    if (!res.ok) { throw new Error('API ' + res.status); }
     const data = await res.json();
     return data.content[0].text.trim();
   } catch(e) {
-    console.warn('[InterruptionQ] falló, usando fallback:', e.message);
-    return 'Antes dijiste "' + lastWords + '", ¿podés ampliar sobre eso?';
+    const lw = context.split(' ').slice(-5).join(' ');
+    return `Antes dijiste "${lw}", ¿podés ampliar sobre eso?`;
   }
 }
 
 // ── SÍNTESIS ──
 async function triggerSynthesisRequest() {
   if (interviewPhase === 'ended') return;
-  flushPendingText();
-  await new Promise(r => setTimeout(r, 400));
   const wb = document.getElementById('warningBox');
   wb.textContent = 'Vas llegando al límite de tiempo. Se te pedirá una síntesis.';
   wb.classList.add('visible');
@@ -804,224 +1117,151 @@ async function requestSynthesis() {
   if (synthesisRequested) return;
   synthesisRequested = true;
   document.getElementById('btnSynthesis').disabled = true;
-  flushPendingText();
-  await new Promise(r => setTimeout(r, 400));
   await speak('Bien. ¿Podés hacer una síntesis de lo que planteaste hasta ahora?');
   addTranscriptEntry('agent', '¿Podés hacer una síntesis de lo que planteaste hasta ahora?');
 }
 
-// ── RESPALDO TXT ──
+// ── RESPALDO TRANSCRIPT ──
 function descargarTranscriptEmergencia(transcript, nombre) {
   try {
     const fecha = new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
-    const archivo = 'PotenciaIA_' + (nombre||'candidato').replace(/\s+/g,'_') + '_' + fecha + '.txt';
+    const nombreArchivo = `PotenciaIA_${(nombre||'candidato').replace(/\s+/g,'_')}_${fecha}.txt`;
     const contenido = [
-      '═══════════════════════════════',
-      'POTENCIAÍA · Transcript evaluación',
-      '═══════════════════════════════',
-      'Candidato: ' + (nombre || 'No registrado'),
-      'Tema: ' + selectedTopic,
-      'Fecha: ' + new Date().toLocaleString('es-AR'),
-      'Duración: ' + Math.floor(elapsedSeconds/60) + ' min ' + (elapsedSeconds%60) + ' seg',
-      '═══════════════════════════════',
-      '', transcript
+      '═══════════════════════════════════════',
+      'POTENCIAÍA · Transcript de evaluación',
+      '═══════════════════════════════════════',
+      `Candidato: ${nombre || 'No registrado'}`,
+      `Tema: ${selectedTopic}`,
+      `Fecha: ${new Date().toLocaleString('es-AR')}`,
+      `Duración: ${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
+      '═══════════════════════════════════════',
+      '',
+      transcript
     ].join('\n');
     const blob = new Blob([contenido], {type:'text/plain;charset=utf-8'});
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url; a.download = archivo; a.click();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = nombreArchivo; a.click();
     URL.revokeObjectURL(url);
-  } catch(err) { console.error('[TXT backup]', err); }
-}
-
-// ── GRABACIÓN DE AUDIO ──
-async function startAudioRecording() {
-  try {
-    audioChunks = [];
-    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm' });
-    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
-    mediaRecorder.start(1000);
-    console.log('[Audio] grabación iniciada');
-  } catch(e) {
-    console.warn('[Audio] no se pudo iniciar grabación:', e.message);
-    mediaRecorder = null;
+  } catch(err) {
+    console.error('No se pudo descargar transcript:', err);
   }
-}
-
-function stopAudioRecording() {
-  return new Promise(resolve => {
-    if (!mediaRecorder || mediaRecorder.state === 'inactive') { resolve(null); return; }
-    mediaRecorder.onstop = () => {
-      if (audioStream) audioStream.getTracks().forEach(t => t.stop());
-      const blob = new Blob(audioChunks, { type: 'audio/webm' });
-      console.log('[Audio] grabación detenida, tamaño:', blob.size, 'bytes');
-      resolve(blob);
-    };
-    mediaRecorder.stop();
-  });
-}
-
-async function transcribirConDeepgram(audioBlob) {
-  if (!audioBlob || audioBlob.size < 1000) { console.warn('[Deepgram] audio demasiado corto'); return null; }
-  if (!DEEPGRAM_KEY) { console.warn('[Deepgram] sin key'); return null; }
-  try {
-    console.log('[Deepgram] enviando audio...');
-    const res = await fetch('https://api.deepgram.com/v1/listen?model=nova-3&language=es&punctuate=true&paragraphs=true', {
-      method: 'POST',
-      headers: { 'Authorization': 'Token ' + DEEPGRAM_KEY, 'Content-Type': 'audio/webm' },
-      body: audioBlob
-    });
-    if (!res.ok) { const err = await res.text(); console.error('[Deepgram] error:', res.status, err); return null; }
-    const data = await res.json();
-    const transcript = data?.results?.channels?.[0]?.alternatives?.[0]?.transcript || '';
-    console.log('[Deepgram] transcript recibido:', transcript.length, 'chars');
-    return transcript;
-  } catch(e) { console.error('[Deepgram] falló:', e.message); return null; }
 }
 
 // ══════════════════════════════════════════════════
 // FIN DE ENTREVISTA
 // ══════════════════════════════════════════════════
 async function endInterview() {
-  if (interviewPhase === 'ended') return;
   interviewPhase = 'ended';
+  stopListening();
+  clearInterval(timerInterval);
+  clearInterval(waveInterval);
+  clearTimeout(closingSilenceTimer);
 
-  clearInterval(timerInterval); clearInterval(waveInterval);
-  clearTimeout(closingSilenceTimer); clearTimeout(flushTimer);
-
-  // Iniciar stop de audio
-  const audioPromise = stopAudioRecording();
-
-  // FIX: detener recognition SOLO al finalizar definitivamente
-  stopListeningFinal();
-  speechSynthesis.cancel();
-
-  // Esperar últimos resultados
-  await new Promise(r => setTimeout(r, 1500));
-
-  // Volcar todo el texto pendiente
-  flushPendingText();
-  if (lastUserText.trim().length > 3) {
-    const lastEntry = transcriptLog[transcriptLog.length - 1];
-    if (!lastEntry || lastEntry.speaker === 'agent') {
-      addTranscriptEntry('user', lastUserText.trim());
-    }
-  }
-  pendingFinalBuf = ''; accumulatedUserText = ''; lastUserText = '';
-
-  // Construir transcript completo
-  const fullTranscript = transcriptLog
-    .map(e => '[' + Math.floor(e.time/60) + ':' + String(e.time%60).padStart(2,'0') + '] ' + (e.speaker==='agent'?'AGENTE':'PARTICIPANTE') + ': ' + e.text)
-    .join('\n\n');
-
-  console.log('[TRANSCRIPT] total entradas:', transcriptLog.length);
-  console.log('[TRANSCRIPT COMPLETO]\n' + fullTranscript);
-  console.log('[Transcript] palabras PARTICIPANTE:', fullTranscript.split('\n').filter(l=>l.includes('PARTICIPANTE:')).join(' ').split(/\s+/).length);
-  console.log('[Transcript] preview:', fullTranscript.slice(0, 300));
-
-  addTranscriptEntry('agent', 'Muchas gracias. Voy a analizar tu discurso ahora.');
   await speak('Muchas gracias. Voy a analizar tu discurso ahora.');
+  addTranscriptEntry('agent', 'Muchas gracias. Voy a analizar tu discurso ahora.');
+
+  // ── Volcar TODO texto pendiente antes de construir el transcript ──
+  flushPendingText();
+  if (lastUserText.trim().length > 5 &&
+      transcriptLog.length > 0 &&
+      transcriptLog[transcriptLog.length-1].speaker === 'agent') {
+    addTranscriptEntry('user', lastUserText.trim());
+  }
 
   document.getElementById('processingOverlay').classList.add('active');
 
-  const _pt = document.querySelector('.processing-text');
-  const _ps = document.querySelector('.processing-sub');
-  if (_pt) _pt.textContent = 'Transcribiendo audio...';
-  if (_ps) _ps.textContent = 'Esto puede tardar unos segundos';
+  const fullTranscript = transcriptLog
+    .map(e => `[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] ${e.speaker==='agent'?'POTENCIAÍA':'PARTICIPANTE'}: ${e.text}`)
+    .join('\n\n');
 
-  let transcriptFinal = fullTranscript;
-  try {
-    const audioBlob = await audioPromise;
-    const dgTranscript = await transcribirConDeepgram(audioBlob);
-    if (dgTranscript && dgTranscript.trim().length > 50) {
-      const headerLines = transcriptLog
-        .filter(e => e.speaker === 'agent')
-        .map(e => '['+Math.floor(e.time/60)+':'+String(e.time%60).padStart(2,'0')+'] AGENTE: '+e.text)
-        .join('\n\n');
-      transcriptFinal = headerLines + '\n\n[TRANSCRIPT COMPLETO - Deepgram]\n' + dgTranscript;
-      console.log('[Deepgram] ✅ Transcript completo listo');
-    } else {
-      console.warn('[Deepgram] falló o vacío, usando Web Speech como fallback');
-    }
-  } catch(e) { console.warn('[Deepgram] error, usando Web Speech:', e.message); }
-
-  // Guardar en Firebase
+  // ── Guardar datos base en Firebase (incluye edad y estrato del puesto) ──
   const datosBase = {
-    candidato: candidatoNombre || 'Candidato', edad: candidatoEdad || null,
-    puesto: candidatoPuesto || null, estrato_puesto: estratoPuesto || null,
-    token: sessionToken || null, tema: selectedTopic,
-    duracion: Math.floor(elapsedSeconds/60) + ' min ' + (elapsedSeconds%60) + ' seg',
-    duracion_segundos: elapsedSeconds, transcript: transcriptFinal,
-    estado: 'pendiente_analisis', estrato: null, confianza: null,
-    resumen: 'Análisis en proceso...', evidencias: '', alertas: ''
+    candidato:        candidatoNombre || 'Candidato',
+    edad:             candidatoEdad   || null,   // ← CLAVE para calcular CPF en el dashboard
+    puesto:           candidatoPuesto || null,
+    estrato_puesto:   estratoPuesto   || null,   // ← CLAVE para comparar fit
+    token:            sessionToken    || null,
+    tema:             selectedTopic,
+    duracion:         `${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
+    duracion_segundos: elapsedSeconds,
+    transcript:       fullTranscript,
+    estado:           'pendiente_analisis',
+    estrato:          null,
+    confianza:        null,
+    resumen:          'Análisis en proceso...',
+    evidencias:       '',
+    alertas:          ''
   };
 
   let firebaseId = null;
-  let fbWait = 0;
-  while (!window._firebaseReady && fbWait < 8000) { await new Promise(r => setTimeout(r, 200)); fbWait += 200; }
   if (typeof window.guardarEvaluacion === 'function') {
     firebaseId = await window.guardarEvaluacion(datosBase);
-    console.log('[Firebase] ID guardado:', firebaseId, '| transcript chars:', transcriptFinal.length);
   }
+
   if (!firebaseId) {
-    console.warn('[Firebase] no se pudo guardar — descargando TXT de emergencia');
     descargarTranscriptEmergencia(fullTranscript, candidatoNombre);
   }
 
-  // Análisis con Claude
-  if (_pt) _pt.textContent = 'Analizando el discurso...';
-  if (_ps) _ps.textContent = 'Puede tardar hasta 90 segundos';
-
+  // ── Análisis con Claude (timeout 90s) ──
   let result;
   let analisisExitoso = false;
+
+  // Mostrar estado en el overlay para que el usuario sepa qué pasa
+  const procText = document.querySelector('.processing-text');
+  const procSub  = document.querySelector('.processing-sub');
+
   try {
-    const analysisPromise = analyzeWithClaude(transcriptFinal);
-    const timeoutPromise  = new Promise((_,reject) => setTimeout(() => reject(new Error('timeout_90s')), 90000));
+    if (procText) procText.textContent = 'Analizando el discurso...';
+    if (procSub)  procSub.textContent  = 'Esto puede tardar hasta 90 segundos';
+
+    const analysisPromise = analyzeWithClaude(fullTranscript);
+    const timeoutPromise  = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('timeout_90s')), 90000)
+    );
     result = await Promise.race([analysisPromise, timeoutPromise]);
     analisisExitoso = true;
-    if (_pt) _pt.textContent = 'Guardando resultados...';
+
+    if (procText) procText.textContent = 'Guardando resultados...';
+
   } catch(e) {
-    console.error('[Análisis] falló:', e.message);
-    if (_pt) _pt.textContent = 'Guardando transcript...';
-    if (_ps) _ps.textContent = 'Error: ' + e.message + ' — el transcript fue guardado';
+    console.error('Análisis falló:', e.message);
+
+    // Mostrar el error en el overlay para debugging
+    if (procText) procText.textContent = 'Guardando transcript...';
+    if (procSub)  procSub.textContent  = `Error: ${e.message} — el transcript fue guardado`;
+
     result = {
-      estrato:0, subestrato:'N/A', modo_procesamiento:'Análisis pendiente',
-      modo_curva:null, confianza:0, nombre_estrato:'Sin clasificación',
-      horizonte_implicito:'N/A',
-      resumen: 'Análisis automático no completado (' + e.message + '). Transcript guardado.',
-      evidencias:[], alertas:['Error: ' + e.message]
+      estrato: 0, subestrato: 'N/A', modo_procesamiento: 'Análisis pendiente',
+      modo_curva: null, confianza: 0, nombre_estrato: 'Análisis pendiente',
+      horizonte_implicito: 'N/A',
+      resumen: `Análisis automático no completado (${e.message}). El transcript fue guardado correctamente en Firebase.`,
+      evidencias: [], alertas: [`Error de análisis: ${e.message}`]
     };
+
+    // Esperar 2s para que el usuario pueda leer el mensaje
     await new Promise(r => setTimeout(r, 2000));
   }
 
-  let fitResult = null;
-  if (result.estrato > 0 && estratoPuesto) {
-    if (result.estrato === estratoPuesto)    fitResult = 'encaja';
-    else if (result.estrato > estratoPuesto) fitResult = 'supera';
-    else                                      fitResult = 'no_alcanza';
-  }
-
+  // ── Actualizar Firebase con resultado del análisis ──
   const datosAnalisis = {
-    estado: analisisExitoso ? 'completado' : 'analisis_fallido',
-    estrato: result.estrato, subestrato: result.subestrato,
-    modo_procesamiento: result.modo_procesamiento, modo_curva: result.modo_curva || null,
-    nombre_estrato: result.nombre_estrato, horizonte: result.horizonte_implicito,
-    confianza: result.confianza, resumen: result.resumen,
-    evidencias: (result.evidencias||[]).join(' | '),
-    alertas: (result.alertas||[]).join(' | '),
-    fit: fitResult, transcript: transcriptFinal
+    estado:            analisisExitoso ? 'completado' : 'analisis_fallido',
+    estrato:           result.estrato,
+    subestrato:        result.subestrato,
+    modo_procesamiento: result.modo_procesamiento,
+    modo_curva:        result.modo_curva || null,
+    nombre_estrato:    result.nombre_estrato,
+    horizonte:         result.horizonte_implicito,
+    confianza:         result.confianza,
+    resumen:           result.resumen,
+    evidencias:        (result.evidencias||[]).join(' | '),
+    alertas:           (result.alertas||[]).join(' | ')
   };
 
-  try {
-    if (typeof window.actualizarEvaluacion === 'function' && firebaseId) {
-      await window.actualizarEvaluacion(firebaseId, datosAnalisis);
-    } else if (typeof window.guardarEvaluacion === 'function' && !firebaseId) {
-      await window.guardarEvaluacion({ ...datosBase, ...datosAnalisis });
-    }
-  } catch(e) {
-    console.error('[Firebase] error guardando análisis:', e);
-    descargarTranscriptEmergencia(fullTranscript + '\n\n---ANÁLISIS---\n' + JSON.stringify(datosAnalisis, null, 2), candidatoNombre);
+  if (typeof window.actualizarEvaluacion === 'function' && firebaseId) {
+    await window.actualizarEvaluacion(firebaseId, datosAnalisis);
+  } else if (typeof window.guardarEvaluacion === 'function' && !firebaseId) {
+    await window.guardarEvaluacion({ ...datosBase, ...datosAnalisis });
   }
 
   document.getElementById('processingOverlay').classList.remove('active');
@@ -1030,38 +1270,44 @@ async function endInterview() {
 }
 
 // ══════════════════════════════════════════════════
-// ANÁLISIS CON CLAUDE
+// ANÁLISIS CON CLAUDE — incluye edad y contexto del puesto
 // ══════════════════════════════════════════════════
 async function analyzeWithClaude(transcript) {
-  if (demoMode) { await new Promise(r => setTimeout(r, 2500)); return DEMO_RESULT; }
-
-  // Contar palabras: si el transcript tiene formato PARTICIPANTE: usarlo, si no (Deepgram plano) contar el bloque completo
-  let palabrasParticipante = 0;
-  const lineasPart = transcript.split('\n').filter(l => l.includes('PARTICIPANTE:')).join(' ');
-  if (lineasPart.trim().length > 0) {
-    palabrasParticipante = lineasPart.split(/\s+/).filter(Boolean).length;
-  } else {
-    const bloqueDeepgram = transcript.includes('[TRANSCRIPT COMPLETO - Deepgram]')
-      ? transcript.split('[TRANSCRIPT COMPLETO - Deepgram]')[1] || transcript
-      : transcript;
-    palabrasParticipante = bloqueDeepgram.trim().split(/\s+/).filter(Boolean).length;
+  if (demoMode) {
+    await new Promise(r => setTimeout(r, 2500));
+    return DEMO_RESULT;
   }
-  console.log('[Análisis] palabras detectadas:', palabrasParticipante, '| segundos:', elapsedSeconds);
-  if (palabrasParticipante < 30 || elapsedSeconds < 60) {
+
+  // ── Chequeo de discurso insuficiente ──
+  // Contar solo las líneas del PARTICIPANTE
+  const lineasParticipante = transcript
+    .split('\n')
+    .filter(l => l.includes('PARTICIPANTE:'))
+    .join(' ');
+  const palabrasParticipante = lineasParticipante.split(/\s+/).filter(Boolean).length;
+  const minutosParticipante  = Math.floor(elapsedSeconds / 60);
+
+  if (palabrasParticipante < 80 || minutosParticipante < 2) {
     return {
-      estrato:0, subestrato:'N/A', modo_procesamiento:'Discurso insuficiente',
-      modo_curva:null, confianza:0, nombre_estrato:'Sin clasificación',
-      horizonte_implicito:'N/A',
-      resumen: 'El discurso fue demasiado breve (' + palabrasParticipante + ' palabras, ~' + Math.floor(elapsedSeconds/60) + ' min). Se requieren al menos 2 min continuos.',
-      evidencias:[], alertas:['Discurso insuficiente: ' + palabrasParticipante + ' palabras en ' + Math.floor(elapsedSeconds/60) + ' min.']
+      estrato: 0,
+      subestrato: 'N/A',
+      modo_procesamiento: 'Discurso insuficiente',
+      modo_curva: null,
+      confianza: 0,
+      nombre_estrato: 'Sin clasificación',
+      horizonte_implicito: 'N/A',
+      resumen: `El discurso del participante fue demasiado breve para clasificar (${palabrasParticipante} palabras, ~${minutosParticipante} minutos). Se requieren al menos 2 minutos de discurso continuo para aplicar la metodología de análisis.`,
+      evidencias: [],
+      alertas: [`Discurso insuficiente: ${palabrasParticipante} palabras en ${minutosParticipante} minutos. El transcript completo está disponible para revisión manual.`]
     };
   }
 
+  // Contexto adicional del candidato para el prompt
   const contextoExtra = [
-    candidatoNombre  ? 'Nombre del candidato: ' + candidatoNombre : '',
-    candidatoEdad    ? 'Edad del candidato: ' + candidatoEdad + ' años' : '',
-    candidatoPuesto  ? 'Puesto al que aplica: ' + candidatoPuesto : '',
-    estratoPuesto    ? 'Estrato requerido por el puesto: E' + (['','I','II','III','IV','V'][estratoPuesto]||estratoPuesto) : '',
+    candidatoNombre  ? `Nombre del candidato: ${candidatoNombre}` : '',
+    candidatoEdad    ? `Edad del candidato: ${candidatoEdad} años` : '',
+    candidatoPuesto  ? `Puesto al que aplica: ${candidatoPuesto}` : '',
+    estratoPuesto    ? `Estrato requerido por el puesto: E${['','I','II','III','IV','V'][estratoPuesto]||estratoPuesto}` : '',
   ].filter(Boolean).join('\n');
 
   const systemPrompt = `Sos un evaluador especializado en la Teoría de Sistemas Estratificados de Elliott Jaques, aplicando la metodología de Analía Blaistein para análisis del discurso oral.
@@ -1069,26 +1315,121 @@ async function analyzeWithClaude(transcript) {
 Tu tarea: clasificar el MODO DE PROCESAMIENTO MENTAL del participante según su discurso libre sobre un tema de opinión.
 
 PREMISA CENTRAL
-No clasificás por cargo, conocimiento del tema ni volumen de palabras. Clasificás ÚNICAMENTE por la ARQUITECTURA DEL RAZONAMIENTO.
+No clasificás por cargo, conocimiento del tema ni cantidad de palabras. Clasificás únicamente por la ARQUITECTURA DEL RAZONAMIENTO. El contenido no clasifica — la misma postura puede expresarse en cualquier estrato.
 
-ALGORITMO DE CLASIFICACIÓN (Solaas):
-PASO 1 — ¿Hay SERIES? (mínimo 2 nexos / 3 elementos concatenados donde cada uno lleva lógicamente al siguiente)
-→ SÍ: PASO 2
-→ NO: ¿Hay ACUMULATIVO? → SÍ: E2 / NO: E1
+════════════════════════════════════
+ALGORITMO DE CLASIFICACIÓN (Harald Solaas / Jaques)
+════════════════════════════════════
+Seguí estos pasos en orden:
 
-PASO 2 — ¿Hay PARALELO? (series relacionadas entre sí, fundamentación requiere más de una serie)
-→ SÍ: E4 / NO: E3
+PASO 1 — ¿Hay series?
+¿Existen elementos de la argumentación CONCATENADOS entre sí, donde cada uno lleva lógicamente al siguiente?
+(Se requieren mínimo 2 nexos / 3 elementos para constituir una serie)
+→ SÍ: continuar al PASO 2
+→ NO: continuar a ¿Hay acumulativo?
 
-ESTRATO I — DECLARATIVO: Declara opiniones independientes sin nexo causal. Soluciones operativas directas. Experiencia personal directa.
-ESTRATO II — ACUMULATIVO: Junta causas/evidencias hacia un diagnóstico propio. Una conclusión central.
-ESTRATO III — SERIAL: Cadena causal de mínimo 3 eslabones. Cada uno es condición del siguiente. Plan secuencial.
-ESTRATO IV — PARALELO: Múltiples cadenas alternativas comparadas con criterios sistémicos. Trade-offs. Supuestos propios.
+PASO 2 — ¿Hay procesamiento en paralelo?
+¿Las series están explícitamente relacionadas entre sí? ¿La fundamentación requiere más de una serie a la vez?
+→ SÍ: ESTRATO IV (En Paralelo)
+→ NO: ESTRATO III (En Serie)
 
-TRAMPAS:
-- Volumen ≠ complejidad
-- Jerga técnica ≠ pensamiento complejo
-- Un destello no mueve el estrato — clasificar por patrón dominante sostenido
-- En caso de duda: nivel más bajo consistente
+Si no hay series → ¿Hay procesamiento ACUMULATIVO?
+¿Es necesario tener en cuenta más de un elemento a la vez para que la fundamentación tenga sentido? ¿O cada elemento es suficiente por sí solo?
+→ SÍ (necesita varios juntos): ESTRATO II (Acumulativo)
+→ NO (cada elemento es independiente): ESTRATO I (Declarativo)
+
+════════════════════════════════════
+ESTRATO I — DECLARATIVO (O-O)
+════════════════════════════════════
+Horizonte: 1 día a 3 meses
+Cada razón es INDEPENDIENTE — sostiene sola la conclusión sin necesitar a las demás.
+Sin nexos entre ideas. Sin cadena causal. Sin proyección temporal.
+Soluciones concretas y operativas ("poner más policías", "difundir en la tele", "reducir alumnos").
+Puede sonar coherente y extenso — VOLUMEN NO ES COMPLEJIDAD.
+
+PISTA RÁPIDA: ¿La persona habla desde experiencia personal directa sin integrarla en un patrón? → I
+
+CASO CALIBRADO REAL — E1 (Maestra 48 años, tema: educación):
+"Antes era como más sistemática, más rigurosa... ahora es como más permisivo."
+"Me da la impresión de que los profesores no están tan comprometidos como estaban antes."
+"Reducir la cantidad de alumnos en sala... darle garantías a los profesores de que su autoridad va a ser respetada."
+→ POR QUÉ ES E1: Todo gira en una sola idea (antes mejor que ahora). Causas independientes que vuelven al mismo punto. Soluciones concretas y operativas, no sistémicas. Sin horizonte temporal.
+
+EJEMPLO CALIBRADO — E1 (legalización de droga):
+"Y mirá, yo digo que la legalicen. Total, el que quiere consumir consume igual. Yo tengo un primo que fuma porro desde los 16 y no le pasó nada. Si legalizaran no habría tanto delincuente, eso seguro. Legalicen y se terminó."
+→ Causalidad de un solo paso. "Y se terminó" — solución completa en una frase.
+
+════════════════════════════════════
+ESTRATO II — ACUMULATIVO (Y-Y)
+════════════════════════════════════
+Horizonte: 3 meses a 1 año
+Ideas DISTINTAS que se SUMAN hacia un diagnóstico — ninguna sola alcanza, pero en conjunto construyen algo.
+Identifica patrones acumulados en el tiempo ("vengo notando", "hace varios años").
+Llega a una conclusión diagnóstica propia: "todo esto hace que sea casi irresoluble".
+Reconoce obstáculos sistémicos. Condicionales simples (Si A → B, una cadena, no ramificada).
+
+PISTA RÁPIDA: ¿La persona junta evidencia acumulada en un patrón con una conclusión? → II
+
+CASO CALIBRADO REAL — E2 (Ingeniero 26 años, tema: deserción escolar):
+"En general es más común en países en desarrollo donde los chicos tienen que salir a trabajar para comer... es menos gente capacitada en el mercado laboral, es menos actividad económica, es menos innovación..."
+→ POR QUÉ ES E2: Acumula ejemplos hacia un diagnóstico (tema de clase social). Los condicionales son simples y aislados, no cadenas ramificadas.
+
+EJEMPLO — E2 (inseguridad):
+"Lo que sí me parece que ayuda es la combinación de presencia policial inteligente con programas para los pibes. Cuando abrieron el centro deportivo municipal hace cuatro años, se notó una baja. Después hay un tema con la justicia que la gente plantea... si el Estado regula, esa plata no la maneja el narco."
+→ Junta observaciones acumuladas. Una línea narrativa principal.
+
+CASO CALIBRADO — E2-Alto (en pasaje a E3, el más difícil de clasificar):
+Ignacio, ~30 años, tema: liderazgo en equipos:
+"Lo que noto es que cuando el equipo no tiene claro para dónde va, empieza a haber fricciones. Yo vengo viendo eso hace un tiempo... la gente trabaja pero sin dirección, y eso genera un clima que después es difícil de revertir. Creo que el líder tiene que poder anticipar eso, no solo reaccionar cuando ya está el problema."
+→ POR QUÉ ES E2-Alto y NO E3: Acumula observaciones (clima, dirección, fricción) hacia un diagnóstico ("difícil de revertir"). Menciona anticipación pero NO construye una cadena de pasos explícitos. No hay "si hago A primero, entonces B es posible". La conclusión es diagnóstica, no secuencial.
+→ DESTELLO DE E3 que NO alcanza: "anticipar" sugiere pensamiento previo, pero no construye la secuencia de cómo.
+
+════════════════════════════════════
+ESTRATO III — SERIAL (Si→Entonces→Entonces)
+════════════════════════════════════
+Horizonte: 1 a 2 años
+Cadena causal de MÍNIMO 3 ESLABONES donde cada uno es condición del siguiente.
+Diseña un único plan con etapas dependientes explícitas.
+Identifica precondiciones, secuencia, y consecuencias de hacer las cosas en mal orden.
+
+PISTA RÁPIDA: ¿La persona construye un plan secuencial multi-etapa con dependencias? → III
+
+EJEMPLO — E3 (legalización de droga):
+"Mi posición es que tendría que haber una secuencia clara de tres etapas. La primera etapa, los primeros dos años, sería despenalización del consumo y regulación medicinal — esto te permite descomprimir el sistema judicial Y construye capacidad regulatoria. La segunda etapa, legalización regulada tipo Uruguay — la regulación tiene que llegar ANTES que el mercado, porque si liberás sin estructura te quedan problemas nuevos. La tercera etapa, evaluar y decidir sobre otras sustancias."
+→ Tres etapas con dependencias explícitas. Cada etapa es condición de la siguiente.
+
+DIFERENCIA CLAVE E2 vs E3:
+E2: "El problema viene de la educación, y también de la pobreza, y también de los intereses creados, todo esto lo hace irresoluble." → SUMA de causas → diagnóstico.
+E3: "Si no despenalizamos primero, no podemos construir capacidad regulatoria, y sin esa capacidad, cualquier legalización posterior queda mal implementada." → CADENA donde A habilita B que habilita C.
+
+════════════════════════════════════
+ESTRATO IV — PARALELO (A si y solo si B)
+════════════════════════════════════
+Horizonte: 2 a 5 años
+Sostiene MÚLTIPLES cadenas alternativas en paralelo y las COMPARA con criterios sistémicos.
+Identifica trade-offs entre modelos: "el camino A optimiza X pero deteriora Y".
+Ve interacciones entre subsistemas.
+
+PISTA RÁPIDA: ¿La persona compara modelos alternativos con trade-offs sistémicos? → IV
+
+EJEMPLO — E4 (legalización de droga):
+"Hay tres modelos que están operando en el mundo. El primero es el modelo mercado tipo California — maximiza recaudación pero termina concentrado y con publicidad agresiva. El segundo es el modelo Estado tipo Uruguay — recaudación menor pero preserva salud pública. El tercero es el modelo Portugal — despenaliza sin tocar el mercado. Cada modelo excluye en parte a los otros."
+→ Tres modelos sostenidos en paralelo. Comparados en múltiples ejes. Reconoce irreversibilidad.
+
+════════════════════════════════════
+TRAMPAS FRECUENTES — CRÍTICO
+════════════════════════════════════
+1. VOLUMEN ≠ COMPLEJIDAD: Un discurso largo y coherente puede ser E1.
+2. JERGA ≠ PENSAMIENTO: "estratégico", "sistémico", "estructural" son palabras, no estructura.
+3. DESTELLO ≠ ESTRATO: Una cadena Si→Entonces aislada no mueve a E3. Clasificá por patrón DOMINANTE sostenido.
+4. DOMINIO: Si la persona habla de un tema lejano a su experiencia, puede aparecer más baja. Notarlo en alertas.
+5. Discurso menor a 3 minutos → confianza máxima 45%.
+6. Sin discurso del participante → estrato 0, confianza 0.
+
+SUBESTRATOS:
+• bajo: modo incipiente, aparece pero no consolidado
+• medio: modo predominante y consistente
+• alto: consolidado con destellos sostenidos del nivel siguiente (indica pasaje próximo)
 
 Respondé ÚNICAMENTE con JSON válido (sin markdown, sin backticks):
 {
@@ -1099,12 +1440,38 @@ Respondé ÚNICAMENTE con JSON válido (sin markdown, sin backticks):
   "confianza": 78,
   "nombre_estrato": "Acumulación Diagnóstica",
   "horizonte_implicito": "meses",
-  "resumen": "2-3 frases con evidencia concreta del discurso.",
-  "evidencias": ["Cita o patrón + señal cognitiva", "Segunda evidencia", "Tercera evidencia"],
-  "alertas": ["Solo si hay algo relevante"]
-}`;
+  "resumen": "2-3 frases describiendo el patrón cognitivo dominante con referencia al modo de procesamiento. Incluí evidencia concreta del discurso.",
+  "evidencias": [
+    "Cita o patrón del discurso + señal cognitiva que ilustra por qué corresponde a ese estrato",
+    "Segunda evidencia concreta",
+    "Tercera evidencia"
+  ],
+  "alertas": [
+    "Solo si hay algo relevante: discurso breve, destellos del nivel superior, dominio ajeno, posible ansiedad, etc."
+  ]
+}
 
-  const userMsg = 'Analizá el siguiente transcript de evaluación PotenciaIA.\n\nTEMA: "' + selectedTopic + '"\nDURACIÓN: ' + Math.floor(elapsedSeconds/60) + ' min ' + (elapsedSeconds%60) + ' seg\nINTERVENCIONES DEL AGENTE: ' + interruptionCount + '\n' + (contextoExtra ? '\nCONTEXTO DEL CANDIDATO:\n' + contextoExtra + '\n' : '') + '\nTRANSCRIPT COMPLETO:\n' + transcript;
+CAMPO modo_curva — INSTRUCCIÓN CRÍTICA:
+Es la curva de crecimiento del candidato en el Gráfico de Progreso del Potencial de Jaques (valores: "I", "II", "III", "IV", "V", "VI").
+Cruzá estrato + subestrato + edad:
+- Estrato I Bajo/Medio → Modo I o II
+- Estrato I Alto / II Bajo → Modo II
+- Estrato II Medio/Alto → Modo III
+- Estrato III Bajo/Medio → Modo IV
+- Estrato III Alto / IV Bajo → Modo IV o V
+- Estrato IV Medio/Alto → Modo V o VI
+Ajustá según la edad: candidatos jóvenes (< 30) en estrato alto → curva más alta.
+Sin edad disponible: estimá por estrato y subestrato únicamente.`;
+
+  const userMsg = `Analizá el siguiente transcript de evaluación PotenciaIA.
+
+TEMA: "${selectedTopic}"
+DURACIÓN: ${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg
+INTERVENCIONES: ${interruptionCount}
+${contextoExtra ? '\nCONTEXTO DEL CANDIDATO:\n' + contextoExtra : ''}
+
+TRANSCRIPT:
+${transcript}`;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1116,33 +1483,44 @@ Respondé ÚNICAMENTE con JSON válido (sin markdown, sin backticks):
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 1400,
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1200,
         system: systemPrompt,
         messages: [{ role: 'user', content: userMsg }]
       })
     });
-    if (!res.ok) { const errBody = await res.text(); throw new Error('API ' + res.status + ': ' + errBody.slice(0,200)); }
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      console.error('API Anthropic error:', res.status, errBody);
+      throw new Error(`API ${res.status}: ${errBody.slice(0,200)}`);
+    }
+
     const data = await res.json();
-    if (!data.content || !data.content[0]) throw new Error('Respuesta vacía de la API');
+
+    if (!data.content || !data.content[0]) {
+      console.error('Respuesta vacía de la API:', data);
+      throw new Error('Respuesta vacía de la API');
+    }
+
     const clean = data.content[0].text.trim().replace(/```json|```/g,'').trim();
     return JSON.parse(clean);
+
   } catch(e) {
-    console.error('[Claude] analyzeWithClaude falló:', e.message);
-    throw e;
+    console.error('analyzeWithClaude falló:', e.message);
+    throw e;  // re-lanzar para que endInterview lo capture y loguee
   }
 }
 
 // ── RESTART ──
 function restart() {
-  speechSynthesis.cancel();
-  stopListeningFinal();
-  clearInterval(timerInterval); clearInterval(waveInterval);
-  clearTimeout(closingSilenceTimer); clearTimeout(flushTimer);
+  speechSynthesis.cancel(); stopListening();
+  clearInterval(timerInterval); clearInterval(waveInterval); clearTimeout(closingSilenceTimer);
   elapsedSeconds=0; interruptionCount=0; transcriptLog=[];
-  accumulatedUserText=''; lastUserText=''; pendingFinalBuf='';
-  synthesisRequested=false; interviewPhase='idle';
-  lastSpeechTimestamp=Date.now(); recognitionInstance=null; interruptionInProgress=false;
+  accumulatedUserText=''; lastUserText=''; pendingFinalBuf=''; synthesisRequested=false; interviewPhase='idle';
+  lastSpeechTimestamp=Date.now();
+  recognitionInstance=null; currentRecognition=null; clearTimeout(flushTimer);
+  lastSpeechTimestamp=Date.now();
   document.getElementById('warningBox').classList.remove('visible');
   document.getElementById('int1').classList.remove('done');
   document.getElementById('int2').classList.remove('done');

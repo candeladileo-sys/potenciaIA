@@ -612,7 +612,8 @@ const candidatoEdad    = parseInt(urlParams.get('edad'))              || null;
 const candidatoPuesto  = decodeURIComponent(urlParams.get('puesto')  || '');
 const estratoPuesto    = parseInt(urlParams.get('estrato_puesto'))    || null;
 const sessionToken     = urlParams.get('token')                       || '';
-const apiKeyFromUrl    = urlParams.get('anthropic_key') || urlParams.get('api_key') || '';  // opcional
+const apiKeyFromUrl    = (urlParams.get('anthropic_key') || urlParams.get('api_key') || '').trim();  // opcional
+const deepgramKey      = (urlParams.get('dg_key') || urlParams.get('deepgram_key') || '').trim();
 
 // Mostrar banner si vino por link
 if (candidatoNombre || candidatoEdad || candidatoPuesto) {
@@ -866,6 +867,7 @@ async function startInterview() {
   interviewPhase = 'speaking';
   startTimer();
   startContinuousListening();
+  startDeepgramRecording();  // graba todo el audio en paralelo (fuente principal del transcript)
 }
 
 // ── TIMER ──
@@ -1031,6 +1033,76 @@ function stopListening() {
   }
 }
 
+// ══════════════════════════════════════════════════
+// DEEPGRAM — graba TODO el audio desde el inicio y lo transcribe al final.
+// Es la fuente principal del transcript (el navegador queda solo como respaldo).
+// ══════════════════════════════════════════════════
+let mediaRecorder = null;
+let audioChunks = [];
+let audioStream = null;
+
+async function startDeepgramRecording() {
+  if (!deepgramKey) { console.warn('Sin Deepgram key: se usa solo el reconocimiento del navegador.'); return false; }
+  try {
+    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+    let mimeType = '';
+    if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported) {
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mimeType = 'audio/webm;codecs=opus';
+      else if (MediaRecorder.isTypeSupported('audio/webm')) mimeType = 'audio/webm';
+      else if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
+    }
+    mediaRecorder = new MediaRecorder(audioStream, mimeType ? { mimeType } : undefined);
+    mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.start(1000); // junta el audio en bloques de 1s (más seguro ante cortes)
+    console.log('Grabación Deepgram iniciada:', mediaRecorder.mimeType);
+    return true;
+  } catch(err) {
+    console.error('No se pudo iniciar la grabación Deepgram:', err);
+    return false;
+  }
+}
+
+function stopDeepgramRecording() {
+  return new Promise((resolve) => {
+    if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+      if (audioStream) { try { audioStream.getTracks().forEach(t => t.stop()); } catch(e){} }
+      resolve(null);
+      return;
+    }
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(audioChunks, { type: (mediaRecorder && mediaRecorder.mimeType) || 'audio/webm' });
+      if (audioStream) { try { audioStream.getTracks().forEach(t => t.stop()); } catch(e){} }
+      resolve(blob && blob.size > 0 ? blob : null);
+    };
+    try { mediaRecorder.stop(); } catch(e) { resolve(null); }
+  });
+}
+
+async function transcribeWithDeepgram(audioBlob) {
+  if (!audioBlob || !deepgramKey) return null;
+  try {
+    const res = await fetch('https://api.deepgram.com/v1/listen?model=nova-3&language=es&smart_format=true&punctuate=true', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Token ' + deepgramKey,
+        'Content-Type': audioBlob.type || 'audio/webm'
+      },
+      body: audioBlob
+    });
+    if (!res.ok) {
+      console.error('Deepgram error:', res.status, await res.text());
+      return null;
+    }
+    const data = await res.json();
+    const transcript = data?.results?.channels?.[0]?.alternatives?.[0]?.transcript || '';
+    return transcript.trim() || null;
+  } catch(e) {
+    console.error('Transcripción Deepgram falló:', e);
+    return null;
+  }
+}
+
 // ── INTERRUPCIONES ──
 async function triggerInterruption() {
   if (interviewPhase === 'ended') return;
@@ -1171,9 +1243,31 @@ async function endInterview() {
 
   document.getElementById('processingOverlay').classList.add('active');
 
-  const fullTranscript = transcriptLog
-    .map(e => `[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] ${e.speaker==='agent'?'POTENCIAÍA':'PARTICIPANTE'}: ${e.text}`)
-    .join('\n\n');
+  // ── Detener grabación Deepgram y transcribir el audio completo ──
+  const procText0 = document.querySelector('.processing-text');
+  const procSub0  = document.querySelector('.processing-sub');
+  let deepgramText = null;
+  try {
+    if (procText0) procText0.textContent = 'Transcribiendo el audio...';
+    if (procSub0)  procSub0.textContent  = 'Procesando la grabación completa';
+    const audioBlob = await stopDeepgramRecording();
+    deepgramText = await transcribeWithDeepgram(audioBlob);
+  } catch(e) {
+    console.error('Deepgram no disponible, se usa el texto del navegador:', e);
+  }
+
+  // ── Construir el transcript: Deepgram = principal, navegador = respaldo ──
+  let fullTranscript;
+  if (deepgramText && deepgramText.length > 0) {
+    const agentLines = transcriptLog
+      .filter(e => e.speaker === 'agent')
+      .map(e => `[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] POTENCIAÍA: ${e.text}`);
+    fullTranscript = `[TRANSCRIPT COMPLETO - Deepgram]\n\nPARTICIPANTE: ${deepgramText}\n\n--- Intervenciones del agente ---\n${agentLines.join('\n')}`;
+  } else {
+    fullTranscript = transcriptLog
+      .map(e => `[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] ${e.speaker==='agent'?'POTENCIAÍA':'PARTICIPANTE'}: ${e.text}`)
+      .join('\n\n');
+  }
 
   // ── Guardar datos base en Firebase (incluye edad y estrato del puesto) ──
   const datosBase = {
@@ -1278,29 +1372,7 @@ async function analyzeWithClaude(transcript) {
     return DEMO_RESULT;
   }
 
-  // ── Chequeo de discurso insuficiente ──
-  // Contar solo las líneas del PARTICIPANTE
-  const lineasParticipante = transcript
-    .split('\n')
-    .filter(l => l.includes('PARTICIPANTE:'))
-    .join(' ');
-  const palabrasParticipante = lineasParticipante.split(/\s+/).filter(Boolean).length;
-  const minutosParticipante  = Math.floor(elapsedSeconds / 60);
-
-  if (palabrasParticipante < 80 || minutosParticipante < 2) {
-    return {
-      estrato: 0,
-      subestrato: 'N/A',
-      modo_procesamiento: 'Discurso insuficiente',
-      modo_curva: null,
-      confianza: 0,
-      nombre_estrato: 'Sin clasificación',
-      horizonte_implicito: 'N/A',
-      resumen: `El discurso del participante fue demasiado breve para clasificar (${palabrasParticipante} palabras, ~${minutosParticipante} minutos). Se requieren al menos 2 minutos de discurso continuo para aplicar la metodología de análisis.`,
-      evidencias: [],
-      alertas: [`Discurso insuficiente: ${palabrasParticipante} palabras en ${minutosParticipante} minutos. El transcript completo está disponible para revisión manual.`]
-    };
-  }
+  // ── (Filtro de palabras/tiempo eliminado: se analiza siempre el transcript completo) ──
 
   // Contexto adicional del candidato para el prompt
   const contextoExtra = [

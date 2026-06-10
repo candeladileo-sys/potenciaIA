@@ -1207,7 +1207,7 @@ function renderInformeCompleto(c, CURVA_IMG) {
         `Aún trabaja dentro de un marco estipulado de reglas. Aumenta la complejidad y ambigüedad de los temas a tratar, pero cada problema es afrontado en forma separada. La respuesta puede verse en términos de diferentes alternativas posibles.`,
         `Es capaz de desarrollar las tareas de un primer nivel de conducción; es decir, analizar e interpretar datos e información con el objetivo de diagnosticar una problemática, reflexionar sobre lo que ocurre, de modo de detectar aquello que pudiera indicar problemas y obstáculos potenciales y tomar medidas para impedirlos o superarlos.`,
       ],
-      horizonte: 'de 12 a 18 meses aproximadamente',
+      horizonte: 'de 3 a 12 meses aproximadamente',
     },
     3: {
       parrafos: [
@@ -1280,12 +1280,17 @@ function renderInformeCompleto(c, CURVA_IMG) {
   const cpa  = { edad, estrato, subnivel: sub };
   const cpf1 = pts.cpf1;
   const cpf2 = pts.cpf2;
+  // ── Punto de cruce de estrato (edad exacta en que pasa al siguiente estrato) ──
+  const hayCruce  = estrato < 5;
+  const cruceData = hayCruce ? calcularCPF(edad, estrato, sub) : null;
+  const cruce     = cruceData ? { edad: cruceData.edadCPF, estrato: cruceData.estratoCPF, subnivel: cruceData.subnivel } : null;
 
   const svgW = 552, svgH = 623;
   function dot(e, est, s) { return coordenadasCurva(e, est, s, svgW, svgH); }
   const pCPA  = dot(cpa.edad,  cpa.estrato,  cpa.subnivel);
   const pCPF1 = dot(cpf1.edad, cpf1.estrato, cpf1.subnivel);
   const pCPF2 = dot(cpf2.edad, cpf2.estrato, cpf2.subnivel);
+   const pCruce = cruce ? dot(cruce.edad, cruce.estrato, cruce.subnivel) : null;
 
   function dashed(p1, p2) {
     return `<line x1="${p1.x.toFixed(1)}" y1="${p1.y.toFixed(1)}" x2="${p2.x.toFixed(1)}" y2="${p2.y.toFixed(1)}" stroke="#1d4e3f" stroke-width="1.8" stroke-dasharray="5 3" opacity="0.8"/>`;
@@ -1325,6 +1330,7 @@ function renderInformeCompleto(c, CURVA_IMG) {
       <h2 style="font-size:14px;font-weight:bold;text-transform:uppercase;letter-spacing:.06em;margin-bottom:18px;border-bottom:1px solid #ccc;padding-bottom:6px;">CAPACIDAD POTENCIAL FUTURA</h2>
 
       <p style="font-size:14px;line-height:1.9;color:#222;margin-bottom:14px;">${introCorto}</p>
+      ${cruce ? `<p style="font-size:14px;line-height:1.9;color:#222;margin-bottom:14px;">Según la curva de maduración, ${nombreCandidato} concretaría su pasaje al Estrato ${ROM[cruce.estrato]} aproximadamente a los ${cruce.edad} años.</p>` : ''}
 
       <p style="font-size:14px;line-height:1.9;color:#222;margin-bottom:14px;">
         Puede decirse que su carrera laboral transcurrirá en el Estrato ${ROM[estratoSig]}, llegando a niveles de mayor consolidación hacia los tramos intermedios y finales de su carrera profesional.
@@ -1346,6 +1352,9 @@ function renderInformeCompleto(c, CURVA_IMG) {
         <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 552 623" preserveAspectRatio="none">
           ${dashed(pCPA, pCPF1)}
           ${dashed(pCPF1, pCPF2)}
+          ${pCruce ? `<line x1="${pCruce.x.toFixed(1)}" y1="${pCruce.y.toFixed(1)}" x2="${pCruce.x.toFixed(1)}" y2="610" stroke="#e67e22" stroke-width="1" stroke-dasharray="2 2" opacity="0.6"/>` : ''}
+          ${pCruce ? `<circle cx="${pCruce.x.toFixed(1)}" cy="${pCruce.y.toFixed(1)}" r="6" fill="none" stroke="#e67e22" stroke-width="2.5"/>` : ''}
+          ${pCruce ? `<circle cx="${pCruce.x.toFixed(1)}" cy="${pCruce.y.toFixed(1)}" r="2" fill="#e67e22"/>` : ''}
           <circle cx="${pCPF2.x.toFixed(1)}" cy="${pCPF2.y.toFixed(1)}" r="6" fill="#1d4e3f" opacity="0.95"/>
           <circle cx="${pCPF2.x.toFixed(1)}" cy="${pCPF2.y.toFixed(1)}" r="2.5" fill="white"/>
           <circle cx="${pCPF1.x.toFixed(1)}" cy="${pCPF1.y.toFixed(1)}" r="6" fill="#27ae60" opacity="0.95"/>
@@ -1360,6 +1369,10 @@ function renderInformeCompleto(c, CURVA_IMG) {
           <div style="width:10px;height:10px;border-radius:50%;background:#c0392b;flex-shrink:0;"></div>
           <span><strong>Capacidad Potencial Actual</strong> — E ${ROM[cpa.estrato]} ${cpa.subnivel} · ${edad} años</span>
         </div>
+        ${cruce ? `<div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:none;border:2px solid #e67e22;flex-shrink:0;"></div>
+          <span><strong>Cruce de estrato</strong> — pasa al E ${ROM[cruce.estrato]} a los ${cruce.edad} años</span>
+        </div>` : ''}
         <div style="display:flex;align-items:center;gap:6px;">
           <div style="width:10px;height:10px;border-radius:50%;background:#27ae60;flex-shrink:0;"></div>
           <span><strong>CPF a 5 años aprox.</strong> — E ${ROM[cpf1.estrato]} ${cpf1.subnivel} · ${cpf1.edad} años</span>

@@ -5,30 +5,35 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PotenciaIA · Evaluación de Potencial</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap');
 
 :root {
-  --bg:          #ffffff;
-  --surface:     #f8f9fb;
-  --surface2:    #f0f2f5;
-  --border:      #e2e6ea;
-  --border-dark: #cdd3da;
-  --verde:       #27ae60;
-  --verde-light: #eafaf1;
-  --verde-mid:   #a9dfbf;
-  --rojo:        #e74c3c;
-  --rojo-light:  #fdf0ee;
-  --azul:        #2980b9;
-  --azul-light:  #eaf4fb;
-  --azul-mid:    #a9cce3;
-  --text:        #1a1d23;
-  --text-dim:    #4a5568;
-  --text-muted:  #8a9ab0;
-  --yellow:      #f39c12;
-  --yellow-light:#fef9e7;
+  /* claro y neutro */
+  --bg:          #f4f5f3;
+  --bg-2:        #eceeec;
+  --surface:     #ffffff;
+  --border:      #e3e5e2;
+  --border-2:    #d4d7d3;
+
+  /* acento violeta (tipo Front) */
+  --violeta:      #7c3aed;
+  --violeta-soft: #a78bfa;
+  --violeta-light:#f1ecfe;
+  --violeta-deep: #5b21b6;
+
+  --ink:         #1c1d22;     /* casi negro, para íconos/logo */
+  --text:        #1c1d22;
+  --text-dim:    #5b6066;
+  --text-muted:  #9aa0a6;
+
+  --ok:          #16a34a;
+  --rojo:        #dc2626;
+  --yellow:      #b45309;
+  --yellow-bg:   #fef6e7;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
 
 body {
   background: var(--bg);
@@ -36,369 +41,301 @@ body {
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 .container {
-  max-width: 860px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 40px 24px 60px;
+  padding: 28px 24px 56px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── HEADER ── */
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 40px;
-  padding-bottom: 24px;
-  border-bottom: 2px solid var(--border);
-  gap: 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 48px; gap: 16px;
 }
-
-.logo { display: flex; align-items: center; gap: 14px; }
-
+.logo { display: flex; align-items: center; gap: 12px; }
 .logo-icon {
-  width: 46px; height: 46px;
-  background: linear-gradient(135deg, var(--verde), var(--azul));
-  border-radius: 12px;
+  width: 40px; height: 40px; border-radius: 11px;
+  background: var(--ink);
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif;
-  font-weight: 800; font-size: 20px; color: white;
-  box-shadow: 0 4px 12px rgba(39,174,96,0.25);
-  flex-shrink: 0;
+  flex-shrink: 0; position: relative;
 }
-
+/* marquita interna violeta tipo Front */
+.logo-icon::before {
+  content: ''; width: 15px; height: 15px; border-radius: 4px;
+  background: var(--violeta);
+}
+.logo-icon::after {
+  content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--surface); right: 9px; bottom: 9px;
+}
 .logo-text h1 {
   font-family: 'Syne', sans-serif;
-  font-size: 22px; font-weight: 800;
-  background: linear-gradient(90deg, var(--verde), var(--azul));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text; letter-spacing: -0.02em;
+  font-size: 19px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink);
 }
-
-.logo-text p {
-  font-size: 12px; color: var(--text-muted);
-  font-weight: 400; margin-top: 2px;
-}
+.logo-text p { font-size: 11.5px; color: var(--text-muted); margin-top: 1px; }
 
 .phase-badge {
-  font-size: 11px; font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--azul);
-  background: var(--azul-light);
-  border: 1px solid var(--azul-mid);
-  padding: 6px 14px; border-radius: 20px;
-  white-space: nowrap;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--violeta); background: var(--violeta-light);
+  border: 1px solid #e4d9fb; padding: 6px 13px; border-radius: 20px; white-space: nowrap;
 }
 
 /* ── SCREENS ── */
-.screen { display: none; animation: fadeUp 0.3s ease; }
-.screen.active { display: block; }
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+.screen { display: none; flex: 1; }
+.screen.active { display: flex; flex-direction: column; animation: fadeUp 0.5s cubic-bezier(.2,.7,.3,1); }
+@keyframes fadeUp { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform: translateY(0); } }
 
 /* ── CARDS ── */
 .card {
-  background: var(--bg);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 32px;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  border-radius: 18px;
+  padding: 36px;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 2px rgba(28,29,34,0.03), 0 8px 24px rgba(28,29,34,0.04);
 }
-
 .card h2 {
   font-family: 'Syne', sans-serif;
-  font-size: 20px; font-weight: 700;
-  color: var(--text); margin-bottom: 12px;
+  font-size: 27px; font-weight: 700; letter-spacing: -0.02em;
+  color: var(--ink); margin-bottom: 14px; line-height: 1.12;
 }
-
-.card p {
-  font-size: 14px; line-height: 1.7;
-  color: var(--text-dim); margin-bottom: 10px;
-}
-
+.card p { font-size: 15px; line-height: 1.75; color: var(--text-dim); margin-bottom: 12px; }
 .card p:last-of-type { margin-bottom: 0; }
+.card strong { color: var(--violeta); font-weight: 600; }
 
-.rule-list { list-style: none; margin: 20px 0; }
-
-.rule-list li {
-  font-size: 13px; color: var(--text-dim);
-  padding: 10px 0; border-bottom: 1px solid var(--border);
-  display: flex; gap: 12px; align-items: flex-start; line-height: 1.5;
+.eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--violeta); margin-bottom: 14px;
 }
 
+.rule-list { list-style: none; margin: 24px 0 4px; display: grid; gap: 2px; }
+.rule-list li {
+  font-size: 14px; color: var(--text-dim);
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+  display: flex; gap: 14px; align-items: flex-start; line-height: 1.55;
+}
 .rule-list li:last-child { border-bottom: none; }
-
-.rule-list li::before {
-  content: '';
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--verde); flex-shrink: 0; margin-top: 5px;
+.rule-list li .rl-num {
+  font-size: 12px; font-weight: 600; color: var(--violeta);
+  background: var(--violeta-light); border-radius: 7px; padding: 3px 9px;
+  flex-shrink: 0; line-height: 1.4; margin-top: 1px;
 }
 
 /* INFO CANDIDATO */
 .candidato-info {
-  background: var(--verde-light);
-  border: 1.5px solid var(--verde-mid);
-  border-radius: 10px;
-  padding: 16px 20px;
-  margin-bottom: 20px;
-  display: none;
+  background: var(--violeta-light); border: 1px solid #e4d9fb;
+  border-radius: 14px; padding: 18px 22px; margin-bottom: 18px; display: none;
 }
 .candidato-info.visible { display: block; }
-.candidato-info .ci-nombre {
-  font-family: 'Syne', sans-serif;
-  font-size: 16px; font-weight: 700; color: var(--verde);
-  margin-bottom: 4px;
-}
-.candidato-info .ci-meta {
-  font-size: 12px; color: var(--text-muted);
-  display: flex; gap: 16px; flex-wrap: wrap;
-}
+.candidato-info .ci-nombre { font-family:'Syne',sans-serif; font-size: 17px; font-weight: 700; color: var(--violeta-deep); margin-bottom: 5px; }
+.candidato-info .ci-meta { font-size: 12.5px; color: var(--text-muted); display: flex; gap: 18px; flex-wrap: wrap; }
 
 /* API INPUT */
-.api-input-group { margin-top: 24px; }
-
+.api-input-group { margin-top: 26px; }
 .api-input-group label {
-  display: block; font-size: 12px; font-weight: 600;
-  letter-spacing: 0.06em; text-transform: uppercase;
-  color: var(--text-muted); margin-bottom: 8px;
+  display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: 9px;
 }
-
 .api-input-group input {
-  width: 100%; background: var(--surface);
-  border: 1.5px solid var(--border); border-radius: 8px;
-  padding: 12px 16px; color: var(--text);
-  font-family: 'Inter', sans-serif; font-size: 14px;
-  outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%; background: var(--bg); border: 1px solid var(--border-2);
+  border-radius: 10px; padding: 13px 16px; color: var(--text);
+  font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
+.api-input-group input:focus { border-color: var(--violeta); box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
 
-.api-input-group input:focus {
-  border-color: var(--verde);
-  box-shadow: 0 0 0 3px rgba(39,174,96,0.12);
+/* DEMO BOX */
+.demo-box {
+  margin-top: 22px; padding: 18px; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 12px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
 }
+.demo-box .db-title { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.demo-box .db-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.5; }
+
+.switch { position: relative; display: inline-block; width: 46px; height: 26px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch .track { position: absolute; cursor: pointer; inset: 0; background: var(--border-2); border-radius: 26px; transition: 0.3s; }
+.switch .knob { position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
 
 /* ── BUTTONS ── */
 .btn {
-  font-family: 'Inter', sans-serif; font-size: 13px;
-  font-weight: 600; letter-spacing: 0.04em;
-  padding: 12px 28px; border: none; border-radius: 8px;
-  cursor: pointer; transition: all 0.2s;
+  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.01em;
+  padding: 14px 30px; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s;
 }
-
-.btn-primary {
-  background: var(--verde); color: white;
-  box-shadow: 0 2px 8px rgba(39,174,96,0.3);
-}
-.btn-primary:hover { background: #219a52; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(39,174,96,0.35); }
-
-.btn-secondary {
-  background: white; color: var(--text-dim);
-  border: 1.5px solid var(--border);
-}
-.btn-secondary:hover { border-color: var(--azul); color: var(--azul); }
-
-.btn-danger {
-  background: white; color: var(--rojo);
-  border: 1.5px solid var(--rojo);
-}
-.btn-danger:hover { background: var(--rojo); color: white; }
-
+.btn-primary { background: var(--violeta); color: #fff; box-shadow: 0 4px 14px rgba(124,58,237,0.28); }
+.btn-primary:hover { background: var(--violeta-deep); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(124,58,237,0.34); }
+.btn-secondary { background: var(--surface); color: var(--text-dim); border: 1px solid var(--border-2); }
+.btn-secondary:hover { border-color: var(--violeta); color: var(--violeta); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-
 .btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
 
 /* ── COUNTDOWN OVERLAY ── */
 .countdown-overlay {
-  display: none; position: fixed; inset: 0;
-  background: white; z-index: 200;
-  flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+  display: none; position: fixed; inset: 0; background: var(--bg); z-index: 200;
+  flex-direction: column; align-items: center; justify-content: center; gap: 18px;
 }
 .countdown-overlay.active { display: flex; }
-
-.countdown-brand {
-  font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
-  background: linear-gradient(90deg, var(--verde), var(--azul));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-
-.countdown-topic-label {
-  font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--text-muted);
-}
-
+.countdown-brand { font-size: 12px; font-weight: 600; letter-spacing: 0.24em; text-transform: uppercase; color: var(--violeta); }
+.countdown-topic-label { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); }
 .countdown-topic-text {
-  font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700;
-  color: var(--text); text-align: center; max-width: 560px;
-  padding: 0 24px; line-height: 1.35;
+  font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--ink);
+  text-align: center; max-width: 600px; padding: 0 24px; line-height: 1.22; letter-spacing: -0.02em;
 }
-
 .countdown-number {
-  font-family: 'Syne', sans-serif; font-size: 140px; font-weight: 800;
-  color: var(--verde); line-height: 1; letter-spacing: -0.05em;
-  animation: countPulse 0.85s ease-out; min-width: 180px; text-align: center;
+  font-family: 'Syne', sans-serif; font-size: 150px; font-weight: 800; line-height: 1;
+  letter-spacing: -0.05em; min-width: 200px; text-align: center; color: var(--violeta);
+  animation: countPulse 0.85s cubic-bezier(.2,.8,.3,1);
 }
-.countdown-number.go { color: var(--azul); font-size: 64px; letter-spacing: 0.05em; }
-
-@keyframes countPulse {
-  0%   { transform: scale(1.5); opacity: 0.1; }
-  100% { transform: scale(1);   opacity: 1; }
-}
-
+.countdown-number.go { font-size: 70px; letter-spacing: 0.03em; color: var(--violeta-deep); }
+@keyframes countPulse { 0% { transform: scale(1.55); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 .countdown-instruction { font-size: 13px; color: var(--text-muted); font-weight: 500; }
 
 /* ── QUESTION OVERLAY ── */
 .question-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(255,255,255,0.92);
-  z-index: 150; align-items: center; justify-content: center;
-  padding: 32px; backdrop-filter: blur(8px);
+  display: none; position: fixed; inset: 0; background: rgba(28,29,34,0.30);
+  z-index: 150; align-items: center; justify-content: center; padding: 32px;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
 }
 .question-overlay.active { display: flex; }
-
 .question-overlay-inner {
-  background: white; border-radius: 16px;
-  border: 2px solid var(--azul);
-  padding: 40px 48px; max-width: 600px; width: 100%;
-  text-align: center; animation: fadeUp 0.3s ease;
-  box-shadow: 0 20px 60px rgba(41,128,185,0.15);
-  position: relative; overflow: hidden;
+  background: var(--surface); border-radius: 20px; border: 1px solid var(--border);
+  padding: 44px 48px; max-width: 600px; width: 100%; text-align: center;
+  animation: fadeUp 0.4s ease; box-shadow: 0 30px 70px rgba(28,29,34,0.20); position: relative; overflow: hidden;
 }
-
-.question-overlay-inner::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-  background: linear-gradient(90deg, var(--verde), var(--azul), var(--rojo));
-}
-
-.question-badge {
-  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--azul); margin-bottom: 16px;
-}
-
-.question-overlay-text {
-  font-family: 'Syne', sans-serif; font-size: 22px;
-  font-weight: 600; color: var(--text); line-height: 1.4;
-}
+.question-overlay-inner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--violeta); }
+.question-badge { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--violeta); margin-bottom: 18px; }
+.question-overlay-text { font-family: 'Syne', sans-serif; font-size: 25px; font-weight: 700; color: var(--ink); line-height: 1.4; letter-spacing: -0.01em; }
 
 /* ── INTERVIEW ── */
-.timer-ring-container { display: flex; justify-content: center; margin-bottom: 28px; }
+.listen-stage { display: flex; flex-direction: column; align-items: center; padding: 12px 0 4px; flex: 1; }
 
-.timer-ring { position: relative; width: 180px; height: 180px; }
-.timer-ring svg { transform: rotate(-90deg); }
-.ring-bg { fill: none; stroke: var(--border); stroke-width: 6; }
-.ring-progress {
-  fill: none; stroke: var(--verde); stroke-width: 6;
-  stroke-linecap: round; stroke-dasharray: 502; stroke-dashoffset: 502;
-  transition: stroke-dashoffset 1s linear, stroke 0.5s;
+.orb-wrap { position: relative; width: 300px; height: 300px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; }
+.orb-ring { position: absolute; inset: 0; transform: rotate(-90deg); }
+.orb-ring .ring-track { fill: none; stroke: var(--border); stroke-width: 3; }
+.orb-ring .ring-fill {
+  fill: none; stroke: var(--violeta); stroke-width: 3; stroke-linecap: round;
+  stroke-dasharray: 880; stroke-dashoffset: 880; transition: stroke-dashoffset 1s linear;
 }
-
-.timer-center {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
+.orb-halo {
+  position: absolute; width: 220px; height: 220px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(124,58,237,0.16), transparent 68%);
+  filter: blur(8px); opacity: 0.7; transition: opacity .4s;
 }
+.orb-halo.live { animation: breathe 3.6s ease-in-out infinite; }
+.orb-halo.speaking { background: radial-gradient(circle, rgba(91,33,182,0.20), transparent 68%); }
+@keyframes breathe { 0%,100% { transform: scale(0.97); opacity: 0.5; } 50% { transform: scale(1.05); opacity: 0.72; } }
 
-.timer-display {
-  font-family: 'Syne', sans-serif; font-size: 40px; font-weight: 800;
-  color: var(--text); letter-spacing: -0.03em;
+.orb-core {
+  position: relative; z-index: 2; width: 176px; height: 176px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 13px;
+  box-shadow: 0 10px 30px rgba(28,29,34,0.06);
 }
+.voice-bars { display: flex; align-items: center; gap: 4px; height: 44px; }
+.voice-bars .vb { width: 4px; height: 8px; border-radius: 4px; background: var(--violeta); transition: height .12s ease, background .4s; }
+.voice-bars.speaking .vb { background: var(--violeta-deep); }
+.orb-timer { font-family: 'Syne', sans-serif; font-size: 33px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; line-height: 1; }
+.orb-state { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
 
-.timer-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; }
+.timeline { width: 100%; max-width: 420px; margin: 18px auto 0; }
+.timeline-bar { position: relative; height: 4px; border-radius: 4px; background: var(--border); overflow: visible; }
+.timeline-fill { position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: var(--violeta); border-radius: 4px; transition: width 1s linear; }
+.timeline-mark { position: absolute; top: 50%; transform: translate(-50%,-50%); width: 9px; height: 9px; border-radius: 50%; background: var(--surface); border: 2px solid var(--border-2); left: 60%; }
+.timeline-mark.reached { border-color: var(--violeta); box-shadow: 0 0 0 4px rgba(124,58,237,0.14); }
+.timeline-labels { display: flex; justify-content: space-between; margin-top: 9px; font-size: 11px; color: var(--text-muted); }
+.timeline-labels .tl-6 { position: relative; left: 10%; color: var(--text-dim); }
 
-.time-markers { display: flex; justify-content: space-between; margin-bottom: 12px; padding: 0 4px; }
-.time-marker { font-size: 11px; color: var(--text-muted); font-weight: 500; }
-.time-marker.active { color: var(--verde); font-weight: 600; }
-
-.interruption-counter { display: flex; gap: 8px; margin-bottom: 18px; align-items: center; }
-.interruption-counter span { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
-.int-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--border-dark); background: white; transition: all 0.3s; }
-.int-dot.done { background: var(--azul); border-color: var(--azul); box-shadow: 0 0 0 3px var(--azul-light); }
-
-/* STATUS */
 .status-panel {
-  background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: 10px; padding: 16px 20px; margin-bottom: 16px;
-  min-height: 68px; display: flex; align-items: center; gap: 14px;
+  margin: 22px auto 0; max-width: 520px; width: 100%;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 15px 18px; display: flex; align-items: center; gap: 13px;
 }
+.status-indicator { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; background: var(--text-muted); transition: all 0.3s; }
+.status-indicator.listening  { background: var(--violeta); box-shadow: 0 0 0 4px rgba(124,58,237,0.16); animation: spulse 1.6s infinite; }
+.status-indicator.speaking   { background: var(--violeta-deep); box-shadow: 0 0 0 4px rgba(91,33,182,0.16); animation: spulse 1s infinite; }
+.status-indicator.processing { background: var(--yellow); box-shadow: 0 0 0 4px rgba(180,83,9,0.14); animation: spulse 0.6s infinite; }
+@keyframes spulse { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
+.status-text { font-size: 13px; color: var(--text-dim); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.status-indicator {
-  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
-  background: var(--border-dark); transition: all 0.3s;
-}
-
-.status-indicator.listening  { background: var(--verde); box-shadow: 0 0 0 4px var(--verde-light); animation: pulse 1.5s infinite; }
-.status-indicator.speaking   { background: var(--azul);  box-shadow: 0 0 0 4px var(--azul-light);  animation: pulse 1s infinite; }
-.status-indicator.processing { background: var(--yellow); box-shadow: 0 0 0 4px var(--yellow-light); animation: pulse 0.5s infinite; }
-
-@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
-
-.status-text { font-size: 13px; color: var(--text-dim); font-weight: 400; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-/* WAVEFORM */
-.waveform-container { display: flex; align-items: center; justify-content: center; height: 44px; gap: 3px; margin-bottom: 16px; }
-.wave-bar { width: 3px; background: var(--verde); border-radius: 3px; height: 4px; opacity: 0.35; transition: height 0.1s; }
-
-/* TRANSCRIPT */
 .transcript-area {
-  background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: 10px; padding: 16px; margin-bottom: 16px;
-  max-height: 190px; overflow-y: auto;
+  margin: 14px auto 0; max-width: 520px; width: 100%;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 16px; max-height: 160px; overflow-y: auto;
 }
 .transcript-area::-webkit-scrollbar { width: 4px; }
-.transcript-area::-webkit-scrollbar-thumb { background: var(--verde-mid); border-radius: 2px; }
-
-.transcript-entry { font-size: 13px; line-height: 1.65; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.transcript-area::-webkit-scrollbar-thumb { background: var(--violeta-soft); border-radius: 2px; }
+.transcript-entry { font-size: 13px; line-height: 1.65; margin-bottom: 11px; padding-bottom: 11px; border-bottom: 1px solid var(--border); }
 .transcript-entry:last-child { border-bottom: none; margin-bottom: 0; }
-.transcript-entry .speaker { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
-.transcript-entry .speaker.agent { color: var(--azul); }
-.transcript-entry .speaker.user  { color: var(--verde); }
+.transcript-entry .speaker { font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px; }
+.transcript-entry .speaker.agent { color: var(--violeta); }
+.transcript-entry .speaker.user  { color: var(--ok); }
 .transcript-entry .content { color: var(--text-dim); }
+.transcript-placeholder { font-size: 12.5px; color: var(--text-muted); text-align: center; padding: 10px 0; }
 
-/* WARNING */
 .warning-box {
-  background: var(--yellow-light); border: 1.5px solid #f0d080;
-  border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
-  font-size: 13px; color: #7d5a00; font-weight: 500; display: none;
+  margin: 16px auto 0; max-width: 520px; width: 100%;
+  background: var(--yellow-bg); border: 1px solid #f3e2c0; border-radius: 10px;
+  padding: 13px 16px; font-size: 13px; color: var(--yellow); font-weight: 500; display: none;
 }
 .warning-box.visible { display: block; }
 
+.action-bar { margin: 26px auto 0; max-width: 520px; width: 100%; display: flex; justify-content: center; }
+.btn-action {
+  font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; padding: 16px 42px;
+  border-radius: 14px; cursor: pointer; border: none; background: var(--violeta); color: #fff;
+  box-shadow: 0 6px 20px rgba(124,58,237,0.28); transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.btn-action:hover { background: var(--violeta-deep); transform: translateY(-2px); box-shadow: 0 10px 26px rgba(124,58,237,0.36); }
+.btn-action:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-action .ba-icon { font-size: 15px; line-height: 1; }
+.action-hint { margin: 12px auto 0; max-width: 520px; text-align: center; font-size: 12px; color: var(--text-muted); }
+
 /* ── PROCESSING OVERLAY ── */
 .processing-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(255,255,255,0.95); z-index: 100;
-  flex-direction: column; align-items: center; justify-content: center; gap: 20px;
-  backdrop-filter: blur(4px);
+  display: none; position: fixed; inset: 0; background: rgba(244,245,243,0.94); z-index: 100;
+  flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
 }
 .processing-overlay.active { display: flex; }
-
-.processing-spinner {
-  width: 52px; height: 52px;
-  border: 3px solid var(--border);
-  border-top-color: var(--verde); border-right-color: var(--azul);
-  border-radius: 50%; animation: spin 0.7s linear infinite;
-}
+.processing-spinner { width: 50px; height: 50px; border: 3px solid var(--border); border-top-color: var(--violeta); border-radius: 50%; animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.processing-text { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 700; color: var(--ink); }
+.processing-sub { font-size: 12px; color: var(--text-muted); }
 
-.processing-text { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--text); }
-.processing-sub { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-
-/* ── PANTALLA GRACIAS ── */
+/* ── GRACIAS ── */
+.thanks-stage { text-align: center; padding: 72px 24px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
 .thanks-check {
-  width: 80px; height: 80px; border-radius: 50%;
-  background: var(--verde-light); border: 2px solid var(--verde-mid);
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 28px; font-size: 36px;
+  width: 84px; height: 84px; border-radius: 50%; background: var(--violeta-light);
+  border: 1px solid #e4d9fb; display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 30px; font-size: 36px; color: var(--violeta);
 }
+.thanks-stage h2 { font-family:'Syne',sans-serif; font-size: 34px; font-weight: 800; color: var(--ink); margin-bottom: 16px; letter-spacing: -0.02em; }
+.thanks-stage p { font-size: 16px; color: var(--text-dim); line-height: 1.7; max-width: 440px; margin: 0 auto; }
+.foot-note { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--border); line-height: 1.8; }
 
 @media (max-width: 600px) {
-  .card { padding: 20px; }
-  .countdown-number { font-size: 100px; }
-  .countdown-topic-text { font-size: 20px; }
-  .question-overlay-inner { padding: 28px 20px; }
-  .question-overlay-text { font-size: 18px; }
+  .container { padding: 22px 16px 44px; }
+  .card { padding: 24px; }
+  .card h2 { font-size: 22px; }
+  .countdown-number { font-size: 110px; }
+  .countdown-topic-text { font-size: 26px; }
+  .question-overlay-inner { padding: 30px 22px; }
+  .question-overlay-text { font-size: 20px; }
   .header { flex-direction: column; align-items: flex-start; }
+  .orb-wrap { width: 250px; height: 250px; }
+  .orb-core { width: 150px; height: 150px; }
+  .orb-timer { font-size: 27px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.05ms !important; }
 }
 </style>
 </head>
@@ -423,25 +360,14 @@ const db = getFirestore(app);
 
 window.guardarEvaluacion = async function(data) {
   try {
-    const docRef = await addDoc(collection(db, 'evaluaciones'), {
-      ...data,
-      timestamp: serverTimestamp()
-    });
+    const docRef = await addDoc(collection(db, 'evaluaciones'), { ...data, timestamp: serverTimestamp() });
     console.log('Guardado en Firebase:', docRef.id);
     return docRef.id;
-  } catch(e) {
-    console.error('Error Firebase:', e);
-    return null;
-  }
+  } catch(e) { console.error('Error Firebase:', e); return null; }
 };
-
 window.actualizarEvaluacion = async function(id, data) {
-  try {
-    await updateDoc(doc(db, 'evaluaciones', id), data);
-    console.log('Evaluacion actualizada:', id);
-  } catch(e) {
-    console.error('Error actualizando Firebase:', e);
-  }
+  try { await updateDoc(doc(db, 'evaluaciones', id), data); console.log('Evaluacion actualizada:', id); }
+  catch(e) { console.error('Error actualizando Firebase:', e); }
 };
 </script>
 
@@ -450,10 +376,10 @@ window.actualizarEvaluacion = async function(id, data) {
   <!-- HEADER -->
   <div class="header">
     <div class="logo">
-      <div class="logo-icon">P</div>
+      <div class="logo-icon"></div>
       <div class="logo-text">
         <h1>PotenciaIA</h1>
-        <p>Evaluación de Potencial · Metodología Blaistein</p>
+        <p>Análisis del discurso · Elliott Jaques</p>
       </div>
     </div>
     <div class="phase-badge" id="phaseBadge">Inicio</div>
@@ -461,8 +387,6 @@ window.actualizarEvaluacion = async function(id, data) {
 
   <!-- SCREEN 1: SETUP -->
   <div class="screen active" id="screenSetup">
-
-    <!-- Banner candidato (visible cuando llega por link con token) -->
     <div class="candidato-info" id="candidatoInfo">
       <div class="ci-nombre" id="ciNombre"></div>
       <div class="ci-meta">
@@ -473,35 +397,34 @@ window.actualizarEvaluacion = async function(id, data) {
     </div>
 
     <div class="card">
+      <div class="eyebrow">Análisis del discurso</div>
       <h2 id="welcomeTitle">Bienvenido/a a PotenciaIA</h2>
-      <p>Este sistema evalúa tu capacidad de procesamiento mental a través del discurso oral libre. No hay respuestas correctas ni incorrectas — lo que se analiza es <strong style="color:var(--verde)">cómo organizás tu pensamiento</strong>, no el contenido de lo que decís.</p>
+      <p>Este sistema evalúa tu capacidad de procesamiento mental a través del discurso oral libre. No hay respuestas correctas ni incorrectas: lo que se analiza es <strong>cómo organizás tu pensamiento</strong>, no el contenido de lo que decís.</p>
       <ul class="rule-list">
-        <li>Se te asignará un tema al azar — lo verás en la cuenta regresiva</li>
-        <li>Hablá libremente durante 6 a 10 minutos</li>
-        <li>El agente puede interrumpirte para que te explayés más</li>
-        <li>No hay juicio de valor sobre tus opiniones ni tu postura</li>
-        <li>Todo el intercambio es por voz</li>
+        <li><span class="rl-num">01</span><span>Se te asignará un tema al azar. Lo verás en la cuenta regresiva.</span></li>
+        <li><span class="rl-num">02</span><span>Hablá libremente durante 6 a 10 minutos.</span></li>
+        <li><span class="rl-num">03</span><span>El agente no te interrumpe. Hablás sin cortes hasta que vos decidas terminar.</span></li>
+        <li><span class="rl-num">04</span><span>No hay juicio de valor sobre tus opiniones ni tu postura.</span></li>
+        <li><span class="rl-num">05</span><span>Todo el intercambio es por voz.</span></li>
       </ul>
 
-      <!-- API key: solo visible si no viene por link -->
       <div class="api-input-group" id="apiKeyGroup">
         <label>API Key de Anthropic</label>
         <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
       </div>
 
-      <div style="margin-top:20px; padding:16px; background:var(--azul-light); border:1.5px solid var(--azul-mid); border-radius:8px; display:flex; align-items:center; justify-content:space-between; gap:16px;">
+      <div class="demo-box">
         <div>
-          <div style="font-size:13px; font-weight:600; color:var(--azul);">Modo Demo</div>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Probá el flujo completo sin API key. Las intervenciones y el resultado son de ejemplo.</div>
+          <div class="db-title">Modo demo</div>
+          <div class="db-sub">Probá el flujo completo sin API key. Las intervenciones y el resultado son de ejemplo.</div>
         </div>
-        <label style="position:relative; display:inline-block; width:44px; height:24px; flex-shrink:0;">
-          <input type="checkbox" id="demoToggle" onchange="toggleDemo()" style="opacity:0; width:0; height:0;">
-          <span id="demoSlider" style="position:absolute; cursor:pointer; inset:0; background:#cdd3da; border-radius:24px; transition:0.3s;">
-            <span style="position:absolute; height:18px; width:18px; left:3px; bottom:3px; background:white; border-radius:50%; transition:0.3s; display:block;" id="demoKnob"></span>
-          </span>
+        <label class="switch">
+          <input type="checkbox" id="demoToggle" onchange="toggleDemo()">
+          <span class="track" id="demoSlider"><span class="knob" id="demoKnob"></span></span>
         </label>
       </div>
     </div>
+
     <div class="btn-row">
       <button class="btn btn-primary" onclick="startSetup()">Comenzar evaluación →</button>
     </div>
@@ -510,9 +433,10 @@ window.actualizarEvaluacion = async function(id, data) {
   <!-- SCREEN 2: PRE-TOPIC -->
   <div class="screen" id="screenTopic">
     <div class="card">
-      <h2>Antes de comenzar</h2>
-      <p>Escuchá la introducción completa antes de ver tu tema. El tema aparecerá en la cuenta regresiva — a partir de ese momento, tenés los segundos del countdown para empezar a pensar.</p>
-      <p>La idea es ver <strong style="color:var(--verde)">cómo organizás tu discurso</strong>. No se realizará ningún juicio de valor sobre lo que digas. Tenés entre 6 y 10 minutos.</p>
+      <div class="eyebrow">Antes de comenzar</div>
+      <h2>Escuchá la introducción</h2>
+      <p>Vas a escuchar una breve introducción antes de ver tu tema. El tema aparece en la cuenta regresiva: a partir de ese momento tenés los segundos del conteo para empezar a pensar.</p>
+      <p>La idea es ver <strong>cómo organizás tu discurso</strong>. No se realiza ningún juicio de valor sobre lo que digas. Tenés entre 6 y 10 minutos.</p>
     </div>
     <div class="btn-row">
       <button class="btn btn-primary" id="btnStartIntro" onclick="startIntroThenCountdown()">Escuchar introducción →</button>
@@ -539,58 +463,61 @@ window.actualizarEvaluacion = async function(id, data) {
 
   <!-- SCREEN 3: INTERVIEW -->
   <div class="screen" id="screenInterview">
-    <div class="timer-ring-container">
-      <div class="timer-ring">
-        <svg width="180" height="180" viewBox="0 0 180 180">
-          <circle class="ring-bg" cx="90" cy="90" r="80"/>
-          <circle class="ring-progress" id="ringProgress" cx="90" cy="90" r="80"/>
+    <div class="listen-stage">
+      <div class="orb-wrap">
+        <svg class="orb-ring" width="300" height="300" viewBox="0 0 300 300">
+          <circle class="ring-track" cx="150" cy="150" r="140"/>
+          <circle class="ring-fill" id="ringProgress" cx="150" cy="150" r="140"/>
         </svg>
-        <div class="timer-center">
-          <div class="timer-display" id="timerDisplay">0:00</div>
-          <div class="timer-label">Transcurrido</div>
+        <div class="orb-halo live" id="orbHalo"></div>
+        <div class="orb-core">
+          <div class="voice-bars" id="voiceBars"></div>
+          <div class="orb-timer" id="timerDisplay">0:00</div>
+          <div class="orb-state" id="orbState">Escuchando</div>
         </div>
       </div>
-    </div>
 
-    <div class="time-markers">
-      <span class="time-marker">0:00</span>
-      <span class="time-marker" id="m6">6 min</span>
-      <span class="time-marker" id="m8">8:30</span>
-      <span class="time-marker">10 min</span>
-    </div>
+      <div class="timeline">
+        <div class="timeline-bar">
+          <div class="timeline-fill" id="timelineFill"></div>
+          <div class="timeline-mark" id="timelineMark6"></div>
+        </div>
+        <div class="timeline-labels">
+          <span>0:00</span>
+          <span class="tl-6" id="lbl6">6 min</span>
+          <span>10 min</span>
+        </div>
+      </div>
 
-    <div class="interruption-counter">
-      <span>Intervenciones:</span>
-      <div class="int-dot" id="int1"></div>
-      <div class="int-dot" id="int2"></div>
-    </div>
+      <div class="status-panel">
+        <div class="status-indicator" id="statusDot"></div>
+        <div class="status-text" id="statusText">Iniciando...</div>
+      </div>
 
-    <div class="status-panel">
-      <div class="status-indicator" id="statusDot"></div>
-      <div class="status-text" id="statusText">Iniciando...</div>
-    </div>
+      <div class="warning-box" id="warningBox"></div>
 
-    <div class="waveform-container" id="waveform"></div>
-    <div class="warning-box" id="warningBox"></div>
+      <div class="transcript-area" id="transcriptArea">
+        <div class="transcript-placeholder">El transcript aparecerá aquí mientras hablás</div>
+      </div>
 
-    <div class="transcript-area" id="transcriptArea">
-      <div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px 0">El transcript aparecerá aquí mientras hablás</div>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn btn-secondary" id="btnSynthesis" onclick="requestSynthesis()" disabled>Pedir síntesis</button>
-      <button class="btn btn-danger" onclick="endInterview()">Finalizar</button>
+      <div class="action-bar">
+        <button class="btn-action" id="btnAction" onclick="handleActionButton()">
+          <span class="ba-icon" id="baIcon">■</span>
+          <span id="baLabel">Finalizar</span>
+        </button>
+      </div>
+      <div class="action-hint" id="actionHint">Cuando termines de hablar, tocá Finalizar.</div>
     </div>
   </div>
 
-  <!-- SCREEN 4: GRACIAS (candidato) -->
+  <!-- SCREEN 4: GRACIAS -->
   <div class="screen" id="screenThanks">
-    <div style="text-align:center;padding:80px 24px;">
+    <div class="thanks-stage">
       <div class="thanks-check">✓</div>
-      <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;">¡Muchas gracias!</div>
-      <div style="font-size:15px;color:var(--text-dim);line-height:1.7;max-width:400px;margin:0 auto;">Tu evaluación fue registrada correctamente. El equipo de selección recibirá los resultados en breve.</div>
+      <h2>¡Muchas gracias!</h2>
+      <p>Tu evaluación fue registrada correctamente. El equipo de selección recibirá los resultados en breve.</p>
     </div>
-    <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">PotenciaIA · Metodología Blaistein · Basado en la teoría de E. Jaques</div>
+    <div class="foot-note">PotenciaIA · Análisis del discurso · Elliott Jaques</div>
   </div>
 
 </div>
@@ -599,12 +526,12 @@ window.actualizarEvaluacion = async function(id, data) {
 <div class="processing-overlay" id="processingOverlay">
   <div class="processing-spinner"></div>
   <div class="processing-text">Analizando el discurso...</div>
-  <div class="processing-sub">PotenciaIA · Metodología Blaistein</div>
+  <div class="processing-sub">PotenciaIA · Análisis del discurso</div>
 </div>
 
 <script>
 // ══════════════════════════════════════════════════
-// LEER PARÁMETROS DE URL (vienen del wizard del dashboard)
+// PARÁMETROS DE URL
 // ══════════════════════════════════════════════════
 const urlParams = new URLSearchParams(window.location.search);
 const candidatoNombre  = decodeURIComponent(urlParams.get('nombre')  || '');
@@ -612,10 +539,9 @@ const candidatoEdad    = parseInt(urlParams.get('edad'))              || null;
 const candidatoPuesto  = decodeURIComponent(urlParams.get('puesto')  || '');
 const estratoPuesto    = parseInt(urlParams.get('estrato_puesto'))    || null;
 const sessionToken     = urlParams.get('token')                       || '';
-const apiKeyFromUrl    = (urlParams.get('anthropic_key') || urlParams.get('api_key') || '').trim();  // opcional
+const apiKeyFromUrl    = (urlParams.get('anthropic_key') || urlParams.get('api_key') || '').trim();
 const deepgramKey      = (urlParams.get('dg_key') || urlParams.get('deepgram_key') || '').trim();
 
-// Mostrar banner si vino por link
 if (candidatoNombre || candidatoEdad || candidatoPuesto) {
   const info = document.getElementById('candidatoInfo');
   info.classList.add('visible');
@@ -626,34 +552,26 @@ if (candidatoNombre || candidatoEdad || candidatoPuesto) {
   if (candidatoEdad)   document.getElementById('ciEdad').textContent    = `${candidatoEdad} años`;
   if (candidatoPuesto) document.getElementById('ciPuesto').textContent  = candidatoPuesto;
   if (estratoPuesto)   document.getElementById('ciEstratoPuesto').textContent = `Puesto E ${['','I','II','III','IV','V'][estratoPuesto] || estratoPuesto}`;
-  // Ocultar el campo de API key si ya viene configurado o en modo candidato
-  if (apiKeyFromUrl) {
-    document.getElementById('apiKeyGroup').style.display = 'none';
-  }
+  if (apiKeyFromUrl) document.getElementById('apiKeyGroup').style.display = 'none';
 }
 
 // ══════════════════════════════════════════════════
 // MODO DEMO
 // ══════════════════════════════════════════════════
 let demoMode = false;
-
 function toggleDemo() {
   demoMode = document.getElementById('demoToggle').checked;
-  const slider  = document.getElementById('demoSlider');
-  const knob    = document.getElementById('demoKnob');
+  const slider = document.getElementById('demoSlider');
+  const knob   = document.getElementById('demoKnob');
   const apiInput = document.getElementById('apiKeyInput');
   if (demoMode) {
-    slider.style.background = 'var(--verde)';
+    slider.style.background = 'var(--violeta)';
     knob.style.transform = 'translateX(20px)';
-    apiInput.disabled = true;
-    apiInput.placeholder = 'No requerida en modo demo';
-    apiInput.style.opacity = '0.4';
+    apiInput.disabled = true; apiInput.placeholder = 'No requerida en modo demo'; apiInput.style.opacity = '0.4';
   } else {
-    slider.style.background = '#cdd3da';
+    slider.style.background = 'var(--border-2)';
     knob.style.transform = 'translateX(0)';
-    apiInput.disabled = false;
-    apiInput.placeholder = 'sk-ant-...';
-    apiInput.style.opacity = '1';
+    apiInput.disabled = false; apiInput.placeholder = 'sk-ant-...'; apiInput.style.opacity = '1';
   }
 }
 
@@ -666,12 +584,7 @@ const DEMO_RESULT = {
   alertas: ['Resultado de ejemplo — modo demo activo.']
 };
 
-const TOPICS = [
-  'Legalización de la droga',
-  'Inseguridad ciudadana',
-  'Cambio climático',
-  'Deserción escolar'
-];
+const TOPICS = ['Legalización de la droga','Inseguridad ciudadana','Cambio climático','Deserción escolar'];
 
 // ══════════════════════════════════════════════════
 // ESTADO GLOBAL
@@ -680,77 +593,68 @@ let apiKey = apiKeyFromUrl || '';
 let selectedTopic = '';
 let timerInterval = null;
 let elapsedSeconds = 0;
-let interruptionCount = 0;
 let transcriptLog = [];
+let recognitionInstance = null;
 let currentRecognition = null;
 let isSpeaking = false;
 let interviewPhase = 'idle';
 let lastUserText = '';
 let accumulatedUserText = '';
-let synthesisRequested = false;
 let waveInterval = null;
-let interruptionTimes = [];
-let lastSpeechTimestamp = Date.now();
-let closingSilenceTimer = null;
-let pendingFinalBuf = '';   // ← texto reconocido pero aún no volcado al transcript
+let pendingFinalBuf = '';
+let flushTimer = null;
+let interruptionCount = 0;
 
-const MAX_DURATION  = 600;
-const SYNTHESIS_TIME = 510;
-const SILENCE_FOR_CLOSE = 20000;
+let actionStage = 'hablando';
+const SIX_MIN = 360;
+const MAX_DURATION = 600;
 
 // ── UI ──
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  const labels = {
-    screenSetup: 'Inicio', screenTopic: 'Preparación',
-    screenInterview: 'Entrevista', screenThanks: 'Finalizado'
-  };
+  const labels = { screenSetup:'Inicio', screenTopic:'Preparación', screenInterview:'Entrevista', screenThanks:'Finalizado' };
   document.getElementById('phaseBadge').textContent = labels[id] || '';
 }
 
-function initWaveform() {
-  const wf = document.getElementById('waveform');
-  wf.innerHTML = '';
-  for (let i = 0; i < 26; i++) {
-    const b = document.createElement('div');
-    b.className = 'wave-bar';
-    wf.appendChild(b);
-  }
+function initVoiceBars() {
+  const vb = document.getElementById('voiceBars');
+  vb.innerHTML = '';
+  for (let i=0;i<9;i++){ const b=document.createElement('div'); b.className='vb'; vb.appendChild(b); }
 }
-
-function setWaveActive(active) {
+function setVoiceActive(active, speaking) {
   clearInterval(waveInterval);
-  const bars = document.querySelectorAll('.wave-bar');
+  const vb = document.getElementById('voiceBars');
+  const halo = document.getElementById('orbHalo');
+  const bars = document.querySelectorAll('.voice-bars .vb');
+  vb.classList.toggle('speaking', !!speaking);
+  halo.classList.toggle('speaking', !!speaking);
   if (active) {
-    bars.forEach(b => { b.style.height = (4 + Math.random()*28)+'px'; b.style.opacity='0.6'; });
-    waveInterval = setInterval(() => {
-      bars.forEach(b => { b.style.height = (4 + Math.random()*30)+'px'; });
-    }, 140);
-  } else {
-    bars.forEach(b => { b.style.height='4px'; b.style.opacity='0.3'; });
-  }
+    waveInterval = setInterval(() => { bars.forEach(b => { b.style.height = (8 + Math.random()*34) + 'px'; }); }, 130);
+  } else { bars.forEach(b => b.style.height = '8px'); }
 }
 
 function setStatus(type, text) {
   document.getElementById('statusDot').className = 'status-indicator ' + type;
   document.getElementById('statusText').textContent = text;
-  setWaveActive(type === 'listening');
+  const stateLabel = { listening:'Escuchando', speaking:'PotenciaIA', processing:'Procesando' }[type] || '';
+  document.getElementById('orbState').textContent = stateLabel;
+  setVoiceActive(type === 'listening' || type === 'speaking', type === 'speaking');
 }
 
 function addTranscriptEntry(speaker, text) {
   const area = document.getElementById('transcriptArea');
-  if (area.querySelector('div[style]')) area.innerHTML = '';
+  const ph = area.querySelector('.transcript-placeholder');
+  if (ph) area.innerHTML = '';
   const entry = document.createElement('div');
   entry.className = 'transcript-entry';
   const sp = document.createElement('div');
   sp.className = 'speaker ' + speaker;
-  sp.textContent = speaker === 'agent' ? '▶ PotenciaIA' : '◆ Participante';
+  sp.textContent = speaker === 'agent' ? 'PotenciaIA' : 'Participante';
   const ct = document.createElement('div');
   ct.className = 'content';
   ct.textContent = text;
-  entry.appendChild(sp);
-  entry.appendChild(ct);
+  entry.appendChild(sp); entry.appendChild(ct);
   area.appendChild(entry);
   area.scrollTop = area.scrollHeight;
   transcriptLog.push({ speaker, text, time: elapsedSeconds });
@@ -760,28 +664,58 @@ function showQuestionOverlay(text) {
   document.getElementById('questionOverlayText').textContent = text;
   document.getElementById('questionOverlay').classList.add('active');
 }
+function hideQuestionOverlay() { document.getElementById('questionOverlay').classList.remove('active'); }
 
-function hideQuestionOverlay() {
-  document.getElementById('questionOverlay').classList.remove('active');
+function setActionButton(label, icon, opts={}) {
+  document.getElementById('baLabel').textContent = label;
+  document.getElementById('baIcon').textContent = icon;
+  const btn = document.getElementById('btnAction');
+  btn.disabled = !!opts.disabled;
+  if (opts.hint !== undefined) document.getElementById('actionHint').textContent = opts.hint;
 }
 
-// ── TTS ──
+// ══════════════════════════════════════════════════
+// TTS — voz robustecida
+// ══════════════════════════════════════════════════
+let chosenVoice = null;
+
+function pickSpanishVoice() {
+  if (!window.speechSynthesis) return null;
+  const voices = speechSynthesis.getVoices() || [];
+  if (!voices.length) return null;
+  const score = (v) => {
+    let s = 0;
+    const lang = (v.lang||'').toLowerCase();
+    const name = (v.name||'').toLowerCase();
+    if (lang.startsWith('es-ar')) s += 60;
+    else if (lang.startsWith('es-mx')) s += 55;
+    else if (lang.startsWith('es-us')) s += 50;
+    else if (lang.startsWith('es-419')) s += 50;
+    else if (lang.startsWith('es')) s += 40;
+    if (/(paulina|mónica|monica|helena|laura|elena|lucia|lucía|sabina|google español|female|mujer)/.test(name)) s += 12;
+    if (name.includes('google')) s += 8;
+    return s;
+  };
+  const sorted = voices.filter(v => (v.lang||'').toLowerCase().startsWith('es')).sort((a,b)=>score(b)-score(a));
+  return sorted[0] || voices[0] || null;
+}
+function ensureVoice() { if (!chosenVoice) chosenVoice = pickSpanishVoice(); return chosenVoice; }
+
+function fixPronunciation(text) {
+  return text
+    .replace(/PotenciaI[Aa]/g, 'Potencia I A')
+    .replace(/POTENCIAÍA/g, 'Potencia I A')
+    .replace(/\bIA\b/g, 'I A');
+}
+
 function speak(text) {
   return new Promise(resolve => {
     if (!window.speechSynthesis) { resolve(); return; }
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'es-AR'; u.rate = 0.88; u.pitch = 1.05; u.volume = 1;
-    const voices = speechSynthesis.getVoices();
-    const preferred = [
-      voices.find(v => v.lang === 'es-AR'),
-      voices.find(v => v.lang === 'es-MX'),
-      voices.find(v => v.lang === 'es-US'),
-      voices.find(v => v.lang === 'es-ES'),
-      voices.find(v => v.lang && v.lang.startsWith('es')),
-    ];
-    const bestVoice = preferred.find(v => v !== undefined);
-    if (bestVoice) u.voice = bestVoice;
+    const u = new SpeechSynthesisUtterance(fixPronunciation(text));
+    u.lang = 'es-AR'; u.rate = 0.92; u.pitch = 1.02; u.volume = 1;
+    const v = ensureVoice();
+    if (v) { u.voice = v; u.lang = v.lang || 'es-AR'; }
     isSpeaking = true;
     setStatus('speaking', text.length > 80 ? text.slice(0,80)+'...' : text);
     u.onend = () => { isSpeaking = false; resolve(); };
@@ -794,24 +728,18 @@ function speak(text) {
 function startSetup() {
   const inputKey = document.getElementById('apiKeyInput').value.trim();
   if (inputKey) apiKey = inputKey;
-  if (!demoMode && !apiKey) {
-    alert('Por favor ingresá tu API Key de Anthropic, o activá el Modo Demo.');
-    return;
-  }
+  if (!demoMode && !apiKey) { alert('Por favor ingresá tu API Key de Anthropic, o activá el Modo demo.'); return; }
   let newTopic, attempts = 0;
-  do {
-    newTopic = TOPICS[Math.floor(Math.random() * TOPICS.length)];
-    attempts++;
-  } while (newTopic === selectedTopic && TOPICS.length > 1 && attempts < 10);
+  do { newTopic = TOPICS[Math.floor(Math.random()*TOPICS.length)]; attempts++; }
+  while (newTopic === selectedTopic && TOPICS.length > 1 && attempts < 10);
   selectedTopic = newTopic;
   showScreen('screenTopic');
 }
 
 async function startIntroThenCountdown() {
   const btn = document.getElementById('btnStartIntro');
-  btn.disabled = true;
-  btn.textContent = 'Escuchando...';
-  const intro = 'Te voy a pedir que hables sobre un tema que te voy a indicar. La idea es ver cómo organizás tu discurso. No voy a realizar ningún juicio de valor sobre lo que digas ni sobre el contenido. Puedo hacerte alguna pregunta para que te explayés más, pero la consigna es que hables durante al menos diez minutos sobre el tema. En unos segundos vas a ver tu tema.';
+  btn.disabled = true; btn.textContent = 'Escuchando...';
+  const intro = 'Te voy a pedir que hables sobre un tema que te voy a indicar. La idea es ver cómo organizás tu discurso. No voy a realizar ningún juicio de valor sobre lo que digas ni sobre el contenido. Hablá libremente durante al menos seis minutos sobre el tema. Cuando termines, tocá el botón Finalizar. En unos segundos vas a ver tu tema.';
   await speak(intro);
   triggerCountdown();
 }
@@ -824,20 +752,14 @@ function triggerCountdown() {
   document.getElementById('countdownTopicText').textContent = selectedTopic;
   overlay.classList.add('active');
   let count = 3;
-
   function tick() {
-    numEl.style.animation = 'none';
-    numEl.offsetHeight;
-    numEl.style.animation = 'countPulse 0.85s ease-out';
+    numEl.style.animation = 'none'; numEl.offsetHeight; numEl.style.animation = 'countPulse 0.85s ease-out';
     if (count > 0) {
-      numEl.textContent = count;
-      numEl.classList.remove('go');
-      instrEl.textContent = 'Preparate para hablar...';
-      count--;
+      numEl.textContent = count; numEl.classList.remove('go');
+      instrEl.textContent = 'Preparate para hablar...'; count--;
       setTimeout(tick, 1000);
     } else {
-      numEl.textContent = '¡YA!';
-      numEl.classList.add('go');
+      numEl.textContent = '¡YA!'; numEl.classList.add('go');
       instrEl.textContent = 'Empezá a hablar ahora';
       setTimeout(() => { overlay.classList.remove('active'); startInterview(); }, 700);
     }
@@ -845,21 +767,18 @@ function triggerCountdown() {
   tick();
 }
 
-// ── INTERVIEW ──
+// ══════════════════════════════════════════════════
+// INTERVIEW
+// ══════════════════════════════════════════════════
 async function startInterview() {
-  elapsedSeconds = 0; interruptionCount = 0; transcriptLog = [];
-  accumulatedUserText = ''; lastUserText = ''; synthesisRequested = false;
-  interviewPhase = 'speaking'; lastSpeechTimestamp = Date.now();
-  clearTimeout(closingSilenceTimer);
+  elapsedSeconds = 0; transcriptLog = [];
+  accumulatedUserText = ''; lastUserText = ''; pendingFinalBuf = '';
+  interviewPhase = 'speaking'; actionStage = 'hablando'; interruptionCount = 0;
 
-  interruptionTimes = [
-    240 + Math.floor(Math.random() * 30),
-    420 + Math.floor(Math.random() * 30)
-  ];
-
-  document.getElementById('transcriptArea').innerHTML = '<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px 0">El transcript aparecerá aquí mientras hablás</div>';
-  initWaveform();
+  document.getElementById('transcriptArea').innerHTML = '<div class="transcript-placeholder">El transcript aparecerá aquí mientras hablás</div>';
+  initVoiceBars();
   showScreen('screenInterview');
+  setActionButton('Finalizar', '■', { hint: 'Cuando termines de hablar, tocá Finalizar.' });
 
   const intro = 'Adelante. La idea es ver cómo organizás tu discurso sobre el tema que acabás de ver. Tenés entre seis y diez minutos. Cuando quieras, comenzá.';
   await speak(intro);
@@ -867,83 +786,95 @@ async function startInterview() {
   interviewPhase = 'speaking';
   startTimer();
   startContinuousListening();
-  startDeepgramRecording();  // graba todo el audio en paralelo (fuente principal del transcript)
+  startDeepgramRecording();
 }
 
 // ── TIMER ──
 function startTimer() {
   const ring = document.getElementById('ringProgress');
-  const C = 2 * Math.PI * 80;
-
+  const C = 2 * Math.PI * 140; // 879.6
   timerInterval = setInterval(() => {
     elapsedSeconds++;
     const m = Math.floor(elapsedSeconds/60), s = elapsedSeconds%60;
     document.getElementById('timerDisplay').textContent = `${m}:${s.toString().padStart(2,'0')}`;
     ring.style.strokeDashoffset = C - (Math.min(elapsedSeconds/MAX_DURATION,1)*C);
-
-    if (elapsedSeconds >= 60) document.getElementById('btnSynthesis').disabled = false;
-    if (elapsedSeconds >= 360) {
-      ring.style.stroke = 'var(--azul)';
-      document.getElementById('m6').classList.add('active');
+    document.getElementById('timelineFill').style.width = Math.min(elapsedSeconds/MAX_DURATION,1)*100 + '%';
+    if (elapsedSeconds >= SIX_MIN) {
+      document.getElementById('timelineMark6').classList.add('reached');
+      document.getElementById('lbl6').style.color = 'var(--violeta)';
     }
-    if (elapsedSeconds >= SYNTHESIS_TIME && !synthesisRequested) {
-      synthesisRequested = true;
-      triggerSynthesisRequest();
-    }
-    if (elapsedSeconds >= MAX_DURATION) { clearInterval(timerInterval); endInterview(); return; }
-
-    if (interruptionCount < 2 && !isSpeaking && interviewPhase === 'speaking') {
-      const silence = (Date.now() - lastSpeechTimestamp) / 1000;
-      const passedMin = elapsedSeconds >= interruptionTimes[interruptionCount];
-      const forced    = elapsedSeconds >= interruptionTimes[interruptionCount] + 90;
-      if (passedMin && (silence >= 3 || forced)) triggerInterruption();
-    }
+    if (elapsedSeconds >= MAX_DURATION) { clearInterval(timerInterval); autoFinishAtMax(); return; }
   }, 1000);
 }
 
-// ── CIERRE POR SILENCIO ──
-const CLOSING_PHRASES = [
-  'termine','terminé','ya termine','ya terminé',
-  'eso es todo lo que tenía','eso sería todo lo que tenía',
-  'no tengo nada más para decir','no se me ocurre nada más para agregar',
-  'ya dije todo lo que tenía','creo que cubrí todo el tema',
-  'listo eso es todo','y bueno eso es todo lo que tengo',
-  'no tengo más para agregar','se me acabaron las ideas',
-];
-
-function detectsClosingPhrase(text) {
-  const lower = text.toLowerCase();
-  return CLOSING_PHRASES.some(p => lower.includes(p));
-}
-
-function resetClosingSilenceTimer() {
-  clearTimeout(closingSilenceTimer);
-  lastSpeechTimestamp = Date.now();
-  if (!synthesisRequested && interviewPhase === 'speaking') {
-    closingSilenceTimer = setTimeout(() => {
-      if (!synthesisRequested && interviewPhase === 'speaking' && !isSpeaking) {
-        synthesisRequested = true;
-        document.getElementById('btnSynthesis').disabled = true;
-        triggerClosingSynthesis();
-      }
-    }, SILENCE_FOR_CLOSE);
+async function autoFinishAtMax() {
+  if (interviewPhase === 'ended') return;
+  if (actionStage === 'hablando' || actionStage === 'respondiendo') {
+    const wb = document.getElementById('warningBox');
+    wb.textContent = 'Llegaste al máximo de tiempo. Cerramos con una síntesis.';
+    wb.classList.add('visible');
+    await goToSynthesis();
   }
 }
 
-async function triggerClosingSynthesis() {
+// ══════════════════════════════════════════════════
+// BOTÓN ÚNICO
+// ══════════════════════════════════════════════════
+async function handleActionButton() {
   if (interviewPhase === 'ended') return;
-  if (lastUserText.trim().length > 5) { addTranscriptEntry('user', lastUserText.trim()); lastUserText = ''; }
-  const wb = document.getElementById('warningBox');
-  wb.textContent = 'Bien. Antes de cerrar, hacé una síntesis de los puntos más importantes que planteaste.';
-  wb.classList.add('visible');
-  await speak('Bien, antes de cerrar, hacé una síntesis de los puntos más importantes que planteaste.');
-  addTranscriptEntry('agent', 'Hacé una síntesis de los puntos más importantes que planteaste.');
+  if (actionStage === 'hablando') {
+    if (elapsedSeconds >= SIX_MIN) { await goToSynthesis(); }
+    else { await goToQuestion(); }
+    return;
+  }
+  if (actionStage === 'respondiendo') { await goToSynthesis(); return; }
+  if (actionStage === 'sintesis') { await finalizeAndAnalyze(); return; }
 }
 
-// ── SPEECH RECOGNITION — instancia única durante toda la entrevista ──
-let recognitionInstance = null;
-let flushTimer = null;
+async function goToQuestion() {
+  interviewPhase = 'interrupted';
+  setActionButton('...', '■', { disabled: true, hint: 'PotenciaIA está preparando una pregunta...' });
+  stopListening();
+  flushPendingText();
+  lastUserText = '';
+  interruptionCount = 1;
 
+  setStatus('speaking', 'PotenciaIA tiene una pregunta...');
+  const question = await generateInterruptionQuestion(accumulatedUserText.slice(-300));
+  showQuestionOverlay(question);
+  await speak(question);
+  addTranscriptEntry('agent', question);
+  setTimeout(() => hideQuestionOverlay(), 1400);
+
+  interviewPhase = 'speaking';
+  actionStage = 'respondiendo';
+  lastUserText = '';
+  setStatus('listening', 'Tu respuesta...');
+  startContinuousListening();
+  setActionButton('Terminar respuesta', '■', { disabled: false, hint: 'Cuando termines de responder, tocá el botón.' });
+}
+
+async function goToSynthesis() {
+  interviewPhase = 'interrupted';
+  setActionButton('...', '■', { disabled: true, hint: '' });
+  stopListening();
+  flushPendingText();
+  lastUserText = '';
+
+  setStatus('speaking', 'PotenciaIA pide una síntesis...');
+  const frase = 'Para cerrar, hacé una síntesis breve de los puntos más importantes que planteaste.';
+  await speak(frase);
+  addTranscriptEntry('agent', frase);
+
+  interviewPhase = 'speaking';
+  actionStage = 'sintesis';
+  lastUserText = '';
+  setStatus('listening', 'Tu síntesis...');
+  startContinuousListening();
+  setActionButton('Enviar evaluación', '✓', { disabled: false, hint: 'Cuando termines la síntesis, tocá Enviar evaluación.' });
+}
+
+// ── SPEECH RECOGNITION ──
 function initRecognition() {
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
     alert('Tu navegador no soporta reconocimiento de voz. Usá Chrome.');
@@ -952,94 +883,46 @@ function initRecognition() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   const rec = new SR();
   rec.lang = 'es-AR'; rec.continuous = true; rec.interimResults = true;
-
   rec.onresult = (e) => {
     if (isSpeaking || interviewPhase === 'ended') return;
     clearTimeout(flushTimer);
-    resetClosingSilenceTimer();
-
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
       if (e.results[i].isFinal) {
         pendingFinalBuf += e.results[i][0].transcript + ' ';
         accumulatedUserText += e.results[i][0].transcript + ' ';
-        if (!synthesisRequested && interviewPhase === 'speaking') {
-          if (detectsClosingPhrase(e.results[i][0].transcript)) {
-            clearTimeout(closingSilenceTimer);
-            synthesisRequested = true;
-            document.getElementById('btnSynthesis').disabled = true;
-            setTimeout(() => {
-              flushPendingText();
-              triggerClosingSynthesis();
-            }, 1200);
-          }
-        }
-      } else {
-        interim = e.results[i][0].transcript;
-      }
+      } else { interim = e.results[i][0].transcript; }
     }
-
     const disp = (pendingFinalBuf + interim).slice(-90);
     setStatus('listening', '"' + disp + '"');
     lastUserText = (pendingFinalBuf + interim).trim();
-
     flushTimer = setTimeout(() => flushPendingText(), 4500);
   };
-
   rec.onend = () => {
-    // Siempre reiniciar automáticamente salvo que la entrevista haya terminado
     if (interviewPhase !== 'ended') {
-      setTimeout(() => {
-        if (interviewPhase !== 'ended') {
-          try { rec.start(); } catch(err) {}
-        }
-      }, 300);
+      setTimeout(() => { if (interviewPhase !== 'ended') { try { rec.start(); } catch(err){} } }, 300);
     }
   };
-
-  rec.onerror = (e) => {
-    if (e.error !== 'no-speech' && e.error !== 'aborted') {
-      console.warn('Speech recognition error:', e.error);
-    }
-    // El onend se encarga de reiniciar
-  };
-
+  rec.onerror = (e) => { if (e.error !== 'no-speech' && e.error !== 'aborted') console.warn('Speech recognition error:', e.error); };
   return rec;
 }
 
 function flushPendingText() {
   clearTimeout(flushTimer);
-  if (pendingFinalBuf.trim().length > 5) {
-    addTranscriptEntry('user', pendingFinalBuf.trim());
-    pendingFinalBuf = '';
-  }
+  if (pendingFinalBuf.trim().length > 5) { addTranscriptEntry('user', pendingFinalBuf.trim()); pendingFinalBuf = ''; }
 }
-
 function startContinuousListening() {
-  if (!recognitionInstance) {
-    recognitionInstance = initRecognition();
-    currentRecognition = recognitionInstance;
-  }
+  if (!recognitionInstance) { recognitionInstance = initRecognition(); currentRecognition = recognitionInstance; }
   if (!recognitionInstance) return;
   try { recognitionInstance.start(); } catch(err) {}
   setStatus('listening', 'Escuchando...');
 }
-
-function stopListening() {
-  // NO destruir la instancia — solo pausarla brevemente mientras habla el agente
-  // El onend la reinicia automáticamente
-  if (recognitionInstance) {
-    try { recognitionInstance.stop(); } catch(e) {}
-  }
-}
+function stopListening() { if (recognitionInstance) { try { recognitionInstance.stop(); } catch(e) {} } }
 
 // ══════════════════════════════════════════════════
-// DEEPGRAM — graba TODO el audio desde el inicio y lo transcribe al final.
-// Es la fuente principal del transcript (el navegador queda solo como respaldo).
+// DEEPGRAM
 // ══════════════════════════════════════════════════
-let mediaRecorder = null;
-let audioChunks = [];
-let audioStream = null;
+let mediaRecorder = null, audioChunks = [], audioStream = null;
 
 async function startDeepgramRecording() {
   if (!deepgramKey) { console.warn('Sin Deepgram key: se usa solo el reconocimiento del navegador.'); return false; }
@@ -1054,21 +937,17 @@ async function startDeepgramRecording() {
     }
     mediaRecorder = new MediaRecorder(audioStream, mimeType ? { mimeType } : undefined);
     mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
-    mediaRecorder.start(1000); // junta el audio en bloques de 1s (más seguro ante cortes)
+    mediaRecorder.start(1000);
     console.log('Grabación Deepgram iniciada:', mediaRecorder.mimeType);
     return true;
-  } catch(err) {
-    console.error('No se pudo iniciar la grabación Deepgram:', err);
-    return false;
-  }
+  } catch(err) { console.error('No se pudo iniciar la grabación Deepgram:', err); return false; }
 }
 
 function stopDeepgramRecording() {
   return new Promise((resolve) => {
     if (!mediaRecorder || mediaRecorder.state === 'inactive') {
       if (audioStream) { try { audioStream.getTracks().forEach(t => t.stop()); } catch(e){} }
-      resolve(null);
-      return;
+      resolve(null); return;
     }
     mediaRecorder.onstop = () => {
       const blob = new Blob(audioChunks, { type: (mediaRecorder && mediaRecorder.mimeType) || 'audio/webm' });
@@ -1084,88 +963,35 @@ async function transcribeWithDeepgram(audioBlob) {
   try {
     const res = await fetch('https://api.deepgram.com/v1/listen?model=nova-3&language=es&smart_format=true&punctuate=true', {
       method: 'POST',
-      headers: {
-        'Authorization': 'Token ' + deepgramKey,
-        'Content-Type': audioBlob.type || 'audio/webm'
-      },
+      headers: { 'Authorization': 'Token ' + deepgramKey, 'Content-Type': audioBlob.type || 'audio/webm' },
       body: audioBlob
     });
-    if (!res.ok) {
-      console.error('Deepgram error:', res.status, await res.text());
-      return null;
-    }
+    if (!res.ok) { console.error('Deepgram error:', res.status, await res.text()); return null; }
     const data = await res.json();
     const transcript = data?.results?.channels?.[0]?.alternatives?.[0]?.transcript || '';
     return transcript.trim() || null;
-  } catch(e) {
-    console.error('Transcripción Deepgram falló:', e);
-    return null;
-  }
+  } catch(e) { console.error('Transcripción Deepgram falló:', e); return null; }
 }
 
-// ── INTERRUPCIONES ──
-async function triggerInterruption() {
-  if (interviewPhase === 'ended') return;
-  interviewPhase = 'interrupted';
-  stopListening();
-
-  // Guardar TODO el texto del candidato antes de interrumpir
-  flushPendingText();
-  lastUserText = '';
-  document.getElementById('int' + (interruptionCount + 1)).classList.add('done');
-  interruptionCount++;
-  setStatus('speaking', 'PotenciaIA tiene una intervención...');
-  const question = await generateInterruptionQuestion(accumulatedUserText.slice(-300));
-  showQuestionOverlay(question);
-  await speak(question);
-  addTranscriptEntry('agent', question);
-  setTimeout(() => hideQuestionOverlay(), 1500);
-  interviewPhase = 'speaking';
-  lastUserText = '';
-  lastSpeechTimestamp = Date.now();
-  setStatus('listening', 'Tu respuesta...');
-  startContinuousListening();
-}
-
+// ── PREGUNTA ANCLADA ──
 async function generateInterruptionQuestion(context) {
   if (demoMode) {
     const lw = context.trim().split(' ').slice(-4).join(' ');
-    const demos = [
-      `Antes dijiste "${lw}", ¿podés ampliar eso?`,
-      '¿Qué más me podés contar sobre eso?',
-      '¿Cómo lo pensás vos?',
-      '¿Podés desarrollar ese punto un poco más?'
-    ];
-    return demos[interruptionCount % demos.length];
+    return `Antes dijiste "${lw}", ¿podés ampliar eso?`;
   }
-
   const words = context.trim().split(/\s+/).filter(Boolean);
-  if (words.length < 20) {
-    const fallbacks = ['¿Podés contarme más?', '¿Qué más?', '¿Podés desarrollar eso?'];
-    return fallbacks[interruptionCount % fallbacks.length];
-  }
-
+  if (words.length < 20) { return '¿Podés contarme más?'; }
   const systemPrompt = `Sos un entrevistador del Método de Análisis del Discurso de Analía Blaistein.
 Tu única función es lograr que el candidato AMPLÍE lo que ya dijo. NO introducís contenido nuevo.
 Solo tomás palabras literales de su discurso y pedís que desarrolle.
 FÓRMULAS: "Antes dijiste [palabras literales], ¿podés ampliar eso?", "¿Qué más?", "¿Cómo lo pensás vos?", "¿A qué te referís con [término exacto]?"
 Máximo 15 palabras. Solo la frase, sin comillas ni prefijos.`;
-
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 80,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: `El participante dijo: "${context.slice(-250)}". Generá la intervención.` }]
-      })
+      headers: { 'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
+      body: JSON.stringify({ model:'claude-sonnet-4-5-20250929', max_tokens:80, system:systemPrompt,
+        messages:[{ role:'user', content:`El participante dijo: "${context.slice(-250)}". Generá la intervención.` }] })
     });
     const data = await res.json();
     return data.content[0].text.trim();
@@ -1175,75 +1001,48 @@ Máximo 15 palabras. Solo la frase, sin comillas ni prefijos.`;
   }
 }
 
-// ── SÍNTESIS ──
-async function triggerSynthesisRequest() {
-  if (interviewPhase === 'ended') return;
-  const wb = document.getElementById('warningBox');
-  wb.textContent = 'Vas llegando al límite de tiempo. Se te pedirá una síntesis.';
-  wb.classList.add('visible');
-  await speak('Llevás ya más de ocho minutos. Te pido que hagas una síntesis de los puntos más importantes que planteaste.');
-  addTranscriptEntry('agent', 'Te pido una síntesis de los puntos más importantes que planteaste.');
-}
-
-async function requestSynthesis() {
-  if (synthesisRequested) return;
-  synthesisRequested = true;
-  document.getElementById('btnSynthesis').disabled = true;
-  await speak('Bien. ¿Podés hacer una síntesis de lo que planteaste hasta ahora?');
-  addTranscriptEntry('agent', '¿Podés hacer una síntesis de lo que planteaste hasta ahora?');
-}
-
 // ── RESPALDO TRANSCRIPT ──
 function descargarTranscriptEmergencia(transcript, nombre) {
   try {
     const fecha = new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
     const nombreArchivo = `PotenciaIA_${(nombre||'candidato').replace(/\s+/g,'_')}_${fecha}.txt`;
     const contenido = [
-      '═══════════════════════════════════════',
-      'POTENCIAÍA · Transcript de evaluación',
-      '═══════════════════════════════════════',
+      '=======================================',
+      'PotenciaIA · Transcript de evaluación',
+      '=======================================',
       `Candidato: ${nombre || 'No registrado'}`,
       `Tema: ${selectedTopic}`,
       `Fecha: ${new Date().toLocaleString('es-AR')}`,
       `Duración: ${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
-      '═══════════════════════════════════════',
-      '',
-      transcript
+      '=======================================','', transcript
     ].join('\n');
     const blob = new Blob([contenido], {type:'text/plain;charset=utf-8'});
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = nombreArchivo; a.click();
+    const a = document.createElement('a'); a.href = url; a.download = nombreArchivo; a.click();
     URL.revokeObjectURL(url);
-  } catch(err) {
-    console.error('No se pudo descargar transcript:', err);
-  }
+  } catch(err) { console.error('No se pudo descargar transcript:', err); }
 }
 
 // ══════════════════════════════════════════════════
-// FIN DE ENTREVISTA
+// FIN DE ENTREVISTA + ANÁLISIS
 // ══════════════════════════════════════════════════
-async function endInterview() {
+async function finalizeAndAnalyze() {
   interviewPhase = 'ended';
+  setActionButton('Enviando...', '✓', { disabled: true, hint: '' });
   stopListening();
   clearInterval(timerInterval);
   clearInterval(waveInterval);
-  clearTimeout(closingSilenceTimer);
 
   await speak('Muchas gracias. Voy a analizar tu discurso ahora.');
   addTranscriptEntry('agent', 'Muchas gracias. Voy a analizar tu discurso ahora.');
 
-  // ── Volcar TODO texto pendiente antes de construir el transcript ──
   flushPendingText();
-  if (lastUserText.trim().length > 5 &&
-      transcriptLog.length > 0 &&
-      transcriptLog[transcriptLog.length-1].speaker === 'agent') {
+  if (lastUserText.trim().length > 5 && transcriptLog.length > 0 && transcriptLog[transcriptLog.length-1].speaker === 'agent') {
     addTranscriptEntry('user', lastUserText.trim());
   }
 
   document.getElementById('processingOverlay').classList.add('active');
 
-  // ── Detener grabación Deepgram y transcribir el audio completo ──
   const procText0 = document.querySelector('.processing-text');
   const procSub0  = document.querySelector('.processing-sub');
   let deepgramText = null;
@@ -1252,104 +1051,67 @@ async function endInterview() {
     if (procSub0)  procSub0.textContent  = 'Procesando la grabación completa';
     const audioBlob = await stopDeepgramRecording();
     deepgramText = await transcribeWithDeepgram(audioBlob);
-  } catch(e) {
-    console.error('Deepgram no disponible, se usa el texto del navegador:', e);
-  }
+  } catch(e) { console.error('Deepgram no disponible, se usa el texto del navegador:', e); }
 
-  // ── Construir el transcript: Deepgram = principal, navegador = respaldo ──
   let fullTranscript;
   if (deepgramText && deepgramText.length > 0) {
-    const agentLines = transcriptLog
-      .filter(e => e.speaker === 'agent')
-      .map(e => `[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] POTENCIAÍA: ${e.text}`);
+    const agentLines = transcriptLog.filter(e => e.speaker === 'agent')
+      .map(e => `[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] POTENCIAIA: ${e.text}`);
     fullTranscript = `[TRANSCRIPT COMPLETO - Deepgram]\n\nPARTICIPANTE: ${deepgramText}\n\n--- Intervenciones del agente ---\n${agentLines.join('\n')}`;
   } else {
-    fullTranscript = transcriptLog
-      .map(e => `[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] ${e.speaker==='agent'?'POTENCIAÍA':'PARTICIPANTE'}: ${e.text}`)
-      .join('\n\n');
+    fullTranscript = transcriptLog.map(e => `[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] ${e.speaker==='agent'?'POTENCIAIA':'PARTICIPANTE'}: ${e.text}`).join('\n\n');
   }
 
-  // ── Guardar datos base en Firebase (incluye edad y estrato del puesto) ──
   const datosBase = {
-    candidato:        candidatoNombre || 'Candidato',
-    edad:             candidatoEdad   || null,   // ← CLAVE para calcular CPF en el dashboard
-    puesto:           candidatoPuesto || null,
-    estrato_puesto:   estratoPuesto   || null,   // ← CLAVE para comparar fit
-    token:            sessionToken    || null,
-    tema:             selectedTopic,
-    duracion:         `${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
+    candidato: candidatoNombre || 'Candidato',
+    edad: candidatoEdad || null,
+    puesto: candidatoPuesto || null,
+    estrato_puesto: estratoPuesto || null,
+    token: sessionToken || null,
+    tema: selectedTopic,
+    duracion: `${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
     duracion_segundos: elapsedSeconds,
-    transcript:       fullTranscript,
-    estado:           'pendiente_analisis',
-    estrato:          null,
-    confianza:        null,
-    resumen:          'Análisis en proceso...',
-    evidencias:       '',
-    alertas:          ''
+    transcript: fullTranscript,
+    estado: 'pendiente_analisis',
+    estrato: null, confianza: null,
+    resumen: 'Análisis en proceso...', evidencias: '', alertas: ''
   };
 
   let firebaseId = null;
-  if (typeof window.guardarEvaluacion === 'function') {
-    firebaseId = await window.guardarEvaluacion(datosBase);
-  }
+  if (typeof window.guardarEvaluacion === 'function') firebaseId = await window.guardarEvaluacion(datosBase);
+  if (!firebaseId) descargarTranscriptEmergencia(fullTranscript, candidatoNombre);
 
-  if (!firebaseId) {
-    descargarTranscriptEmergencia(fullTranscript, candidatoNombre);
-  }
-
-  // ── Análisis con Claude (timeout 90s) ──
-  let result;
-  let analisisExitoso = false;
-
-  // Mostrar estado en el overlay para que el usuario sepa qué pasa
+  let result, analisisExitoso = false;
   const procText = document.querySelector('.processing-text');
   const procSub  = document.querySelector('.processing-sub');
-
   try {
     if (procText) procText.textContent = 'Analizando el discurso...';
     if (procSub)  procSub.textContent  = 'Esto puede tardar hasta 90 segundos';
-
     const analysisPromise = analyzeWithClaude(fullTranscript);
-    const timeoutPromise  = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('timeout_90s')), 90000)
-    );
+    const timeoutPromise  = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout_90s')), 90000));
     result = await Promise.race([analysisPromise, timeoutPromise]);
     analisisExitoso = true;
-
     if (procText) procText.textContent = 'Guardando resultados...';
-
   } catch(e) {
     console.error('Análisis falló:', e.message);
-
-    // Mostrar el error en el overlay para debugging
     if (procText) procText.textContent = 'Guardando transcript...';
     if (procSub)  procSub.textContent  = `Error: ${e.message} — el transcript fue guardado`;
-
     result = {
       estrato: 0, subestrato: 'N/A', modo_procesamiento: 'Análisis pendiente',
-      modo_curva: null, confianza: 0, nombre_estrato: 'Análisis pendiente',
-      horizonte_implicito: 'N/A',
+      modo_curva: null, confianza: 0, nombre_estrato: 'Análisis pendiente', horizonte_implicito: 'N/A',
       resumen: `Análisis automático no completado (${e.message}). El transcript fue guardado correctamente en Firebase.`,
       evidencias: [], alertas: [`Error de análisis: ${e.message}`]
     };
-
-    // Esperar 2s para que el usuario pueda leer el mensaje
     await new Promise(r => setTimeout(r, 2000));
   }
 
-  // ── Actualizar Firebase con resultado del análisis ──
   const datosAnalisis = {
-    estado:            analisisExitoso ? 'completado' : 'analisis_fallido',
-    estrato:           result.estrato,
-    subestrato:        result.subestrato,
-    modo_procesamiento: result.modo_procesamiento,
-    modo_curva:        result.modo_curva || null,
-    nombre_estrato:    result.nombre_estrato,
-    horizonte:         result.horizonte_implicito,
-    confianza:         result.confianza,
-    resumen:           result.resumen,
-    evidencias:        (result.evidencias||[]).join(' | '),
-    alertas:           (result.alertas||[]).join(' | ')
+    estado: analisisExitoso ? 'completado' : 'analisis_fallido',
+    estrato: result.estrato, subestrato: result.subestrato,
+    modo_procesamiento: result.modo_procesamiento, modo_curva: result.modo_curva || null,
+    nombre_estrato: result.nombre_estrato, horizonte: result.horizonte_implicito,
+    confianza: result.confianza, resumen: result.resumen,
+    evidencias: (result.evidencias||[]).join(' | '), alertas: (result.alertas||[]).join(' | ')
   };
 
   if (typeof window.actualizarEvaluacion === 'function' && firebaseId) {
@@ -1364,22 +1126,16 @@ async function endInterview() {
 }
 
 // ══════════════════════════════════════════════════
-// ANÁLISIS CON CLAUDE — incluye edad y contexto del puesto
+// ANÁLISIS CON CLAUDE
 // ══════════════════════════════════════════════════
 async function analyzeWithClaude(transcript) {
-  if (demoMode) {
-    await new Promise(r => setTimeout(r, 2500));
-    return DEMO_RESULT;
-  }
+  if (demoMode) { await new Promise(r => setTimeout(r, 2500)); return DEMO_RESULT; }
 
-  // ── (Filtro de palabras/tiempo eliminado: se analiza siempre el transcript completo) ──
-
-  // Contexto adicional del candidato para el prompt
   const contextoExtra = [
-    candidatoNombre  ? `Nombre del candidato: ${candidatoNombre}` : '',
-    candidatoEdad    ? `Edad del candidato: ${candidatoEdad} años` : '',
-    candidatoPuesto  ? `Puesto al que aplica: ${candidatoPuesto}` : '',
-    estratoPuesto    ? `Estrato requerido por el puesto: E${['','I','II','III','IV','V'][estratoPuesto]||estratoPuesto}` : '',
+    candidatoNombre ? `Nombre del candidato: ${candidatoNombre}` : '',
+    candidatoEdad   ? `Edad del candidato: ${candidatoEdad} años` : '',
+    candidatoPuesto ? `Puesto al que aplica: ${candidatoPuesto}` : '',
+    estratoPuesto   ? `Estrato requerido por el puesto: E${['','I','II','III','IV','V'][estratoPuesto]||estratoPuesto}` : '',
   ].filter(Boolean).join('\n');
 
   const systemPrompt = `Sos un evaluador especializado en la Teoría de Sistemas Estratificados de Elliott Jaques, aplicando la metodología de Analía Blaistein para análisis del discurso oral.
@@ -1548,66 +1304,39 @@ ${transcript}`;
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 1200,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userMsg }]
-      })
+      headers: { 'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
+      body: JSON.stringify({ model:'claude-sonnet-4-5-20250929', max_tokens:1200, system:systemPrompt, messages:[{ role:'user', content:userMsg }] })
     });
-
-    if (!res.ok) {
-      const errBody = await res.text();
-      console.error('API Anthropic error:', res.status, errBody);
-      throw new Error(`API ${res.status}: ${errBody.slice(0,200)}`);
-    }
-
+    if (!res.ok) { const errBody = await res.text(); console.error('API Anthropic error:', res.status, errBody); throw new Error(`API ${res.status}: ${errBody.slice(0,200)}`); }
     const data = await res.json();
-
-    if (!data.content || !data.content[0]) {
-      console.error('Respuesta vacía de la API:', data);
-      throw new Error('Respuesta vacía de la API');
-    }
-
+    if (!data.content || !data.content[0]) { console.error('Respuesta vacía de la API:', data); throw new Error('Respuesta vacía de la API'); }
     const clean = data.content[0].text.trim().replace(/```json|```/g,'').trim();
     return JSON.parse(clean);
-
-  } catch(e) {
-    console.error('analyzeWithClaude falló:', e.message);
-    throw e;  // re-lanzar para que endInterview lo capture y loguee
-  }
+  } catch(e) { console.error('analyzeWithClaude falló:', e.message); throw e; }
 }
 
 // ── RESTART ──
 function restart() {
   speechSynthesis.cancel(); stopListening();
-  clearInterval(timerInterval); clearInterval(waveInterval); clearTimeout(closingSilenceTimer);
-  elapsedSeconds=0; interruptionCount=0; transcriptLog=[];
-  accumulatedUserText=''; lastUserText=''; pendingFinalBuf=''; synthesisRequested=false; interviewPhase='idle';
-  lastSpeechTimestamp=Date.now();
+  clearInterval(timerInterval); clearInterval(waveInterval);
+  elapsedSeconds=0; transcriptLog=[]; accumulatedUserText=''; lastUserText=''; pendingFinalBuf='';
+  interviewPhase='idle'; actionStage='hablando'; interruptionCount=0;
   recognitionInstance=null; currentRecognition=null; clearTimeout(flushTimer);
-  lastSpeechTimestamp=Date.now();
   document.getElementById('warningBox').classList.remove('visible');
-  document.getElementById('int1').classList.remove('done');
-  document.getElementById('int2').classList.remove('done');
-  document.getElementById('btnSynthesis').disabled = true;
-  document.getElementById('ringProgress').style.strokeDashoffset = '502';
-  document.getElementById('ringProgress').style.stroke = 'var(--verde)';
-  document.getElementById('m6').classList.remove('active');
+  document.getElementById('ringProgress').style.strokeDashoffset = '880';
+  document.getElementById('timelineFill').style.width = '0%';
+  document.getElementById('timelineMark6').classList.remove('reached');
   const btn = document.getElementById('btnStartIntro');
   if (btn) { btn.disabled=false; btn.textContent='Escuchar introducción →'; }
   showScreen('screenSetup');
 }
 
 // ── INIT ──
-if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-initWaveform();
+if (window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = () => { speechSynthesis.getVoices(); chosenVoice = pickSpanishVoice(); };
+  setTimeout(() => { chosenVoice = pickSpanishVoice(); }, 300);
+}
+initVoiceBars();
 </script>
 </body>
 </html>

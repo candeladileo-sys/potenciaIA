@@ -932,21 +932,31 @@ function stopListening() { if (recognitionInstance) { try { recognitionInstance.
 // ══════════════════════════════════════════════════
 let mediaRecorder = null, audioChunks = [], audioStream = null;
 
-async function transcribeWithDeepgram(audioBlob) {
-  if (!audioBlob || !deepgramKey) { console.warn('No hay audio o no hay key para Deepgram. Tamaño:', audioBlob ? audioBlob.size : 'null'); return null; }
-  console.log('Enviando a Deepgram. Tamaño del audio:', audioBlob.size, 'bytes');
+async function startDeepgramRecording() {
+  if (!deepgramKey) { console.warn('Sin Deepgram key: se usa solo el reconocimiento del navegador.'); return false; }
   try {
-    const res = await fetch('https://api.deepgram.com/v1/listen?model=nova-3&language=es&smart_format=true&punctuate=true', {
-      method: 'POST',
-      headers: { 'Authorization': 'Token ' + deepgramKey, 'Content-Type': audioBlob.type || 'audio/webm' },
-      body: audioBlob
+    audioStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
     });
-    if (!res.ok) { console.error('Deepgram error:', res.status, await res.text()); return null; }
-    const data = await res.json();
-    const transcript = data?.results?.channels?.[0]?.alternatives?.[0]?.transcript || '';
-    console.log('Deepgram respondió. Transcript:', transcript.length, 'caracteres');
-    return transcript.trim() || null;
-  } catch(e) { console.error('Transcripción Deepgram falló:', e); return null; }
+    audioChunks = [];
+    let mimeType = '';
+    if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported) {
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mimeType = 'audio/webm;codecs=opus';
+      else if (MediaRecorder.isTypeSupported('audio/webm')) mimeType = 'audio/webm';
+      else if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
+    }
+    mediaRecorder = new MediaRecorder(audioStream, mimeType ? { mimeType } : undefined);
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) {
+        audioChunks.push(e.data);
+        const total = audioChunks.reduce((s,c) => s + c.size, 0);
+        console.log('Chunk de audio recibido. Total acumulado:', total, 'bytes');
+      }
+    };
+    mediaRecorder.start(1000);
+    console.log('Grabación Deepgram iniciada:', mediaRecorder.mimeType);
+    return true;
+  } catch(err) { console.error('No se pudo iniciar la grabación Deepgram:', err); return false; }
 }
 
 function stopDeepgramRecording() {

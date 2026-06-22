@@ -1078,6 +1078,7 @@ function stopDeepgramRecording() {
     }
     mediaRecorder.onstop = () => {
       const blob = new Blob(audioChunks, { type: (mediaRecorder && mediaRecorder.mimeType) || 'audio/webm' });
+      console.log('DEEPGRAM DEBUG — chunks:', audioChunks.length, '| blob size:', blob.size, 'bytes | type:', blob.type);
       if (audioStream) { try { audioStream.getTracks().forEach(t => t.stop()); } catch(e){} }
       resolve(blob && blob.size > 0 ? blob : null);
     };
@@ -1101,7 +1102,9 @@ async function transcribeWithDeepgram(audioBlob) {
       return null;
     }
     const data = await res.json();
+    console.log('DEEPGRAM DEBUG — respuesta completa:', JSON.stringify(data).slice(0, 500));
     const transcript = data?.results?.channels?.[0]?.alternatives?.[0]?.transcript || '';
+    console.log('DEEPGRAM DEBUG — transcript extraído:', JSON.stringify(transcript));
     return transcript.trim() || null;
   } catch(e) {
     console.error('Transcripción Deepgram falló:', e);

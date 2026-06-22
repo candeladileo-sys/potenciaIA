@@ -788,7 +788,12 @@ async function startInterview() {
   addTranscriptEntry('agent', intro);
   interviewPhase = 'speaking';
   startTimer();
-  await startDeepgramRecording();
+  const grabandoOk = await startDeepgramRecording();
+  if (!grabandoOk) {
+    const wb = document.getElementById('warningBox');
+    wb.textContent = 'No se pudo acceder al micrófono. Revisá los permisos y recargá la página.';
+    wb.classList.add('visible');
+  }
   startContinuousListening();
 }
 
@@ -927,23 +932,21 @@ function stopListening() { if (recognitionInstance) { try { recognitionInstance.
 // ══════════════════════════════════════════════════
 let mediaRecorder = null, audioChunks = [], audioStream = null;
 
-async function startDeepgramRecording() {
-  if (!deepgramKey) { console.warn('Sin Deepgram key: se usa solo el reconocimiento del navegador.'); return false; }
+async function transcribeWithDeepgram(audioBlob) {
+  if (!audioBlob || !deepgramKey) { console.warn('No hay audio o no hay key para Deepgram. Tamaño:', audioBlob ? audioBlob.size : 'null'); return null; }
+  console.log('Enviando a Deepgram. Tamaño del audio:', audioBlob.size, 'bytes');
   try {
-    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    audioChunks = [];
-    let mimeType = '';
-    if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported) {
-      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mimeType = 'audio/webm;codecs=opus';
-      else if (MediaRecorder.isTypeSupported('audio/webm')) mimeType = 'audio/webm';
-      else if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
-    }
-    mediaRecorder = new MediaRecorder(audioStream, mimeType ? { mimeType } : undefined);
-    mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
-    mediaRecorder.start(1000);
-    console.log('Grabación Deepgram iniciada:', mediaRecorder.mimeType);
-    return true;
-  } catch(err) { console.error('No se pudo iniciar la grabación Deepgram:', err); return false; }
+    const res = await fetch('https://api.deepgram.com/v1/listen?model=nova-3&language=es&smart_format=true&punctuate=true', {
+      method: 'POST',
+      headers: { 'Authorization': 'Token ' + deepgramKey, 'Content-Type': audioBlob.type || 'audio/webm' },
+      body: audioBlob
+    });
+    if (!res.ok) { console.error('Deepgram error:', res.status, await res.text()); return null; }
+    const data = await res.json();
+    const transcript = data?.results?.channels?.[0]?.alternatives?.[0]?.transcript || '';
+    console.log('Deepgram respondió. Transcript:', transcript.length, 'caracteres');
+    return transcript.trim() || null;
+  } catch(e) { console.error('Transcripción Deepgram falló:', e); return null; }
 }
 
 function stopDeepgramRecording() {

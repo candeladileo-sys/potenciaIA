@@ -788,8 +788,8 @@ async function startInterview() {
   addTranscriptEntry('agent', intro);
   interviewPhase = 'speaking';
   startTimer();
+  await startDeepgramRecording();
   startContinuousListening();
-  startDeepgramRecording();
 }
 
 // ── TIMER ──

@@ -378,9 +378,13 @@ td.td-name{font-weight:600;color:var(--text);font-size:14px;}
           <div class="upload-name" id="complCvName"></div>
         </div>
       </div>
-      <div class="form-group" style="margin-bottom:0;">
+        <div class="form-group" style="margin-bottom:0;">
         <label class="form-label">Entrevista de rol — transcripción <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text-muted)">— opcional</span></label>
-        <textarea class="form-input" id="complEntrevista" rows="5" placeholder="Pegá acá la transcripción de la entrevista de rol..." style="resize:vertical"></textarea>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <button type="button" class="btn btn-outline" id="complRecBtn" onclick="toggleComplGrabacion()" style="font-size:12px;padding:7px 14px;">🎙 Grabar entrevista</button>
+          <span id="complRecEstado" style="font-size:12px;color:var(--text-muted);"></span>
+        </div>
+        <textarea class="form-input" id="complEntrevista" rows="5" placeholder="Pegá acá la transcripción de la entrevista de rol, o grabala con el botón de arriba..." style="resize:vertical"></textarea>
       </div>
     </div>
     <div class="wizard-footer">
@@ -1033,7 +1037,135 @@ function generarComplementario(){
     'Entrevista: ' + (entrevista ? (entrevista.length + ' caracteres') : 'no cargada');
   alert('Insumos listos para ' + (candidatos[_complIndex] ? candidatos[_complIndex].nombre : '') + ':\n\n' + resumen + '\n\n(El análisis con Claude se conecta en el paso 3.)');
 }
+// ── GRABACIÓN DE ENTREVISTA DE ROL (Deepgram, sin agente) ──
+const DEEPGRAM_KEY_DASHBOARD = '83364351e114c305e1d0c526e5ba58ae82beeacc';
+let _complMediaRecorder = null, _complChunks = [], _complStream = null, _complGrabando = false, _complCronoInt = null, _complSegundos = 0;
 
+function _complSetEstado(txt, color){
+  const el = document.getElementById('complRecEstado');
+  if(el){ el.textContent = txt; el.style.color = color || 'var(--text-muted)'; }
+}
+
+function _complFormatoTiempo(s){
+  const m = Math.floor(s/60), seg = s%60;
+  return m + ':' + (seg<10?'0':'') + seg;
+}
+
+async function toggleComplGrabacion(){
+  if(_complGrabando){ await _complDetenerGrabacion(); }
+  else { await _complIniciarGrabacion(); }
+}
+
+async function _complIniciarGrabacion(){
+  // Chequeo 1: API de micrófono disponible
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    alert('Tu navegador no permite grabar audio. Probá con Chrome actualizado.');
+    return;
+  }
+  // Chequeo 2: pedir permiso de micrófono
+  try {
+    _complStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch(e){
+    console.error('Permiso de micrófono denegado:', e);
+    alert('No se pudo acceder al micrófono. Revisá los permisos del navegador y volvé a intentar.');
+    return;
+  }
+  // Elegir formato soportado
+  let mimeType = 'audio/webm;codecs=opus';
+  if(!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'audio/webm';
+  if(!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'audio/mp4';
+
+  _complChunks = [];
+  try {
+    _complMediaRecorder = new MediaRecorder(_complStream, { mimeType });
+  } catch(e){
+    console.error('No se pudo crear MediaRecorder:', e);
+    alert('No se pudo iniciar la grabación en este navegador.');
+    _complStream.getTracks().forEach(t => t.stop());
+    return;
+  }
+
+  _complMediaRecorder.ondataavailable = (ev) => { if(ev.data && ev.data.size > 0) _complChunks.push(ev.data); };
+  _complMediaRecorder.start(1000);
+  _complGrabando = true;
+
+  // Cronómetro
+  _complSegundos = 0;
+  _complSetEstado('● Grabando  0:00', '#dc2626');
+  _complCronoInt = setInterval(() => {
+    _complSegundos++;
+    _complSetEstado('● Grabando  ' + _complFormatoTiempo(_complSegundos), '#dc2626');
+  }, 1000);
+
+  const btn = document.getElementById('complRecBtn');
+  if(btn){ btn.textContent = '■ Detener y transcribir'; }
+}
+
+async function _complDetenerGrabacion(){
+  if(!_complMediaRecorder){ return; }
+
+  // Promesa que espera el último chunk
+  const blob = await new Promise((resolve) => {
+    _complMediaRecorder.onstop = () => {
+      const tipo = _complMediaRecorder.mimeType || 'audio/webm';
+      resolve(new Blob(_complChunks, { type: tipo }));
+    };
+    _complMediaRecorder.stop();
+  });
+
+  // Frenar cronómetro y micrófono
+  clearInterval(_complCronoInt);
+  _complGrabando = false;
+  if(_complStream){ _complStream.getTracks().forEach(t => t.stop()); _complStream = null; }
+  const btn = document.getElementById('complRecBtn');
+  if(btn){ btn.textContent = '🎙 Grabar entrevista'; }
+
+  // Chequeo 3: el blob tiene contenido real
+  console.log('Audio grabado:', { chunks: _complChunks.length, size: blob.size, type: blob.type });
+  if(blob.size === 0){
+    _complSetEstado('La grabación quedó vacía. Volvé a intentar.', '#dc2626');
+    return;
+  }
+
+  _complSetEstado('Transcribiendo…', 'var(--azul)');
+  if(btn){ btn.disabled = true; }
+
+  try {
+    const texto = await _complTranscribir(blob);
+    // Chequeo 4: Deepgram devolvió texto
+    if(!texto || !texto.trim()){
+      _complSetEstado('No se detectó voz en la grabación. Probá de nuevo o pegá el texto a mano.', '#dc2626');
+      return;
+    }
+    // Volcar en el textarea (agrega si ya había algo)
+    const ta = document.getElementById('complEntrevista');
+    ta.value = ta.value.trim() ? (ta.value.trim() + '\n\n' + texto.trim()) : texto.trim();
+    _complSetEstado('✓ Transcripción lista (' + _complFormatoTiempo(_complSegundos) + ')', 'var(--verde)');
+  } catch(e){
+    console.error('Error transcribiendo:', e);
+    _complSetEstado('Error al transcribir. Revisá la consola o pegá el texto a mano.', '#dc2626');
+  } finally {
+    if(btn){ btn.disabled = false; }
+  }
+}
+
+async function _complTranscribir(audioBlob){
+  const url = 'https://api.deepgram.com/v1/listen?model=nova-3&language=es&smart_format=true&punctuate=true';
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Token ' + DEEPGRAM_KEY_DASHBOARD,
+      'Content-Type': audioBlob.type
+    },
+    body: audioBlob
+  });
+  if(!resp.ok){
+    const errTxt = await resp.text();
+    throw new Error('Deepgram ' + resp.status + ': ' + errTxt);
+  }
+  const data = await resp.json();
+  return data?.results?.channels?.[0]?.alternatives?.[0]?.transcript || '';
+}
 
 // ── CURVA DE JAQUES — LÓGICA CORRECTA (Metodología Blaistein) ──
 //

@@ -1073,11 +1073,17 @@ async function generarComplementario(){
 
     const systemPrompt = _complSystemPrompt();
 
+    const apiKey = _complObtenerKey();
+    if(!apiKey){
+      if(btnGen){ btnGen.disabled = false; btnGen.textContent = 'Generar informe complementario →'; }
+      return;
+    }
+
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_KEY_DASHBOARD,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
@@ -1198,7 +1204,14 @@ function _complAbrirInforme(cand, analisisHtml){
 
 // ── GRABACIÓN DE ENTREVISTA DE ROL (Deepgram, sin agente) ──
 const DEEPGRAM_KEY_DASHBOARD = '83364351e114c305e1d0c526e5ba58ae82beeacc';
-const ANTHROPIC_KEY_DASHBOARD = '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';
+let ANTHROPIC_KEY_DASHBOARD = '';
+function _complObtenerKey(){
+  if(!ANTHROPIC_KEY_DASHBOARD){
+    const k = prompt('Pegá tu API key de Anthropic (empieza con sk-ant-).\nSe usa solo en esta sesión, no se guarda en el código.');
+    if(k && k.trim()){ ANTHROPIC_KEY_DASHBOARD = k.trim(); }
+  }
+  return ANTHROPIC_KEY_DASHBOARD;
+}
 let _complMediaRecorder = null, _complChunks = [], _complStream = null, _complGrabando = false, _complCronoInt = null, _complSegundos = 0;
 
 function _complSetEstado(txt, color){

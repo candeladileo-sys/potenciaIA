@@ -368,7 +368,46 @@ td.td-name{font-weight:600;color:var(--text);font-size:14px;}
     </div>
   </div>
 </div>
-
+<!-- INFORME COMPLEMENTARIO -->
+<div class="wizard-overlay" id="complOverlay" onclick="cerrarComplClick(event)">
+  <div class="wizard-box">
+    <div class="wizard-top" style="padding-bottom:20px;">
+      <div class="wizard-title">Informe complementario</div>
+      <div class="wizard-subtitle">Cruce de PDA, entrevista de rol y CV para <strong id="complNombre"></strong>. El informe de potencial no se modifica.</div>
+    </div>
+    <div class="wizard-body">
+      <div style="background:var(--azul-light);border:1px solid var(--azul-soft);border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:12px;color:#0d3d70;">
+        Información para apoyar una decisión, no la decisión misma. El estrato sale del informe de potencial y no se recalcula.
+      </div>
+      <div class="form-group">
+        <label class="form-label">PDA (PDF) — dispara el informe</label>
+        <div class="upload-zone" id="complPdaZone">
+          <input type="file" accept=".pdf" onchange="handleComplUpload(this,'complPdaZone','complPdaName','pda')"/>
+          <div class="upload-icon">🧠</div>
+          <div class="upload-text"><strong>Subí el PDA</strong> o arrastrá acá</div>
+          <div class="upload-name" id="complPdaName"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">CV (PDF) <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text-muted)">— opcional</span></label>
+        <div class="upload-zone" id="complCvZone">
+          <input type="file" accept=".pdf" onchange="handleComplUpload(this,'complCvZone','complCvName','cv')"/>
+          <div class="upload-icon">📄</div>
+          <div class="upload-text"><strong>Subí el CV</strong> o arrastrá acá</div>
+          <div class="upload-name" id="complCvName"></div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Entrevista de rol — transcripción <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text-muted)">— opcional</span></label>
+        <textarea class="form-input" id="complEntrevista" rows="5" placeholder="Pegá acá la transcripción de la entrevista de rol..." style="resize:vertical"></textarea>
+      </div>
+    </div>
+    <div class="wizard-footer">
+      <button class="btn-ghost" onclick="cerrarComplementario()">Cancelar</button>
+      <button class="btn btn-primary" onclick="generarComplementario()">Generar informe complementario →</button>
+    </div>
+  </div>
+</div>
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -679,9 +718,10 @@ function verInforme(i) {
   const c = candidatos[i];
   if (!c.estrato) return;
 
-  document.getElementById('topbarRight').innerHTML = `
+ document.getElementById('topbarRight').innerHTML = `
     <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="go('dashboard')">← Volver al panel</button>
-    <button class="btn btn-primary" style="font-size:12px;padding:6px 14px;" onclick="abrirInformeCompleto(${i})">↓ Descargar informe completo</button>`;
+    <button class="btn btn-primary" style="font-size:12px;padding:6px 14px;" onclick="abrirInformeCompleto(${i})">↓ Descargar informe completo</button>
+    <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="abrirComplementario(${i})">+ Informe complementario</button>`;
 
   const xBase=50,xRange=490,edadMin=20,edadMax=60;
   const yBase=190,yRange=170;
@@ -957,6 +997,57 @@ function copiarLink(){
     document.querySelector('.link-copy').textContent='¡Copiado!';
     setTimeout(()=>document.querySelector('.link-copy').textContent='Copiar link',2000);
   });
+}
+
+// ── INFORME COMPLEMENTARIO (paso 1: captura de insumos) ──
+let _complIndex = null, _complData = {};
+
+function abrirComplementario(i){
+  _complIndex = i; _complData = {};
+  const resetZone = (zoneId, icon) => {
+    const zone = document.getElementById(zoneId); if(!zone) return;
+    zone.classList.remove('uploaded');
+    zone.querySelector('.upload-icon').textContent = icon;
+    zone.querySelector('.upload-text').innerHTML = '<strong>Subí el archivo</strong> o arrastrá acá';
+  };
+  resetZone('complPdaZone','🧠');
+  resetZone('complCvZone','📄');
+  document.getElementById('complPdaName').textContent = '';
+  document.getElementById('complCvName').textContent = '';
+  document.getElementById('complEntrevista').value = '';
+  document.getElementById('complNombre').textContent = candidatos[i] ? candidatos[i].nombre : '';
+  document.getElementById('complOverlay').classList.add('active');
+}
+
+function cerrarComplementario(){
+  document.getElementById('complOverlay').classList.remove('active');
+}
+
+function cerrarComplClick(e){
+  if(e.target === document.getElementById('complOverlay')) cerrarComplementario();
+}
+
+function handleComplUpload(input, zoneId, nameId, key){
+  const file = input.files[0]; if(!file) return;
+  const zone = document.getElementById(zoneId);
+  zone.classList.add('uploaded');
+  zone.querySelector('.upload-icon').textContent = '✅';
+  zone.querySelector('.upload-text').innerHTML = '<strong>Archivo cargado</strong>';
+  document.getElementById(nameId).textContent = file.name;
+  _complData[key] = file;
+}
+
+function generarComplementario(){
+  if(!_complData.pda){
+    alert('Subí el PDA — es el insumo que dispara el informe complementario.');
+    return;
+  }
+  const entrevista = document.getElementById('complEntrevista').value.trim();
+  const resumen =
+    'PDA: ' + _complData.pda.name + '\n' +
+    'CV: ' + (_complData.cv ? _complData.cv.name : 'no cargado') + '\n' +
+    'Entrevista: ' + (entrevista ? (entrevista.length + ' caracteres') : 'no cargada');
+  alert('Insumos listos para ' + (candidatos[_complIndex] ? candidatos[_complIndex].nombre : '') + ':\n\n' + resumen + '\n\n(El análisis con Claude se conecta en el paso 3.)');
 }
 
 

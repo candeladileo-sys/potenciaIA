@@ -314,25 +314,7 @@ td.td-name{font-weight:600;color:var(--text);font-size:14px;}
           <label class="form-label">Email del candidato</label>
           <input type="email" class="form-input" id="f_email" placeholder="candidato@email.com"/>
         </div>
-        <div class="form-group">
-          <label class="form-label">CV del candidato (PDF)</label>
-          <div class="upload-zone" id="cvZone">
-            <input type="file" accept=".pdf" onchange="handleUpload(this,'cvZone','cvName')"/>
-            <div class="upload-icon">📄</div>
-            <div class="upload-text"><strong>Subí el CV</strong> o arrastrá acá</div>
-            <div class="upload-name" id="cvName"></div>
-          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">PDA del candidato (PDF) <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text-muted)">— opcional</span></label>
-          <div class="upload-zone" id="pdaZone">
-            <input type="file" accept=".pdf" onchange="handleUpload(this,'pdaZone','pdaName')"/>
-            <div class="upload-icon">🧠</div>
-            <div class="upload-text"><strong>Subí el PDA</strong> o arrastrá acá</div>
-            <div class="upload-name" id="pdaName"></div>
-          </div>
-        </div>
-      </div>
       <!-- Paso 3 -->
       <div id="step3" style="display:none">
         <div class="resumen-grid">
@@ -342,8 +324,7 @@ td.td-name{font-weight:600;color:var(--text);font-size:14px;}
           <div class="resumen-item"><div class="resumen-label">Candidato</div><div class="resumen-value" id="r_nombre">—</div></div>
           <div class="resumen-item"><div class="resumen-label">Edad</div><div class="resumen-value" id="r_edad">—</div></div>
           <div class="resumen-item"><div class="resumen-label">Email</div><div class="resumen-value" id="r_email" style="font-size:12px">—</div></div>
-          <div class="resumen-item"><div class="resumen-label">CV</div><div class="resumen-value" id="r_cv">—</div></div>
-          <div class="resumen-item"><div class="resumen-label">PDA</div><div class="resumen-value" id="r_pda">—</div></div>
+        
           <div class="resumen-item"><div class="resumen-label">Anthropic Key</div><div class="resumen-value" id="r_ak" style="font-size:11px">—</div></div>
           <div class="resumen-item"><div class="resumen-label">Deepgram Key</div><div class="resumen-value" id="r_dk" style="font-size:11px">—</div></div>
         </div>
@@ -965,8 +946,6 @@ function rellenarResumen(){
   document.getElementById('r_nombre').textContent=document.getElementById('f_nombre').value||'—';
   document.getElementById('r_edad').textContent=document.getElementById('f_edad').value?document.getElementById('f_edad').value+' años':'—';
   document.getElementById('r_email').textContent=document.getElementById('f_email').value||'—';
-  document.getElementById('r_cv').textContent=document.getElementById('cvName').textContent||'No cargado';
-  document.getElementById('r_pda').textContent=document.getElementById('pdaName').textContent||'No cargado';
   const _ak=document.getElementById('f_anthropic_key').value;
   const _dk=document.getElementById('f_deepgram_key').value;
   document.getElementById('r_ak').textContent=_ak?'✓ Cargada':'⚠ No ingresada';

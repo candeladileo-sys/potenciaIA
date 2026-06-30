@@ -392,7 +392,7 @@ td.td-name{font-weight:600;color:var(--text);font-size:14px;}
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, getDocs, orderBy, query, doc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, orderBy, query, doc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBHM3tvO-LmzMvTkCIKC476tE3sqmJs1QM",
@@ -409,6 +409,11 @@ const db = getFirestore(app);
 window.eliminarDeFirebase = async function(id) {
   try { await deleteDoc(doc(db, 'evaluaciones', id)); return true; }
   catch(e) { console.error('Error eliminando:', e); return false; }
+};
+
+window.guardarEntrevistaRol = async function(id, texto) {
+  try { await updateDoc(doc(db, 'evaluaciones', id), { entrevista_rol: texto }); return true; }
+  catch(e) { console.error('Error guardando entrevista de rol:', e); return false; }
 };
 
 window.cargarDeFirebase = async function() {

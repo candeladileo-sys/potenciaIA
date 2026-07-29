@@ -1128,28 +1128,62 @@ function _complPdfABase64(file){
 
 // Prompt de sistema para el informe complementario
 function _complSystemPrompt(){
-  return `Sos un analista de RRHH experto en la metodología de Elliott Jaques y Analía Blaistein.
-Tu tarea es redactar un INFORME COMPLEMENTARIO que cruza cuatro fuentes: el CV, la entrevista de rol, el reporte PDA (perfil conductual) y el estrato ya determinado en el informe de potencial.
+  return `Sos un analista de RRHH experto en la metodología de Elliott Jaques y en la interpretación de reportes PDA International. Redactás un INFORME INTEGRADO DE EVALUACIÓN DE TALENTO que cruza cuatro fuentes de evidencia: el currículum vitae, el Reporte de Perfil Conductual (PDA International), la entrevista de evaluación de potencial, y el Informe de Evaluación de Potencial (estrato de Elliott Jaques, ya calculado).
 
-REGLA CRÍTICA E INVIOLABLE: el estrato NO se recalcula ni se discute. Te lo doy ya calculado y solo lo citás como dato. Tu análisis NO debe inferir, corregir ni cuestionar el estrato a partir del PDA, el CV o la entrevista. El PDA, el CV y la entrevista enriquecen la lectura, pero NUNCA determinan el estrato.
+REGLA CRÍTICA E INVIOLABLE: el estrato NO se recalcula ni se discute. Te lo doy ya calculado y solo lo citás como dato. Tu análisis NO debe inferir, corregir ni cuestionar el estrato a partir del PDA, el CV o la entrevista. El PDA, el CV y la entrevista enriquecen la lectura pero NUNCA determinan el estrato.
 
-El informe complementario es un documento SEPARADO del informe de potencial. Es información para apoyar una decisión, no la decisión misma.
+TRAZABILIDAD: cada afirmación relevante debe indicar entre paréntesis de qué fuente proviene: (CV), (PDA), (entrevista) o (informe de potencial). Esto es obligatorio en las secciones de fortalezas, riesgos y conclusión.
 
-ESTRUCTURA del informe (devolvé SOLO el contenido en HTML simple, usando <h2>, <h3>, <p> y <strong>, sin <html> ni <body> ni estilos):
+NO inventes datos. Si una fuente no aporta cierta información, decilo explícitamente ("el CV no detalla...") en lugar de completar con supuestos.
 
-<h2>Informe Complementario</h2>
-1. Un párrafo de encabezado que liste las fuentes usadas (CV, entrevista de rol, PDA, e informe de potencial) e incluya el disclaimer textual: "Información para apoyar una decisión, no la decisión misma."
+Devolvé SOLO el contenido en HTML simple, usando <h1>, <h2>, <h3>, <p>, <strong>, <ul>, <li> y <table>/<tr>/<th>/<td> cuando corresponda. NO uses <html>, <body> ni estilos inline.
 
-<h3>Recorrido por el CV</h3>
-2. Un resumen breve (1 párrafo) de la trayectoria del candidato según el CV.
+ESTRUCTURA (respetá esta numeración y estos títulos):
 
-<h3>Entrevista de rol y perfil conductual</h3>
-3. Análisis propio de la entrevista de rol (qué muestra sobre la capacidad aplicada en el rol actual). Luego una lectura del PDA respetando su estructura y su lenguaje. Cerrá con un párrafo de síntesis que CRUCE la entrevista con el PDA (ambos hablan de la capacidad aplicada / cómo se desempeña hoy en el rol).
+<h1>1. Introducción y alcance</h1>
+Explicá que el informe integra cuatro fuentes y con qué objetivo (desarrollo, sucesión, planificación de carrera). Detallá qué aporta cada fuente y por qué la integración permite detectar convergencias y brechas. Incluí el disclaimer: "Información para apoyar una decisión, no la decisión misma."
 
-<h3>Resultado de potencial (citado)</h3>
-4. Cita el estrato del informe de potencial tal como te lo doy, sin recalcularlo. Explicá brevemente qué significa ese estrato en términos de horizonte temporal y complejidad, según Jaques.
+<h1>2. Fuentes utilizadas</h1>
+Lista <ul> con las cuatro fuentes (CV, Reporte PDA International, entrevista de evaluación de potencial, Informe de Potencial metodología Elliott Jaques).
 
-Tono profesional, en español rioplatense neutro. No inventes datos que no estén en las fuentes.`;
+<h1>3. Formación académica</h1>
+Según el CV, la formación (grados, posgrados, idiomas, docencia). Cerrá cruzando con lo que el PDA o la entrevista sugieran sobre su estilo de aprendizaje.
+
+<h1>4. Trayectoria y rol actual</h1>
+Reconstruí la trayectoria a partir del CV. Incluí una <table> con columnas Período / Organización · Industria / Cargo. Después, un párrafo sobre el rol actual según la entrevista, cruzado con el CV.
+
+<h1>5. Perfil conductual (PDA International)</h1>
+<h2>5.1 Estilo natural dominante</h2>
+Si el PDA trae la tabla de ejes (R-E-P-N-A) con valores natural/adaptado e índices, reproducila como <table>. Describí el eje más extremo y el estilo general. Incluí las palabras descriptivas del instrumento si están.
+<h2>5.2 Fortalezas descritas por el instrumento</h2>
+Lista <ul> de las fortalezas conductuales del PDA.
+<h2>5.3 Riesgos conductuales señalados por el PDA</h2>
+Lista <ul> de los riesgos conductuales del PDA.
+<h2>5.4 Perfil adaptado y situación actual</h2>
+Si el PDA trae la tabla de indicadores (Toma de Decisiones, Intensidad del Perfil, Energía) con valores natural/adaptado, reproducila como <table>. Interpretá la modificación del perfil.
+
+<h1>6. Lectura de la entrevista de evaluación de potencial</h1>
+Dividí en subsecciones con <h2>: 6.1 Toma de decisiones, 6.2 Autonomía percibida y encuadre organizacional, 6.3 Estilo de liderazgo y desarrollo de personas, 6.4 Autoconciencia y áreas de desarrollo reconocidas por el propio candidato, 6.5 Diagnóstico que realiza sobre la organización. Usá citas textuales de la entrevista entre comillas cuando aporten valor. Si alguna subsección no tiene evidencia en la entrevista, indicá que no se abordó.
+
+<h1>7. Evaluación de potencial (Metodología Elliott Jaques)</h1>
+<h2>7.1 Capacidad Potencial Actual (CPA)</h2>
+Citá el estrato TAL COMO te lo doy, sin recalcularlo. Explicá qué significa ese estrato en términos de horizonte temporal y complejidad del procesamiento mental, según Jaques.
+<h2>7.2 Proyección</h2>
+Explicá brevemente qué implica ese estrato para la proyección de carrera, en términos generales de la metodología. No inventes edades ni fechas puntuales.
+
+<h1>8. Fortalezas clave</h1>
+Lista <ul> de 5 a 7 fortalezas integrando las cuatro fuentes. En CADA ítem, citá la fuente entre paréntesis.
+
+<h1>9. Riesgos y áreas de desarrollo</h1>
+Lista <ul> de 4 a 6 riesgos o áreas de desarrollo. En CADA ítem, citá la fuente entre paréntesis.
+
+<h1>10. Recomendaciones concretas</h1>
+Lista <ul> de recomendaciones accionables de desarrollo y gestión.
+
+<h1>11. Conclusión</h1>
+Síntesis integradora que conecte las cuatro fuentes y cierre con una lectura del fit y el potencial. Reiterá que es información de apoyo, no la decisión.
+
+Tono profesional, en español rioplatense neutro. Redacción fluida y precisa.`;
 }
   // Arma el HTML del informe complementario y lo abre para descargar
 function _complAbrirInforme(cand, analisisHtml){
@@ -1160,14 +1194,23 @@ function _complAbrirInforme(cand, analisisHtml){
     <meta charset="UTF-8">
     <title>Informe Complementario — ${nombre}</title>
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
+<style>
       *{margin:0;padding:0;box-sizing:border-box;}
-      body{background:white;color:#1c1d22;font-family:Georgia,'Times New Roman',serif;line-height:1.9;padding:48px 40px;max-width:800px;margin:0 auto;}
-      h2{font-size:18px;font-weight:bold;text-align:center;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;}
-      h3{font-size:14px;font-weight:bold;text-transform:uppercase;letter-spacing:.05em;margin:28px 0 14px;border-bottom:1px solid #ccc;padding-bottom:6px;}
-      p{font-size:14px;line-height:1.9;color:#222;margin-bottom:14px;}
+      body{background:white;color:#1c1d22;font-family:Georgia,'Times New Roman',serif;line-height:1.8;padding:48px 40px;max-width:800px;margin:0 auto;}
+      h1{font-size:16px;font-weight:bold;text-transform:uppercase;letter-spacing:.04em;margin:32px 0 14px;padding-bottom:6px;border-bottom:2px solid #7c3aed;color:#5b21b6;}
+      h2{font-size:13px;font-weight:bold;margin:22px 0 10px;color:#333;}
+      h3{font-size:13px;font-weight:bold;margin:18px 0 8px;color:#444;}
+      p{font-size:13.5px;line-height:1.8;color:#222;margin-bottom:12px;text-align:justify;}
       strong{color:#111;}
-      .sub{text-align:center;font-size:13px;color:#555;margin-bottom:32px;}
+      ul{margin:0 0 14px 22px;}
+      li{font-size:13.5px;line-height:1.7;color:#222;margin-bottom:7px;}
+      table{width:100%;border-collapse:collapse;margin:14px 0 18px;font-size:12px;}
+      th{background:#f1ecfe;color:#5b21b6;font-weight:bold;text-align:left;padding:7px 10px;border:1px solid #d9cdf5;}
+      td{padding:7px 10px;border:1px solid #e0e0e0;color:#333;vertical-align:top;}
+      tr:nth-child(even) td{background:#faf8ff;}
+      .titulo{text-align:center;font-size:19px;font-weight:bold;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;color:#1c1d22;}
+      .sub{text-align:center;font-size:13px;color:#555;margin-bottom:8px;}
+      .conf{text-align:center;font-size:11px;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;color:#7c3aed;margin-bottom:28px;}
       .pie{margin-top:48px;padding-top:20px;border-top:1px solid #ccc;font-size:11px;color:#777;text-align:center;line-height:1.7;}
       @media print{.no-print{display:none!important;} body{padding:8px;}}
     </style>
@@ -1176,7 +1219,9 @@ function _complAbrirInforme(cand, analisisHtml){
       <span style="font-size:13px;color:#9ca3af;margin-right:16px;">PotenciaIA — Informe complementario confidencial</span>
       <button onclick="window.print()" style="background:#7c3aed;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">↓ Guardar como PDF</button>
     </div>
-    <p class="sub">${nombre} · ${cand.puesto||''} · ${fecha}</p>
+      <div class="conf">Confidencial</div>
+    <div class="titulo">Informe Integrado de Evaluación de Talento</div>
+    <p class="sub">${nombre}${cand.puesto ? ' · ' + cand.puesto : ''} · ${fecha}</p>
     ${analisisHtml}
     <div class="pie">
       PotenciaIA es una herramienta de apoyo a la decisión. El juicio final corresponde al equipo de RRHH.<br>

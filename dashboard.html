@@ -1165,11 +1165,7 @@ Si el PDA trae la tabla de indicadores (Toma de Decisiones, Intensidad del Perfi
 <h1>6. Lectura de la entrevista de evaluación de potencial</h1>
 Dividí en subsecciones con <h2>: 6.1 Toma de decisiones, 6.2 Autonomía percibida y encuadre organizacional, 6.3 Estilo de liderazgo y desarrollo de personas, 6.4 Autoconciencia y áreas de desarrollo reconocidas por el propio candidato, 6.5 Diagnóstico que realiza sobre la organización. Usá citas textuales de la entrevista entre comillas cuando aporten valor. Si alguna subsección no tiene evidencia en la entrevista, indicá que no se abordó.
 
-<h1>7. Evaluación de potencial (Metodología Elliott Jaques)</h1>
-<h2>7.1 Capacidad Potencial Actual (CPA)</h2>
-Citá el estrato TAL COMO te lo doy, sin recalcularlo. Explicá qué significa ese estrato en términos de horizonte temporal y complejidad del procesamiento mental, según Jaques.
-<h2>7.2 Proyección</h2>
-Explicá brevemente qué implica ese estrato para la proyección de carrera, en términos generales de la metodología. No inventes edades ni fechas puntuales.
+IMPORTANTE: NO escribas la sección 7 (Evaluación de potencial). En el lugar exacto donde iría, entre la 6 y la 8, escribí únicamente esta marca sola en una línea: [[SECCION_POTENCIAL]]. No escribas nada más de la sección 7. Seguí normalmente con la sección 8.
 
 <h1>8. Fortalezas clave</h1>
 Lista <ul> de 5 a 7 fortalezas integrando las cuatro fuentes. En CADA ítem, citá la fuente entre paréntesis.
@@ -1184,6 +1180,32 @@ Lista <ul> de recomendaciones accionables de desarrollo y gestión.
 Síntesis integradora que conecte las cuatro fuentes y cierre con una lectura del fit y el potencial. Reiterá que es información de apoyo, no la decisión.
 
 Tono profesional, en español rioplatense neutro. Redacción fluida y precisa.`;
+}
+  // Arma la sección de potencial (7) con textos calibrados — NO pasa por Claude
+function _complSeccionPotencial(cand){
+  const ROM = ['','I','II','III','IV','V','VI'];
+  const est = cand.estrato || 2;
+  const sub = (cand.subestrato||'medio').toLowerCase().includes('alt') ? 'alto'
+            : (cand.subestrato||'medio').toLowerCase().includes('baj') ? 'bajo' : 'medio';
+  const estSig = Math.min(est + 1, 6);
+
+  const TEXTOS = {
+    1: { cpa:'Para resolver los problemas de este estrato, el candidato debe superar los obstáculos a medida que surgen mediante su acción directa, recurriendo a métodos aprendidos previamente. Trabaja dentro de un marco de reglas preestablecidas y requiere un encuadre claramente definido a través de una meta concreta y parámetros dentro de los cuales desenvolverse.', hor:'desde un día hasta tres meses' },
+    2: { cpa:'Para resolver los problemas de este estrato, el candidato es capaz de exponer y acumular datos significativos a medida que avanza, de modo de contar al final con la información apropiada para la resolución. Puede tener en cuenta diversas variables al mismo tiempo y extraer conclusiones propias, acumulando y seleccionando deliberadamente datos que le permitan anticipar problemas y tomar medidas para evitarlos o superarlos. Es capaz de desarrollar las tareas de un primer nivel de conducción: analizar e interpretar datos para diagnosticar una problemática.', hor:'de 3 a 12 meses aproximadamente' },
+    3: { cpa:'Para resolver los problemas de este estrato, el candidato ante todo examina la situación y establece varios caminos o rutas alternativas. Emplea no sólo su juicio directo y la acumulación diagnóstica, sino que es capaz de enmarcar todo el proceso en un plan que lleve a la meta a través de un curso de acción previsto al principio. Puede definir un curso para los problemas de corto plazo y al mismo tiempo dar los primeros pasos hacia las metas de largo plazo. Une las instancias singulares y las ve como un sistema seriado que se desarrolla en el tiempo. Esto lo habilita para desarrollar tareas de Gerencia Táctica de conducción directa: organizar actividades de corto y largo plazo, planificar recursos y costos, y desarrollar sistemas de trabajo con contacto directo con el nivel operacional.', hor:'entre 1 y 2 años' },
+    4: { cpa:'En este estrato, el candidato debe procesar en paralelo varios proyectos que se afectan mutuamente, armonizándolos entre sí tanto en tiempos como en recursos. Puede hacer concesiones recíprocas entre las tareas para seguir avanzando hacia la meta a lo largo de la ruta combinada. El trabajo tiene siempre un doble objetivo: resolver el problema y crear principios generales que permitan resolver otros del mismo tipo en el futuro. Puede dirigir sub-proyectos desarrollados por otros, manteniendo sincronía recíproca entre ellos.', hor:'entre 2 y 5 años' },
+    5: { cpa:'En este estrato, el candidato enfrenta un conjunto de hechos y consecuencias en cambio permanente, con demasiadas variables como para reflejarlas en instrumentos de planificación. Mantiene el registro de las conexiones recíprocas entre las variables de la organización y del entorno, introduciendo ajustes de modo continuo. Pasa de la planificación predictiva a vislumbrar a largo plazo lo que se quiere lograr, anticipando activamente los cambios que posiblemente sobrevendrán.', hor:'5 a 10 años' },
+  };
+
+  const t = TEXTOS[est] || TEXTOS[2];
+  const subTxt = sub === 'alto' ? ', en su pasaje al Estrato ' + ROM[estSig] : '';
+
+  return '<h1>7. Evaluación de potencial (Metodología Elliott Jaques)</h1>' +
+    '<h2>7.1 Capacidad Potencial Actual (CPA)</h2>' +
+    '<p>La Capacidad Potencial Actual del candidato se ubica en el <strong>Estrato ' + ROM[est] + ' ' + sub + '</strong>' + subTxt + ' (informe de potencial). ' + t.cpa + '</p>' +
+    '<p>Su horizonte de planeamiento actual es ' + t.hor + '.</p>' +
+    '<h2>7.2 Proyección</h2>' +
+    '<p>Según la metodología, en el mediano plazo el candidato se irá asentando progresivamente en este estrato, y en el largo plazo tenderá a consolidar su recorrido sobre la curva de maduración de Elliott Jaques. Esta proyección es estadística y orientadora (informe de potencial).</p>';
 }
   // Arma el HTML del informe complementario y lo abre para descargar
 function _complAbrirInforme(cand, analisisHtml){
@@ -1222,7 +1244,7 @@ function _complAbrirInforme(cand, analisisHtml){
       <div class="conf">Confidencial</div>
     <div class="titulo">Informe Integrado de Evaluación de Talento</div>
     <p class="sub">${nombre}${cand.puesto ? ' · ' + cand.puesto : ''} · ${fecha}</p>
-    ${analisisHtml}
+    $${analisisHtml.replace('[[SECCION_POTENCIAL]]', _complSeccionPotencial(cand))}
     <div class="pie">
       PotenciaIA es una herramienta de apoyo a la decisión. El juicio final corresponde al equipo de RRHH.<br>
       Informe complementario — documento separado del informe de potencial.<br>

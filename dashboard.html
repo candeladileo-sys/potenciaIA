@@ -1100,12 +1100,13 @@ async function generarComplementario(){
       throw new Error('Anthropic ' + res.status + ': ' + errTxt);
     }
 
+    console.log('PASO A: Claude respondió, status', res.status);
     const data = await res.json();
+    console.log('PASO B: respuesta leída', data);
     const analisis = data.content[0].text.trim();
-
-    // Abrir el informe para descargar
+    console.log('PASO C: texto listo, largo', analisis.length);
     _complAbrirInforme(cand, analisis);
-
+    console.log('PASO D: informe generado');
     if(btnGen){ btnGen.disabled = false; btnGen.textContent = 'Generar informe complementario →'; }
     cerrarComplementario();
 

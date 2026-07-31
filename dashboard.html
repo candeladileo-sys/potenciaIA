@@ -1209,7 +1209,21 @@ function _complSeccionPotencial(cand){
     '<p>Según la metodología, en el mediano plazo el candidato se irá asentando progresivamente en este estrato, y en el largo plazo tenderá a consolidar su recorrido sobre la curva de maduración de Elliott Jaques. Esta proyección es estadística y orientadora (informe de potencial).</p>';
 }
   // Arma el HTML del informe complementario y lo abre para descargar
-function _complAbrirInforme(cand, analisisHtml){
+// Red de seguridad: si Claude devuelve markdown, lo convierte a HTML
+function _complLimpiarMarkdown(txt){
+  if(!txt) return txt;
+  // Quitar líneas de --- (separadores markdown)
+  txt = txt.replace(/^\s*---\s*$/gm, '');
+  // Convertir # Título → <h1>Título</h1> (solo si la línea no es ya HTML)
+  txt = txt.replace(/^#{1}\s+(.+)$/gm, '<h1>$1</h1>');
+  txt = txt.replace(/^#{2}\s+(.+)$/gm, '<h2>$1</h2>');
+  txt = txt.replace(/^#{3}\s+(.+)$/gm, '<h3>$1</h3>');
+  // Convertir **negrita** → <strong>
+  txt = txt.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  return txt;
+}
+  
+  function _complAbrirInforme(cand, analisisHtml){
   const nombre = cand.nombre || 'Candidato';
   const fecha = new Date().toLocaleDateString('es-AR');
 
@@ -1245,7 +1259,7 @@ function _complAbrirInforme(cand, analisisHtml){
       <div class="conf">Confidencial</div>
     <div class="titulo">Informe Integrado de Evaluación de Talento</div>
     <p class="sub">${nombre}${cand.puesto ? ' · ' + cand.puesto : ''} · ${fecha}</p>
-    $${analisisHtml.replace('[[SECCION_POTENCIAL]]', _complSeccionPotencial(cand))}
+    $${_complLimpiarMarkdown(analisisHtml).replace('[[SECCION_POTENCIAL]]', _complSeccionPotencial(cand))}
     <div class="pie">
       PotenciaIA es una herramienta de apoyo a la decisión. El juicio final corresponde al equipo de RRHH.<br>
       Informe complementario — documento separado del informe de potencial.<br>

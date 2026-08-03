@@ -1089,7 +1089,7 @@ async function generarComplementario(){
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 20000,
+        max_tokens: 14000,
         system: systemPrompt,
         messages: [{ role:'user', content: contenido }]
       })
@@ -1135,46 +1135,24 @@ NO inventes datos. Si una fuente no aporta cierta información, decilo explícit
 
 Devolvé SOLO el contenido en HTML simple, usando <h1>, <h2>, <h3>, <p>, <strong>, <ul>, <li> y <table>/<tr>/<th>/<td> cuando corresponda. NO uses <html>, <body> ni estilos inline.
 
-ESTRUCTURA (respetá esta numeración y estos títulos):
+ESTRUCTURA (respetá esta numeración y estos títulos, en HTML):
 
-<h1>1. Introducción y alcance</h1>
-Explicá que el informe integra cuatro fuentes y con qué objetivo (desarrollo, sucesión, planificación de carrera). Detallá qué aporta cada fuente y por qué la integración permite detectar convergencias y brechas. Incluí el disclaimer: "Información para apoyar una decisión, no la decisión misma."
+<h1>1. Fuentes utilizadas</h1>
+Lista <ul> con las cuatro fuentes: CV, Reporte PDA International, entrevista de evaluación de potencial, e Informe de Potencial (metodología Elliott Jaques). Una línea por fuente, con la fecha si figura.
 
-<h1>2. Fuentes utilizadas</h1>
-Lista <ul> con las cuatro fuentes (CV, Reporte PDA International, entrevista de evaluación de potencial, Informe de Potencial metodología Elliott Jaques).
+<h1>2. Lectura de la entrevista de evaluación de potencial</h1>
+Dividí en subsecciones con <h2>: 2.1 Toma de decisiones, 2.2 Autonomía percibida y encuadre organizacional, 2.3 Estilo de liderazgo y desarrollo de personas, 2.4 Autoconciencia y áreas de desarrollo reconocidas por el propio candidato, 2.5 Diagnóstico que realiza sobre la organización. Usá citas textuales de la entrevista entre comillas cuando aporten valor. Si alguna subsección no tiene evidencia, indicá que no se abordó.
 
-<h1>3. Formación académica</h1>
-Según el CV, la formación (grados, posgrados, idiomas, docencia). Cerrá cruzando con lo que el PDA o la entrevista sugieran sobre su estilo de aprendizaje.
+IMPORTANTE: NO escribas la sección 3 (Evaluación de potencial). En el lugar exacto donde iría, entre la 2 y la 4, escribí únicamente esta marca sola en una línea: [[SECCION_POTENCIAL]]. No escribas nada más de la sección 3. Seguí con la sección 4.
 
-<h1>4. Trayectoria y rol actual</h1>
-Reconstruí la trayectoria a partir del CV. Incluí una <table> con columnas Período / Organización · Industria / Cargo. Después, un párrafo sobre el rol actual según la entrevista, cruzado con el CV.
+<h1>4. Fortalezas clave</h1>
+Lista <ul> de 5 a 7 fortalezas integrando las fuentes (CV, PDA, entrevista). Usá el PDA para enriquecer aunque no tenga sección propia. En CADA ítem, citá la fuente entre paréntesis: (CV), (PDA), (entrevista).
 
-<h1>5. Perfil conductual (PDA International)</h1>
-<h2>5.1 Estilo natural dominante</h2>
-Si el PDA trae la tabla de ejes (R-E-P-N-A) con valores natural/adaptado e índices, reproducila como <table>. Describí el eje más extremo y el estilo general. Incluí las palabras descriptivas del instrumento si están.
-<h2>5.2 Fortalezas descritas por el instrumento</h2>
-Lista <ul> de las fortalezas conductuales del PDA.
-<h2>5.3 Riesgos conductuales señalados por el PDA</h2>
-Lista <ul> de los riesgos conductuales del PDA.
-<h2>5.4 Perfil adaptado y situación actual</h2>
-Si el PDA trae la tabla de indicadores (Toma de Decisiones, Intensidad del Perfil, Energía) con valores natural/adaptado, reproducila como <table>. Interpretá la modificación del perfil.
+<h1>5. Riesgos y áreas de desarrollo</h1>
+Lista <ul> de 4 a 6 riesgos o áreas de desarrollo, integrando las fuentes (especialmente el PDA). En CADA ítem, citá la fuente entre paréntesis.
 
-<h1>6. Lectura de la entrevista de evaluación de potencial</h1>
-Dividí en subsecciones con <h2>: 6.1 Toma de decisiones, 6.2 Autonomía percibida y encuadre organizacional, 6.3 Estilo de liderazgo y desarrollo de personas, 6.4 Autoconciencia y áreas de desarrollo reconocidas por el propio candidato, 6.5 Diagnóstico que realiza sobre la organización. Usá citas textuales de la entrevista entre comillas cuando aporten valor. Si alguna subsección no tiene evidencia en la entrevista, indicá que no se abordó.
-
-IMPORTANTE: NO escribas la sección 7 (Evaluación de potencial). En el lugar exacto donde iría, entre la 6 y la 8, escribí únicamente esta marca sola en una línea: [[SECCION_POTENCIAL]]. No escribas nada más de la sección 7. Seguí normalmente con la sección 8.
-
-<h1>8. Fortalezas clave</h1>
-Lista <ul> de 5 a 7 fortalezas integrando las cuatro fuentes. En CADA ítem, citá la fuente entre paréntesis.
-
-<h1>9. Riesgos y áreas de desarrollo</h1>
-Lista <ul> de 4 a 6 riesgos o áreas de desarrollo. En CADA ítem, citá la fuente entre paréntesis.
-
-<h1>10. Recomendaciones concretas</h1>
-Lista <ul> de recomendaciones accionables de desarrollo y gestión.
-
-<h1>11. Conclusión</h1>
-Síntesis integradora que conecte las cuatro fuentes y cierre con una lectura del fit y el potencial. Reiterá que es información de apoyo, no la decisión.
+<h1>6. Conclusión</h1>
+Síntesis integradora que conecte las fuentes y cierre con una lectura del fit y el potencial.
 
 Tono profesional, en español rioplatense neutro. Redacción fluida y precisa.`;
 }

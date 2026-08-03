@@ -1089,7 +1089,7 @@ async function generarComplementario(){
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 14000,
+        max_tokens: 12000,
         system: systemPrompt,
         messages: [{ role:'user', content: contenido }]
       })
@@ -1175,11 +1175,11 @@ function _complSeccionPotencial(cand){
   const t = TEXTOS[est] || TEXTOS[2];
   const subTxt = sub === 'alto' ? ', en su pasaje al Estrato ' + ROM[estSig] : '';
 
-  return '<h1>7. Evaluación de potencial (Metodología Elliott Jaques)</h1>' +
-    '<h2>7.1 Capacidad Potencial Actual (CPA)</h2>' +
+  return '<h1>3. Evaluación de potencial (Metodología Elliott Jaques)</h1>' +
+    '<h2>3.1 Capacidad Potencial Actual (CPA)</h2>' +
     '<p>La Capacidad Potencial Actual del candidato se ubica en el <strong>Estrato ' + ROM[est] + ' ' + sub + '</strong>' + subTxt + ' (informe de potencial). ' + t.cpa + '</p>' +
     '<p>Su horizonte de planeamiento actual es ' + t.hor + '.</p>' +
-    '<h2>7.2 Proyección</h2>' +
+    '<h2>3.2 Proyección</h2>' +
     '<p>Según la metodología, en el mediano plazo el candidato se irá asentando progresivamente en este estrato, y en el largo plazo tenderá a consolidar su recorrido sobre la curva de maduración de Elliott Jaques. Esta proyección es estadística y orientadora (informe de potencial).</p>';
 }
   // Arma el HTML del informe complementario y lo abre para descargar

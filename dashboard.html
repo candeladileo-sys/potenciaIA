@@ -1131,7 +1131,7 @@ REGLA CRÍTICA E INVIOLABLE: el estrato NO se recalcula ni se discute. Te lo doy
 
 TRAZABILIDAD: cada afirmación relevante debe indicar entre paréntesis de qué fuente proviene: (CV), (PDA), (entrevista) o (informe de potencial). Esto es obligatorio en las secciones de fortalezas, riesgos y conclusión.
 
-NO inventes datos. Si una fuente no aporta cierta información, decilo explícitamente ("el CV no detalla...") en lugar de completar con supuestos.
+NO inventes datos. Si una fuente no aporta cierta información, decilo explícitamente ("el CV no detalla...") en lugar de completar con supuestos.  ESTILO DE REDACCIÓN (CRÍTICO): escribí como un consultor senior de evaluación de talento que ANALIZÓ la entrevista, no como alguien que la transcribe. Reglas obligatorias: - INTERPRETÁ, no reproduzcas. Cada afirmación debe explicar qué comportamiento, capacidad o competencia demuestra el candidato. No narres la situación completa: sintetizala en pocas líneas y explicá qué revela. - PROHIBIDO copiar diálogos o párrafos de la entrevista en formato conversacional. Nada de reproducir intercambios textuales. - Las citas textuales entre comillas se usan SOLO cuando aportan evidencia relevante, y NUNCA superan una oración breve. Preferí parafrasear e interpretar. - No incluyas fragmentos que queden fuera de contexto o no aporten al análisis de la competencia evaluada. Si un dato no suma, elimínalo o intégralo con naturalidad. - Lenguaje profesional, ejecutivo, analítico y homogéneo en TODO el documento. - EJEMPLO INCORRECTO: "Cerrar dejé de darle plata al sindicato. El equipo me dijo estás loco y respondí si esto no funciona te renuncio." EJEMPLO CORRECTO: "Demuestra capacidad para tomar decisiones impopulares y sostenerlas frente a resistencias organizacionales; modificó una práctica histórica en la relación con el sindicato, asumiendo personalmente la responsabilidad por los resultados." - El nivel de síntesis de las secciones Fortalezas, Riesgos y Conclusión es el estándar esperado para TODO el documento, incluida la sección de entrevista.
 
 Devolvé SOLO el contenido en HTML simple, usando <h1>, <h2>, <h3>, <p>, <strong>, <ul>, <li> y <table>/<tr>/<th>/<td> cuando corresponda. NO uses <html>, <body> ni estilos inline.
 
@@ -1140,8 +1140,8 @@ ESTRUCTURA (respetá esta numeración y estos títulos, en HTML):
 <h1>1. Fuentes utilizadas</h1>
 Lista <ul> con las cuatro fuentes: CV, Reporte PDA International, entrevista de evaluación de potencial, e Informe de Potencial (metodología Elliott Jaques). Una línea por fuente, con la fecha si figura.
 
-<h1>2. Lectura de la entrevista de evaluación de potencial</h1>
-Dividí en subsecciones con <h2>: 2.1 Toma de decisiones, 2.2 Autonomía percibida y encuadre organizacional, 2.3 Estilo de liderazgo y desarrollo de personas, 2.4 Autoconciencia y áreas de desarrollo reconocidas por el propio candidato, 2.5 Diagnóstico que realiza sobre la organización. Usá citas textuales de la entrevista entre comillas cuando aporten valor. Si alguna subsección no tiene evidencia, indicá que no se abordó.
+<h1>2. Análisis de la entrevista de potencial</h1>
+Dividí en subsecciones con <h2>: 2.1 Toma de decisiones, 2.2 Autonomía percibida y encuadre organizacional, 2.3 Estilo de liderazgo y desarrollo de personas, 2.4 Autoconciencia y áreas de desarrollo reconocidas por el propio candidato, 2.5 Diagnóstico que realiza sobre la organización. En cada subsección, INTERPRETÁ qué capacidad o competencia demuestra el candidato: párrafos breves y analíticos, al mismo nivel de síntesis que las secciones de Fortalezas y Riesgos. NO reproduzcas diálogos ni narres situaciones completas. Si usás una cita, que sea de una oración breve y solo si aporta evidencia clave. Si alguna subsección no tiene evidencia, indicá que no se abordó.
 
 IMPORTANTE: NO escribas la sección 3 (Evaluación de potencial). En el lugar exacto donde iría, entre la 2 y la 4, escribí únicamente esta marca sola en una línea: [[SECCION_POTENCIAL]]. No escribas nada más de la sección 3. Seguí con la sección 4.
 
@@ -1176,11 +1176,8 @@ function _complSeccionPotencial(cand){
   const subTxt = sub === 'alto' ? ', en su pasaje al Estrato ' + ROM[estSig] : '';
 
   return '<h1>3. Evaluación de potencial (Metodología Elliott Jaques)</h1>' +
-    '<h2>3.1 Capacidad Potencial Actual (CPA)</h2>' +
     '<p>La Capacidad Potencial Actual del candidato se ubica en el <strong>Estrato ' + ROM[est] + ' ' + sub + '</strong>' + subTxt + ' (informe de potencial). ' + t.cpa + '</p>' +
-    '<p>Su horizonte de planeamiento actual es ' + t.hor + '.</p>' +
-    '<h2>3.2 Proyección</h2>' +
-    '<p>Según la metodología, en el mediano plazo el candidato se irá asentando progresivamente en este estrato, y en el largo plazo tenderá a consolidar su recorrido sobre la curva de maduración de Elliott Jaques. Esta proyección es estadística y orientadora (informe de potencial).</p>';
+    '<p>Su horizonte de planeamiento actual es ' + t.hor + '.</p>';
 }
   // Arma el HTML del informe complementario y lo abre para descargar
 // Red de seguridad: si Claude devuelve markdown, lo convierte a HTML
@@ -1233,7 +1230,7 @@ function _complLimpiarMarkdown(txt){
       <div class="conf">Confidencial</div>
     <div class="titulo">Informe Integrado de Evaluación de Talento</div>
     <p class="sub">${nombre}${cand.puesto ? ' · ' + cand.puesto : ''} · ${fecha}</p>
-    $${_complLimpiarMarkdown(analisisHtml).replace('[[SECCION_POTENCIAL]]', _complSeccionPotencial(cand))}
+    ${_complLimpiarMarkdown(analisisHtml).replace('[[SECCION_POTENCIAL]]', _complSeccionPotencial(cand))}
     <div class="pie">
       PotenciaIA es una herramienta de apoyo a la decisión. El juicio final corresponde al equipo de RRHH.<br>
       Informe complementario — documento separado del informe de potencial.<br>

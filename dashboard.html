@@ -1060,12 +1060,16 @@ async function generarComplementario(){
     if(cvB64){
       contenido.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data: cvB64 } });
     }
+     const ROM_PUESTO = ['','I','II','III','IV','V','VI','VII','VIII'];
+    const estratoPuestoTxt = cand.estrato_puesto ? ('Estrato ' + (ROM_PUESTO[cand.estrato_puesto]||cand.estrato_puesto)) : 'no especificado';
+
     contenido.push({ type:'text', text:
       'Datos del candidato:\n' +
       '- Nombre: ' + (cand.nombre||'—') + '\n' +
-      '- Puesto: ' + (cand.puesto||'—') + '\n' +
+      '- Puesto al que aspira: ' + (cand.puesto||'—') + '\n' +
+      '- Estrato requerido por el puesto (dato de referencia para evaluar fit): ' + estratoPuestoTxt + '\n' +
       '- Edad: ' + (cand.edad||'—') + '\n' +
-      '- Estrato del informe de potencial (NO recalcular, solo citar): ' + estratoTxt + '\n\n' +
+      '- Estrato del candidato según el informe de potencial (NO recalcular, solo citar): ' + estratoTxt + '\n\n'  +
       'Transcripción de la entrevista de rol:\n' + (entrevista || '(no se cargó entrevista de rol)') + '\n\n' +
       'El primer PDF es el reporte PDA (perfil conductual). ' + (cvB64 ? 'El segundo PDF es el CV.' : 'No se adjuntó CV.') + '\n\n' +
       'Generá el Informe Complementario según las instrucciones del sistema.'
@@ -1136,7 +1140,23 @@ No menciones ni asumas a qué empresa se postula el candidato. Las empresas del 
 - Citas textuales: MINIMIZALAS al máximo. Preferí siempre una reformulación analítica en tercera persona en lugar de citar. Si citás, que sea una frase de máximo 8-10 palabras, sin puntos suspensivos ni fragmentos cortados. - NIVEL DE SÍNTESIS: reducí el detalle. NO narres situaciones específicas cuando ya las interpretaste. El lector debe quedarse con el APRENDIZAJE sobre el candidato, no con la historia de lo ocurrido. Cada párrafo debe responder "¿qué demuestra este comportamiento?" y no "¿qué pasó?". Sé breve y ejecutivo. - NO REPITAS evidencia entre secciones. Si un hecho (ej: la decisión sobre el sindicato) ya se usó en el Análisis de la entrevista, NO lo vuelvas a contar en Fortalezas ni en Conclusión: en esas secciones referí la capacidad de forma sintética, sin re-narrar el mismo episodio. - No incluyas fragmentos que queden fuera de contexto o no aporten al análisis de la competencia evaluada. Si un dato no suma, elimínalo o intégralo con naturalidad. - Lenguaje profesional, ejecutivo, analítico y homogéneo en TODO el documento. - EJEMPLO INCORRECTO: "Cerrar dejé de darle plata al sindicato. El equipo me dijo estás loco y respondí si esto no funciona te renuncio." EJEMPLO CORRECTO: "Demuestra capacidad para tomar decisiones impopulares y sostenerlas frente a resistencias organizacionales; modificó una práctica histórica en la relación con el sindicato, asumiendo personalmente la responsabilidad por los resultados." - El nivel de síntesis de las secciones Fortalezas, Riesgos y Conclusión es el estándar esperado para TODO el documento, incluida la sección de entrevista.- NO agregues ningún título general ni nombre del candidato antes de la sección 1. La portada ya tiene el título. Arrancá DIRECTAMENTE con <h1>1. Fuentes utilizadas</h1>.
 
 Devolvé SOLO el contenido en HTML simple, usando <h1>, <h2>, <h3>, <p>, <strong>, <ul>, <li> cuando corresponda. NO uses <html>, <body> ni estilos inline. NO uses markdown (nada de #, ##, ---). NO agregues ningún título general, nombre del candidato ni encabezado antes de la sección 1: el documento YA tiene su portada con el título y el nombre. Arrancá DIRECTAMENTE con <h1>1. Fuentes utilizadas</h1>, sin nada antes.
+REGLAS DE CALIBRACIÓN CON EL ESTRATO (CRÍTICO — evita informes desalineados):
 
+1. COMPARACIÓN EXPLÍCITA OBLIGATORIA. En la Conclusión (sección 6) debés nombrar ambos estratos y declarar el fit de forma inequívoca. Formato obligatorio: "El candidato se ubica en el Estrato [X] [subestrato], mientras que el puesto requiere Estrato [Y]. Por lo tanto, [cubre / no alcanza / excede] la complejidad requerida por el rol." Nada de eufemismos ni frases vagas tipo "buen fit" o "adecuado encaje". Si no cubre, decilo con esas palabras.
+
+2. COHERENCIA LÉXICA CON LA BANDA DEL ESTRATO. El vocabulario de todo el informe (Fortalezas, Riesgos, Conclusión) debe ser consistente con la banda del estrato del candidato. Reglas de uso:
+   - Estrato I (cualquier subestrato): "desempeño operativo", "cumplimiento de tareas dentro de un marco definido". PROHIBIDO: "gerencial", "estratégico", "alto potencial".
+   - Estrato II bajo/medio: "gestión funcional consolidada", "primer nivel de conducción", "capacidad de diagnóstico acumulativo". PROHIBIDO: "alto potencial", "liderazgo estratégico", "visión sistémica", "gerencia plena".
+   - Estrato II alto: mismo vocabulario que II medio, pero puede sumarse "en transición hacia responsabilidades tácticas".
+   - Estrato III bajo/medio: "gerencia táctica", "planificación secuencial", "conducción directa de equipos". PROHIBIDO: "visión sistémica de largo plazo", "pensamiento en paralelo".
+   - Estrato III alto: puede sumarse "en transición hacia una lectura sistémica".
+   - Estrato IV: "gerencia plena", "manejo simultáneo de proyectos interdependientes", "trade-offs sistémicos", "alto potencial" (recién acá se habilita esta expresión).
+   La expresión "alto potencial" queda RESERVADA para Estrato IV o superior. Nunca la uses en estratos inferiores.
+
+3. SEPARAR TIEMPO PRESENTE Y PROYECCIÓN. Nunca mezcles en la misma oración "cómo se desempeña hoy en su rol actual" con "qué le falta desarrollar para asumir más complejidad". Son dos ideas distintas y deben ir en oraciones separadas, con conectores explícitos:
+   - Presente: "Hoy, en su rol actual, se desempeña...", "En su posición actual, muestra...".
+   - Proyección: "Para asumir roles de mayor complejidad, necesitaría...", "Su desarrollo futuro requiere...".
+   PROHIBIDO escribir cosas como "es un profesional sólido con potencial para crecer en estructuras que le den marcos claros" — esa frase mezcla desempeño actual (sólido) con una limitación de maduración (necesita marcos), y confunde al lector. Corregilo así: "Hoy es un profesional sólido en su rol actual. Para asumir roles de mayor complejidad en el futuro, requeriría desarrollar su capacidad de operar con marcos menos estructurados y horizontes más largos."
 ESTRUCTURA (respetá esta numeración y estos títulos, en HTML):
 
 <h1>1. Fuentes y trayectoria</h1>

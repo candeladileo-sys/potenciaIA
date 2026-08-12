@@ -419,7 +419,10 @@ window.guardarEntrevistaRol = async function(id, texto) {
   try { await updateDoc(doc(db, 'evaluaciones', id), { entrevista_rol: texto }); return true; }
   catch(e) { console.error('Error guardando entrevista de rol:', e); return false; }
 };
-
+window.guardarInformeComplementario = async function(id, htmlInforme) {
+  try { await updateDoc(doc(db, 'evaluaciones', id), { informe_complementario_html: htmlInforme, informe_complementario_fecha: new Date().toISOString() }); return true; }
+  catch(e) { console.error('Error guardando informe complementario:', e); return false; }
+};
 window.cargarDeFirebase = async function() {
   try {
     const q = query(collection(db, 'evaluaciones'), orderBy('timestamp', 'desc'));
@@ -708,11 +711,12 @@ function verInforme(i) {
   const c = candidatos[i];
   if (!c.estrato) return;
 
- document.getElementById('topbarRight').innerHTML = `
+const tieneComplementario = c._raw && c._raw.informe_complementario_html;
+  document.getElementById('topbarRight').innerHTML = `
     <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="go('dashboard')">← Volver al panel</button>
     <button class="btn btn-primary" style="font-size:12px;padding:6px 14px;" onclick="abrirInformeCompleto(${i})">↓ Descargar informe completo</button>
-    <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="abrirComplementario(${i})">+ Informe complementario</button>`;
-
+    <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="abrirComplementario(${i})">+ Informe complementario</button>
+    ${tieneComplementario ? `<button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="descargarComplementarioGuardado(${i})">↓ Informe complementario guardado</button>` : ''}`;
   const xBase=50,xRange=490,edadMin=20,edadMax=60;
   const yBase=190,yRange=170;
   const _subVis = (c.subestrato||'').toLowerCase().includes('alto') ? 'alto' :
@@ -989,7 +993,24 @@ function copiarLink(){
 
 // ── INFORME COMPLEMENTARIO (paso 1: captura de insumos) ──
 let _complIndex = null, _complData = {};
-
+function descargarComplementarioGuardado(i){
+  const c = candidatos[i];
+  const html = c._raw ? c._raw.informe_complementario_html : null;
+  if(!html){ alert('No hay informe complementario guardado para este candidato.'); return; }
+  try {
+    const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Informe_Complementario_' + (c.nombre||'candidato').replace(/\s+/g,'_') + '.html';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+  } catch(e){
+    const win = window.open('', '_blank');
+    if(win){ win.document.open(); win.document.write(html); win.document.close(); }
+  }
+}
 function abrirComplementario(i){
   _complIndex = i; _complData = {};
   const resetZone = (zoneId, icon) => {
@@ -1104,9 +1125,17 @@ if(!res.ok){
       throw new Error('Anthropic ' + res.status + ': ' + errTxt);
     }
 
-    const data = await res.json();
+   const data = await res.json();
     const analisis = data.content[0].text.trim();
-    _complAbrirInforme(cand, analisis);
+    const htmlInforme = _complAbrirInforme(cand, analisis);
+
+    // Guardar el informe en Firebase para re-descargarlo sin regenerar
+    const idCand = cand._raw ? cand._raw.id : null;
+    if(htmlInforme && idCand && typeof window.guardarInformeComplementario === 'function'){
+      const okG = await window.guardarInformeComplementario(idCand, htmlInforme);
+      if(okG && cand._raw){ cand._raw.informe_complementario_html = htmlInforme; }
+    }
+
     if(btnGen){ btnGen.disabled = false; btnGen.textContent = 'Generar informe complementario →'; }
     cerrarComplementario();
 
@@ -1285,6 +1314,7 @@ function _complLimpiarMarkdown(txt){
     const win = window.open('', '_blank');
     if(win){ win.document.open(); win.document.write(fullHtml); win.document.close(); }
   }
+  return fullHtml;
 }
 
 // ── GRABACIÓN DE ENTREVISTA DE ROL (Deepgram, sin agente) ──

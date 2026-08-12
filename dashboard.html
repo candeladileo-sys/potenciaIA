@@ -192,9 +192,45 @@ td.td-name{font-weight:600;color:var(--text);font-size:14px;}
   .view{display:block!important;}
   #viewDashboard{display:none!important;}
 }
+#loginScreen{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;align-items:center;justify-content:center;padding:24px;}
+body.sin-sesion #loginScreen{display:flex;}
+body.sin-sesion .topbar,body.sin-sesion .view{display:none!important;}
+body.cargando-sesion #loginScreen,body.cargando-sesion .topbar,body.cargando-sesion .view{display:none!important;}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:40px 36px;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
+.login-error{display:none;background:var(--rojo-light);color:var(--rojo);font-size:13px;padding:10px 12px;border-radius:8px;margin-bottom:16px;}
+.login-error.visible{display:block;}
 </style>
 </head>
 <body>
+
+</head>
+<body class="cargando-sesion">
+
+<!-- LOGIN -->
+<div id="loginScreen">
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">P</div>
+      <span class="logo-name">PotenciaIA</span>
+    </div>
+    <div id="loginError" class="login-error"></div>
+    <form id="loginForm" onsubmit="return manejarLogin(event)">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="loginEmail" required autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" type="password" id="loginPassword" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary" id="loginBtn" style="width:100%;justify-content:center;">Ingresar</button>
+    </form>
+  </div>
+</div>
 
 <!-- TOPBAR -->
 <div class="topbar">
@@ -397,6 +433,7 @@ td.td-name{font-weight:600;color:var(--text);font-size:14px;}
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, getDocs, orderBy, query, doc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBHM3tvO-LmzMvTkCIKC476tE3sqmJs1QM",
@@ -409,7 +446,26 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
+window.hacerLogin = async function(email, password) {
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    return { ok: true };
+  } catch (e) {
+    console.error('Error de login:', e);
+    return { ok: false, error: e.code };
+  }
+};
+
+window.hacerLogout = async function() {
+  try { await signOut(auth); }
+  catch(e) { console.error('Error al cerrar sesión:', e); }
+};
+
+window.escucharSesion = function(callback) {
+  onAuthStateChanged(auth, callback);
+};
 window.eliminarDeFirebase = async function(id) {
   try { await deleteDoc(doc(db, 'evaluaciones', id)); return true; }
   catch(e) { console.error('Error eliminando:', e); return false; }
@@ -1892,15 +1948,71 @@ function renderInformeCompleto(c, CURVA_IMG) {
 }
 
   
-// INIT
-setTimeout(async () => {
-  await cargarYRenderizar();
-  if (candidatos.length === 0) {
-    candidatos = candidatosEjemplo;
-    renderTabla();
-    renderStats();
+// LOGIN
+async function manejarLogin(event) {
+  event.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const btn = document.getElementById('loginBtn');
+  const errorBox = document.getElementById('loginError');
+  errorBox.classList.remove('visible');
+  btn.disabled = true;
+  btn.textContent = 'Ingresando...';
+  const resultado = await window.hacerLogin(email, password);
+  if (!resultado.ok) {
+    const mensajes = {
+      'auth/invalid-credential': 'Email o contraseña incorrectos.',
+      'auth/invalid-email': 'El email no es válido.',
+      'auth/user-not-found': 'Email o contraseña incorrectos.',
+      'auth/wrong-password': 'Email o contraseña incorrectos.',
+      'auth/too-many-requests': 'Demasiados intentos. Probá de nuevo en unos minutos.'
+    };
+    errorBox.textContent = mensajes[resultado.error] || 'No se pudo iniciar sesión. Probá de nuevo.';
+    errorBox.classList.add('visible');
+    btn.disabled = false;
+    btn.textContent = 'Ingresar';
   }
-}, 800);
+  return false;
+}
+
+// INIT
+let sesionYaVerificada = false;
+
+setTimeout(async () => {
+  let intentos = 0;
+  while (typeof window.escucharSesion !== 'function' && intentos < 30) {
+    await new Promise(r => setTimeout(r, 200));
+    intentos++;
+  }
+
+  if (typeof window.escucharSesion !== 'function') {
+    document.body.classList.remove('cargando-sesion');
+    document.body.classList.add('sin-sesion');
+    return;
+  }
+
+  window.escucharSesion(async (user) => {
+    if (user) {
+      document.body.classList.remove('cargando-sesion', 'sin-sesion');
+      if (!sesionYaVerificada) {
+        sesionYaVerificada = true;
+        await cargarYRenderizar();
+        if (candidatos.length === 0) {
+          candidatos = candidatosEjemplo;
+          renderTabla();
+          renderStats();
+        }
+      }
+    } else {
+      if (sesionYaVerificada) {
+        location.reload();
+        return;
+      }
+      document.body.classList.remove('cargando-sesion');
+      document.body.classList.add('sin-sesion');
+    }
+  });
+}, 300);
 </script>
 </body>
 </html>

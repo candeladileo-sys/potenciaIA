@@ -237,9 +237,10 @@ body.cargando-sesion #loginScreen,body.cargando-sesion .topbar,body.cargando-ses
     <div class="logo-icon">P</div>
     <span class="logo-name">PotenciaIA</span>
   </div>
-  <div style="display:flex;align-items:center;gap:10px;" id="topbarRight">
+<div style="display:flex;align-items:center;gap:10px;" id="topbarRight">
     <span class="hr-badge">Panel HR</span>
     <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="go('dashboard')">↻ Actualizar</button>
+    <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="hacerLogout()">Cerrar sesión</button>
   </div>
 </div>
 
@@ -959,10 +960,11 @@ const tieneComplementario = c._raw && c._raw.informe_complementario_html;
 function go(vista) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById(vista==='informe'?'viewInforme':'viewDashboard').classList.add('active');
-  if(vista==='dashboard'){
+ if(vista==='dashboard'){
     document.getElementById('topbarRight').innerHTML=`
       <span class="hr-badge">Panel HR</span>
-      <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="cargarYRenderizar()">↻ Actualizar</button>`;
+      <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="cargarYRenderizar()">↻ Actualizar</button>
+      <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="hacerLogout()">Cerrar sesión</button>`;
   }
   window.scrollTo(0,0);
 }

@@ -637,6 +637,7 @@ const estratoPuesto    = parseInt(urlParams.get('estrato_puesto'))    || null;
 const sessionToken     = urlParams.get('token')                       || '';
 const apiKeyFromUrl    = (urlParams.get('anthropic_key') || urlParams.get('api_key') || '').trim();  // opcional
 const deepgramKey      = (urlParams.get('dg_key') || urlParams.get('deepgram_key') || '').trim();
+const clienteId        = urlParams.get('cliente_id') || '';
 
 // Mostrar banner si vino por link
 if (candidatoNombre || candidatoEdad || candidatoPuesto) {
@@ -1389,6 +1390,7 @@ async function endInterview() {
     edad:             candidatoEdad   || null,   // ← CLAVE para calcular CPF en el dashboard
     puesto:           candidatoPuesto || null,
     estrato_puesto:   estratoPuesto   || null,   // ← CLAVE para comparar fit
+    cliente_id:       clienteId       || null,   // ← CLAVE: a qué cliente HR pertenece esta evaluación
     token:            sessionToken    || null,
     tema:             selectedTopic,
     duracion:         `${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,

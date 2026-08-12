@@ -443,7 +443,7 @@ body.cuenta-bloqueada #bloqueadoScreen{display:flex;}
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, getDocs, orderBy, query, doc, getDoc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, orderBy, query, where, doc, getDoc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 const firebaseConfig = {
@@ -490,6 +490,10 @@ window.chequearEstadoCliente = async function(uid) {
   }
 };
 
+window.getCurrentUid = function() {
+  return auth.currentUser ? auth.currentUser.uid : null;
+};
+
 window.eliminarDeFirebase = async function(id) {
   try { await deleteDoc(doc(db, 'evaluaciones', id)); return true; }
   catch(e) { console.error('Error eliminando:', e); return false; }
@@ -505,7 +509,9 @@ window.guardarInformeComplementario = async function(id, htmlInforme) {
 };
 window.cargarDeFirebase = async function() {
   try {
-    const q = query(collection(db, 'evaluaciones'), orderBy('timestamp', 'desc'));
+    const uid = window.getCurrentUid();
+    if (!uid) return [];
+    const q = query(collection(db, 'evaluaciones'), where('cliente_id', '==', uid), orderBy('timestamp', 'desc'));
     const snapshot = await getDocs(q);
     const datos = [];
     snapshot.forEach(doc => datos.push({ id: doc.id, ...doc.data() }));
@@ -1058,7 +1064,9 @@ function generarLink(){
   const deepgramKey=document.getElementById('f_deepgram_key').value.trim();
   if(!anthropicKey){alert('Por favor ingresá la Anthropic API Key.');return;}
   if(!deepgramKey){alert('Por favor ingresá la Deepgram API Key.');return;}
-  const url=`https://candeladileo-sys.github.io/potenciaIA/?token=${token}&nombre=${encodeURIComponent(nombre)}&edad=${edad}&puesto=${encodeURIComponent(puesto)}&estrato_puesto=${estratoNum}&anthropic_key=${encodeURIComponent(anthropicKey)}&dg_key=${encodeURIComponent(deepgramKey)}`;
+  const clienteId=(typeof window.getCurrentUid==='function'?window.getCurrentUid():null)||'';
+  if(!clienteId){alert('No se pudo identificar tu cuenta. Volvé a loguearte e intentá de nuevo.');return;}
+  const url=`https://candeladileo-sys.github.io/potenciaIA/?token=${token}&nombre=${encodeURIComponent(nombre)}&edad=${edad}&puesto=${encodeURIComponent(puesto)}&estrato_puesto=${estratoNum}&anthropic_key=${encodeURIComponent(anthropicKey)}&dg_key=${encodeURIComponent(deepgramKey)}&cliente_id=${encodeURIComponent(clienteId)}`;
   document.getElementById('linkUrl').textContent=url;
   document.getElementById('linkBox').classList.add('visible');
   document.getElementById('btnSig').disabled=true;

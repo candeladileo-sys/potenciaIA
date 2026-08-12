@@ -196,10 +196,14 @@ td.td-name{font-weight:600;color:var(--text);font-size:14px;}
 body.sin-sesion #loginScreen{display:flex;}
 body.sin-sesion .topbar,body.sin-sesion .view{display:none!important;}
 body.cargando-sesion #loginScreen,body.cargando-sesion .topbar,body.cargando-sesion .view{display:none!important;}
+body.cargando-sesion #bloqueadoScreen,body.cuenta-bloqueada #loginScreen,body.cuenta-bloqueada .topbar,body.cuenta-bloqueada .view{display:none!important;}
 .login-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:40px 36px;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
 .login-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
 .login-error{display:none;background:var(--rojo-light);color:var(--rojo);font-size:13px;padding:10px 12px;border-radius:8px;margin-bottom:16px;}
 .login-error.visible{display:block;}
+#bloqueadoScreen{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;align-items:center;justify-content:center;padding:24px;}
+body.cuenta-bloqueada #bloqueadoScreen{display:flex;}
+.bloqueado-icon{width:48px;height:48px;border-radius:50%;background:var(--rojo-light);color:var(--rojo);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 20px;}
 </style>
 </head>
 <body class="cargando-sesion">
@@ -223,6 +227,18 @@ body.cargando-sesion #loginScreen,body.cargando-sesion .topbar,body.cargando-ses
       </div>
       <button type="submit" class="btn btn-primary" id="loginBtn" style="width:100%;justify-content:center;">Ingresar</button>
     </form>
+  </div>
+</div>
+
+<!-- CUENTA BLOQUEADA -->
+<div id="bloqueadoScreen">
+  <div class="login-card" style="text-align:center;">
+    <div class="bloqueado-icon">!</div>
+    <div class="login-logo" style="justify-content:center;">
+      <span class="logo-name">PotenciaIA</span>
+    </div>
+    <p style="font-size:14px;color:var(--text-dim);line-height:1.6;margin-bottom:24px;" id="bloqueadoMensaje">Tu cuenta está suspendida. Regularizá el pago para continuar.</p>
+    <button class="btn btn-outline" style="width:100%;justify-content:center;" onclick="hacerLogout()">Cerrar sesión</button>
   </div>
 </div>
 
@@ -427,7 +443,7 @@ body.cargando-sesion #loginScreen,body.cargando-sesion .topbar,body.cargando-ses
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, getDocs, orderBy, query, doc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, orderBy, query, doc, getDoc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 const firebaseConfig = {
@@ -461,6 +477,19 @@ window.hacerLogout = async function() {
 window.escucharSesion = function(callback) {
   onAuthStateChanged(auth, callback);
 };
+
+window.chequearEstadoCliente = async function(uid) {
+  try {
+    const snap = await getDoc(doc(db, 'clientes', uid));
+    if (!snap.exists()) return { activa: false, nombre: '' };
+    const data = snap.data();
+    return { activa: data.estado === 'activa', nombre: data.nombre || '' };
+  } catch (e) {
+    console.error('Error chequeando estado del cliente:', e);
+    return { activa: false, nombre: '' };
+  }
+};
+
 window.eliminarDeFirebase = async function(id) {
   try { await deleteDoc(doc(db, 'evaluaciones', id)); return true; }
   catch(e) { console.error('Error eliminando:', e); return false; }
@@ -1989,9 +2018,14 @@ setTimeout(async () => {
 
   window.escucharSesion(async (user) => {
     if (user) {
-      document.body.classList.remove('cargando-sesion', 'sin-sesion');
       if (!sesionYaVerificada) {
         sesionYaVerificada = true;
+        const estadoCliente = await window.chequearEstadoCliente(user.uid);
+        document.body.classList.remove('cargando-sesion', 'sin-sesion');
+        if (!estadoCliente.activa) {
+          document.body.classList.add('cuenta-bloqueada');
+          return;
+        }
         await cargarYRenderizar();
         if (candidatos.length === 0) {
           candidatos = candidatosEjemplo;

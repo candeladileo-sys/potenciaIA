@@ -333,17 +333,6 @@ body.cuenta-bloqueada #bloqueadoScreen{display:flex;}
           <label class="form-label">Descripción del rol (opcional)</label>
           <textarea class="form-input" id="f_desc" rows="3" placeholder="Responsabilidades principales..." style="resize:vertical"></textarea>
         </div>
-        <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:10px;padding:16px 18px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;">🔑 API Keys — viajan en el link del candidato</div>
-          <div class="form-group" style="margin-bottom:12px;">
-            <label class="form-label">Anthropic API Key</label>
-            <input type="password" class="form-input" id="f_anthropic_key" placeholder="sk-ant-api03-..." autocomplete="off"/>
-          </div>
-          <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label">Deepgram API Key</label>
-            <input type="password" class="form-input" id="f_deepgram_key" placeholder="dg_..." autocomplete="off"/>
-          </div>
-        </div>
       </div>
       <!-- Paso 2 -->
       <div id="step2" style="display:none">
@@ -371,9 +360,6 @@ body.cuenta-bloqueada #bloqueadoScreen{display:flex;}
           <div class="resumen-item"><div class="resumen-label">Candidato</div><div class="resumen-value" id="r_nombre">—</div></div>
           <div class="resumen-item"><div class="resumen-label">Edad</div><div class="resumen-value" id="r_edad">—</div></div>
           <div class="resumen-item"><div class="resumen-label">Email</div><div class="resumen-value" id="r_email" style="font-size:12px">—</div></div>
-        
-          <div class="resumen-item"><div class="resumen-label">Anthropic Key</div><div class="resumen-value" id="r_ak" style="font-size:11px">—</div></div>
-          <div class="resumen-item"><div class="resumen-label">Deepgram Key</div><div class="resumen-value" id="r_dk" style="font-size:11px">—</div></div>
         </div>
         <div style="background:var(--azul-light);border:1px solid var(--azul-soft);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#0d3d70;">
           <strong>Tema del discurso:</strong> se asignará al azar al momento de la evaluación.
@@ -1046,12 +1032,6 @@ function rellenarResumen(){
   document.getElementById('r_nombre').textContent=document.getElementById('f_nombre').value||'—';
   document.getElementById('r_edad').textContent=document.getElementById('f_edad').value?document.getElementById('f_edad').value+' años':'—';
   document.getElementById('r_email').textContent=document.getElementById('f_email').value||'—';
-  const _ak=document.getElementById('f_anthropic_key').value;
-  const _dk=document.getElementById('f_deepgram_key').value;
-  document.getElementById('r_ak').textContent=_ak?'✓ Cargada':'⚠ No ingresada';
-  document.getElementById('r_ak').style.color=_ak?'var(--verde)':'#e67e22';
-  document.getElementById('r_dk').textContent=_dk?'✓ Cargada':'⚠ No ingresada';
-  document.getElementById('r_dk').style.color=_dk?'var(--verde)':'#e67e22';
 }
 
 function generarLink(){
@@ -1060,13 +1040,9 @@ function generarLink(){
   const edad=document.getElementById('f_edad').value||'';
   const puesto=document.getElementById('f_puesto').value||'';
   const estratoNum=document.getElementById('f_horizonte').value||'';
-  const anthropicKey=document.getElementById('f_anthropic_key').value.trim();
-  const deepgramKey=document.getElementById('f_deepgram_key').value.trim();
-  if(!anthropicKey){alert('Por favor ingresá la Anthropic API Key.');return;}
-  if(!deepgramKey){alert('Por favor ingresá la Deepgram API Key.');return;}
   const clienteId=(typeof window.getCurrentUid==='function'?window.getCurrentUid():null)||'';
   if(!clienteId){alert('No se pudo identificar tu cuenta. Volvé a loguearte e intentá de nuevo.');return;}
-  const url=`https://candeladileo-sys.github.io/potenciaIA/?token=${token}&nombre=${encodeURIComponent(nombre)}&edad=${edad}&puesto=${encodeURIComponent(puesto)}&estrato_puesto=${estratoNum}&anthropic_key=${encodeURIComponent(anthropicKey)}&dg_key=${encodeURIComponent(deepgramKey)}&cliente_id=${encodeURIComponent(clienteId)}`;
+  const url=`https://candeladileo-sys.github.io/potenciaIA/?token=${token}&nombre=${encodeURIComponent(nombre)}&edad=${edad}&puesto=${encodeURIComponent(puesto)}&estrato_puesto=${estratoNum}&cliente_id=${encodeURIComponent(clienteId)}`;
   document.getElementById('linkUrl').textContent=url;
   document.getElementById('linkBox').classList.add('visible');
   document.getElementById('btnSig').disabled=true;
@@ -1187,19 +1163,10 @@ async function generarComplementario(){
 
     const systemPrompt = _complSystemPrompt();
 
-    const apiKey = _complObtenerKey();
-    if(!apiKey){
-      if(btnGen){ btnGen.disabled = false; btnGen.textContent = 'Generar informe complementario →'; }
-      return;
-    }
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://potenciaia-proxy.dileocande.workers.dev', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
@@ -1407,15 +1374,6 @@ function _complLimpiarMarkdown(txt){
 }
 
 // ── GRABACIÓN DE ENTREVISTA DE ROL (Deepgram, sin agente) ──
-const DEEPGRAM_KEY_DASHBOARD = '83364351e114c305e1d0c526e5ba58ae82beeacc';
-let ANTHROPIC_KEY_DASHBOARD = '';
-function _complObtenerKey(){
-  if(!ANTHROPIC_KEY_DASHBOARD){
-    const k = prompt('Pegá tu API key de Anthropic (empieza con sk-ant-).\nSe usa solo en esta sesión, no se guarda en el código.');
-    if(k && k.trim()){ ANTHROPIC_KEY_DASHBOARD = k.trim(); }
-  }
-  return ANTHROPIC_KEY_DASHBOARD;
-}
 let _complMediaRecorder = null, _complChunks = [], _complStream = null, _complGrabando = false, _complCronoInt = null, _complSegundos = 0;
 
 function _complSetEstado(txt, color){
@@ -1527,11 +1485,10 @@ async function _complDetenerGrabacion(){
 }
 
 async function _complTranscribir(audioBlob){
-  const url = 'https://api.deepgram.com/v1/listen?model=nova-3&language=es&smart_format=true&punctuate=true';
+  const url = 'https://potenciaia-proxy.dileocande.workers.dev/deepgram-listen?model=nova-3&language=es&smart_format=true&punctuate=true';
   const resp = await fetch(url, {
     method: 'POST',
     headers: {
-      'Authorization': 'Token ' + DEEPGRAM_KEY_DASHBOARD,
       'Content-Type': audioBlob.type
     },
     body: audioBlob

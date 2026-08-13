@@ -506,11 +506,7 @@ window.actualizarEvaluacion = async function(id, data) {
         <li>Todo el intercambio es por voz</li>
       </ul>
 
-      <!-- API key: solo visible si no viene por link -->
-      <div class="api-input-group" id="apiKeyGroup">
-        <label>API Key de Anthropic</label>
-        <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
-      </div>
+      <!-- API key de Anthropic: ya no hace falta, el Worker se encarga -->
 
       <div style="margin-top:20px; padding:16px; background:var(--azul-light); border:1.5px solid var(--azul-mid); border-radius:8px; display:flex; align-items:center; justify-content:space-between; gap:16px;">
         <div>
@@ -635,8 +631,6 @@ const candidatoEdad    = parseInt(urlParams.get('edad'))              || null;
 const candidatoPuesto  = decodeURIComponent(urlParams.get('puesto')  || '');
 const estratoPuesto    = parseInt(urlParams.get('estrato_puesto'))    || null;
 const sessionToken     = urlParams.get('token')                       || '';
-const apiKeyFromUrl    = (urlParams.get('anthropic_key') || urlParams.get('api_key') || '').trim();  // opcional
-const deepgramKey      = (urlParams.get('dg_key') || urlParams.get('deepgram_key') || '').trim();
 const clienteId        = urlParams.get('cliente_id') || '';
 
 // Mostrar banner si vino por link
@@ -650,10 +644,6 @@ if (candidatoNombre || candidatoEdad || candidatoPuesto) {
   if (candidatoEdad)   document.getElementById('ciEdad').textContent    = `${candidatoEdad} años`;
   if (candidatoPuesto) document.getElementById('ciPuesto').textContent  = candidatoPuesto;
   if (estratoPuesto)   document.getElementById('ciEstratoPuesto').textContent = `Puesto E ${['','I','II','III','IV','V'][estratoPuesto] || estratoPuesto}`;
-  // Ocultar el campo de API key si ya viene configurado o en modo candidato
-  if (apiKeyFromUrl) {
-    document.getElementById('apiKeyGroup').style.display = 'none';
-  }
 }
 
 // ══════════════════════════════════════════════════
@@ -665,19 +655,12 @@ function toggleDemo() {
   demoMode = document.getElementById('demoToggle').checked;
   const slider  = document.getElementById('demoSlider');
   const knob    = document.getElementById('demoKnob');
-  const apiInput = document.getElementById('apiKeyInput');
   if (demoMode) {
     slider.style.background = 'var(--verde)';
     knob.style.transform = 'translateX(20px)';
-    apiInput.disabled = true;
-    apiInput.placeholder = 'No requerida en modo demo';
-    apiInput.style.opacity = '0.4';
   } else {
     slider.style.background = '#cdd3da';
     knob.style.transform = 'translateX(0)';
-    apiInput.disabled = false;
-    apiInput.placeholder = 'sk-ant-...';
-    apiInput.style.opacity = '1';
   }
 }
 
@@ -700,7 +683,6 @@ const TOPICS = [
 // ══════════════════════════════════════════════════
 // ESTADO GLOBAL
 // ══════════════════════════════════════════════════
-let apiKey = apiKeyFromUrl || '';
 let selectedTopic = '';
 let timerInterval = null;
 let elapsedSeconds = 0;
@@ -834,12 +816,7 @@ function speak(text) {
 
 // ── SETUP ──
 function startSetup() {
-  const inputKey = document.getElementById('apiKeyInput').value.trim();
-  if (inputKey) apiKey = inputKey;
-  if (!demoMode && !apiKey) {
-    alert('Por favor ingresá tu API Key de Anthropic, o activá el Modo Demo.');
-    return;
-  }
+  // La clave de Anthropic ahora la maneja el Worker, no hace falta pedirla acá.
   let newTopic, attempts = 0;
   do {
     newTopic = TOPICS[Math.floor(Math.random() * TOPICS.length)];
@@ -1072,7 +1049,6 @@ let audioChunks = [];
 let audioStream = null;
 
 async function startDeepgramRecording() {
-  if (!deepgramKey) { console.warn('Sin Deepgram key: se usa solo el reconocimiento del navegador.'); return false; }
   try {
     audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
     audioChunks = [];
@@ -1111,12 +1087,11 @@ function stopDeepgramRecording() {
 }
 
 async function transcribeWithDeepgram(audioBlob) {
-  if (!audioBlob || !deepgramKey) return null;
+  if (!audioBlob) return null;
   try {
-    const res = await fetch('https://api.deepgram.com/v1/listen?model=nova-3&language=es&smart_format=true&punctuate=true', {
+    const res = await fetch('https://potenciaia-proxy.dileocande.workers.dev/deepgram-listen?model=nova-3&language=es&smart_format=true&punctuate=true', {
       method: 'POST',
       headers: {
-        'Authorization': 'Token ' + deepgramKey,
         'Content-Type': audioBlob.type || 'audio/webm'
       },
       body: audioBlob
@@ -1185,13 +1160,10 @@ FÓRMULAS: "Antes dijiste [palabras literales], ¿podés ampliar eso?", "¿Qué 
 Máximo 15 palabras. Solo la frase, sin comillas ni prefijos.`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://potenciaia-proxy.dileocande.workers.dev', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
@@ -1662,13 +1634,10 @@ TRANSCRIPT:
 ${transcript}`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://potenciaia-proxy.dileocande.workers.dev', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',

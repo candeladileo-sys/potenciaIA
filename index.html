@@ -528,6 +528,13 @@ window.actualizarEvaluacion = async function(id, data) {
           </span>
         </label>
       </div>
+
+      <div style="margin-top:20px; padding:16px; background:#f8f9fb; border:1.5px solid var(--border); border-radius:8px;">
+        <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; font-size:13px; line-height:1.6; color:var(--text-dim);">
+          <input type="checkbox" id="consentimientoCheck" style="margin-top:3px; flex-shrink:0;"/>
+          <span>Entiendo que esta entrevista se grabará en audio, se transcribirá y se analizará para evaluar mi potencial cognitivo, y que el resultado será compartido con la empresa que me invitó a participar.</span>
+        </label>
+      </div>
     </div>
     <div class="btn-row">
       <button class="btn btn-primary" onclick="startSetup()">Comenzar evaluación →</button>
@@ -839,9 +846,22 @@ function speak(text) {
 }
 
 // ── SETUP ──
-function startSetup() {
+async function startSetup() {
   // La clave de Anthropic ahora la maneja el Worker, no hace falta pedirla acá.
   if (linkExpirado) { showScreen('screenExpirado'); return; }
+  if (!document.getElementById('consentimientoCheck').checked) {
+    alert('Para continuar, tenés que aceptar que la entrevista se grabará y analizará.');
+    return;
+  }
+  if (!demoMode) {
+    try {
+      const testStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      testStream.getTracks().forEach(t => t.stop()); // solo probamos el permiso, todavía no grabamos
+    } catch (err) {
+      alert('No pudimos acceder a tu micrófono. Revisá que tu navegador tenga permiso para usarlo (buscá el ícono de micrófono en la barra de direcciones) e intentá de nuevo.');
+      return;
+    }
+  }
   let newTopic, attempts = 0;
   do {
     newTopic = TOPICS[Math.floor(Math.random() * TOPICS.length)];
@@ -1395,6 +1415,8 @@ async function endInterview() {
     estrato_puesto:   estratoPuesto   || null,   // ← CLAVE para comparar fit
     cliente_id:       clienteId       || null,   // ← CLAVE: a qué cliente HR pertenece esta evaluación
     token:            sessionToken    || null,
+    consentimiento_otorgado: true,
+    consentimiento_fecha:    new Date().toISOString(),
     tema:             selectedTopic,
     duracion:         `${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
     duracion_segundos: elapsedSeconds,

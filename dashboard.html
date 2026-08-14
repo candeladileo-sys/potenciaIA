@@ -411,6 +411,12 @@ body.cuenta-bloqueada #bloqueadoScreen{display:flex;}
           <div class="link-url" id="linkUrl"></div>
           <button class="link-copy" onclick="copiarLink()">Copiar link</button>
         </div>
+        <div class="link-box" id="mensajeBox" style="margin-top:12px;text-align:left;">
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px;text-align:center;">✉️ Mensaje sugerido para el candidato</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;text-align:center;">Copialo y mandaselo junto con (o en vez del) link solo — así sabe qué esperar.</div>
+          <textarea id="mensajeCandidato" readonly style="width:100%;min-height:180px;font-family:'Inter',sans-serif;font-size:13px;line-height:1.6;padding:12px;border:1px solid var(--border);border-radius:8px;background:#f8f9fb;color:var(--text);resize:vertical;"></textarea>
+          <button class="link-copy" style="margin-top:10px;" onclick="copiarMensaje()">Copiar mensaje</button>
+        </div>
       </div>
     </div>
     <div class="wizard-footer">
@@ -583,6 +589,16 @@ window.agregarCreditos = async function(uid, cantidad) {
     return true;
   } catch (e) {
     console.error('Error agregando créditos:', e);
+    return false;
+  }
+};
+
+window.eliminarCliente = async function(uid) {
+  try {
+    await deleteDoc(doc(db, 'clientes', uid));
+    return true;
+  } catch (e) {
+    console.error('Error eliminando cliente:', e);
     return false;
   }
 };
@@ -1151,10 +1167,19 @@ async function cargarPanelAdmin(){
         <button class="btn btn-outline" style="font-size:12px;padding:6px 10px;" onclick="toggleEstadoCliente('${c.uid}','${c.estado}')">
           ${c.estado==='activa' ? 'Bloquear' : 'Activar'}
         </button>
+        <button class="btn btn-outline" style="font-size:12px;padding:6px 10px;color:var(--rojo);" onclick="eliminarClienteDesdePanel('${c.uid}','${nombreEscapado}')">Eliminar</button>
       </td>
     </tr>`;
   }));
   tbody.innerHTML = filas.join('');
+}
+
+async function eliminarClienteDesdePanel(uid, nombre){
+  const confirmado = confirm(`¿Seguro que querés eliminar la ficha de "${nombre}"?\n\nNo va a poder loguearse más. Sus evaluaciones NO se borran, quedan intactas en Firestore.\n\nPara borrar también su usuario de acceso (email/contraseña), hacelo aparte en Firebase Authentication.`);
+  if(!confirmado) return;
+  const ok = await window.eliminarCliente(uid);
+  if(ok) cargarPanelAdmin();
+  else alert('No se pudo eliminar. Revisá la consola.');
 }
 
 async function agregarCreditosDesdePanel(uid, nombre){
@@ -1265,8 +1290,33 @@ async function generarLink(){
   const url=`https://candeladileo-sys.github.io/potenciaIA/?token=${token}&nombre=${encodeURIComponent(nombre)}&edad=${edad}&puesto=${encodeURIComponent(puesto)}&estrato_puesto=${estratoNum}&cliente_id=${encodeURIComponent(clienteId)}&generado=${Date.now()}`;
   document.getElementById('linkUrl').textContent=url;
   document.getElementById('linkBox').classList.add('visible');
+  document.getElementById('mensajeBox').classList.add('visible');
+  document.getElementById('mensajeCandidato').value = generarMensajeCandidato(nombre, url);
   document.getElementById('btnSig').disabled=true;
   document.getElementById('btnSig').textContent='Link generado ✓';
+}
+
+function generarMensajeCandidato(nombre, url){
+  const primerNombre = (nombre || '').trim().split(' ')[0] || 'candidato/a';
+  return `Hola ${primerNombre}! Te invitamos a completar una breve evaluación online, no te va a tomar más de 15 minutos.
+
+Entrá a este link: ${url}
+
+Ahí vas a escuchar una consigna, vas a tener unos segundos para pensar, y después vas a hablar libremente sobre un tema (se asigna al azar) durante 6 a 10 minutos. No necesitás prepararte con nada de antemano, solo hablar con naturalidad.
+
+Recomendaciones:
+- Buscá un lugar tranquilo, sin ruido de fondo.
+- Si podés, usá auriculares con micrófono.
+- Dale permiso al micrófono cuando el navegador te lo pida.
+
+Al terminar vas a ver un mensaje de confirmación en pantalla — ahí ya está, no hay que hacer nada más. ¡Gracias!`;
+}
+
+function copiarMensaje(){
+  navigator.clipboard.writeText(document.getElementById('mensajeCandidato').value).then(()=>{
+    const btn = document.querySelector('#mensajeBox .link-copy');
+    if(btn){ btn.textContent='¡Copiado!'; setTimeout(()=>btn.textContent='Copiar mensaje',2000); }
+  });
 }
 
 function copiarLink(){

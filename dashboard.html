@@ -741,6 +741,10 @@ const estratosMap = {
 // ── TABLA ──
 function renderTabla() {
   const tbody = document.getElementById('tablaBody');
+  if (candidatos.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="padding:48px 24px;text-align:center;color:var(--text-dim);">Todavía no generaste ninguna evaluación.<br>Click en "+ Nueva evaluación" para empezar.</td></tr>`;
+    return;
+  }
   tbody.innerHTML = candidatos.map((c,i) => {
     const eClass  = c.estrato ? `e${c.estrato}` : '';
     const eLabel  = c.estrato ? `E ${estratosNombres[c.estrato]} — ${c.patron}` : '—';
@@ -1258,7 +1262,7 @@ async function generarLink(){
       return;
     }
   }
-  const url=`https://candeladileo-sys.github.io/potenciaIA/?token=${token}&nombre=${encodeURIComponent(nombre)}&edad=${edad}&puesto=${encodeURIComponent(puesto)}&estrato_puesto=${estratoNum}&cliente_id=${encodeURIComponent(clienteId)}`;
+  const url=`https://candeladileo-sys.github.io/potenciaIA/?token=${token}&nombre=${encodeURIComponent(nombre)}&edad=${edad}&puesto=${encodeURIComponent(puesto)}&estrato_puesto=${estratoNum}&cliente_id=${encodeURIComponent(clienteId)}&generado=${Date.now()}`;
   document.getElementById('linkUrl').textContent=url;
   document.getElementById('linkBox').classList.add('visible');
   document.getElementById('btnSig').disabled=true;
@@ -1382,7 +1386,8 @@ async function generarComplementario(){
     const res = await fetch('https://potenciaia-proxy.dileocande.workers.dev', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-App-Secret': 'pASCHdB6WZOwoIRIHDwmxKweF-u2R1eLNK0p3fHP9JA'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
@@ -1705,7 +1710,8 @@ async function _complTranscribir(audioBlob){
   const resp = await fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': audioBlob.type
+      'Content-Type': audioBlob.type,
+      'X-App-Secret': 'pASCHdB6WZOwoIRIHDwmxKweF-u2R1eLNK0p3fHP9JA'
     },
     body: audioBlob
   });
@@ -2214,11 +2220,6 @@ setTimeout(async () => {
         }
         actualizarBadgeCreditos();
         await cargarYRenderizar();
-        if (candidatos.length === 0) {
-          candidatos = candidatosEjemplo;
-          renderTabla();
-          renderStats();
-        }
       }
     } else {
       if (sesionYaVerificada) {

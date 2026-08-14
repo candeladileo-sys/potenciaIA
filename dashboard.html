@@ -250,6 +250,7 @@ body.cuenta-bloqueada #bloqueadoScreen{display:flex;}
   </div>
   <div style="display:flex;align-items:center;gap:10px;" id="topbarRight">
     <span class="hr-badge">Panel HR</span>
+    <span class="hr-badge" id="creditosBadge" style="display:none;">—</span>
     <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;display:none;" id="btnPanelAdminTopbar" onclick="go('admin')">⚙ Panel Admin</button>
     <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="go('dashboard')">↻ Actualizar</button>
     <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="hacerLogout()">Cerrar sesión</button>
@@ -305,11 +306,12 @@ body.cuenta-bloqueada #bloqueadoScreen{display:flex;}
             <th style="padding:12px 16px;font-size:12px;color:var(--text-dim);">Cliente</th>
             <th style="padding:12px 16px;font-size:12px;color:var(--text-dim);">Estado</th>
             <th style="padding:12px 16px;font-size:12px;color:var(--text-dim);">UID</th>
+            <th style="padding:12px 16px;font-size:12px;color:var(--text-dim);">Créditos</th>
             <th style="padding:12px 16px;"></th>
           </tr>
         </thead>
         <tbody id="adminTablaBody">
-          <tr><td colspan="4" style="padding:16px;color:var(--text-dim);">Cargando...</td></tr>
+          <tr><td colspan="5" style="padding:16px;color:var(--text-dim);">Cargando...</td></tr>
         </tbody>
       </table>
     </div>
@@ -560,6 +562,32 @@ window.crearCliente = async function(uid, nombre) {
     return true;
   } catch (e) {
     console.error('Error creando cliente:', e);
+    return false;
+  }
+};
+
+window.calcularCreditosRestantes = async function(uid) {
+  try {
+    const clienteSnap = await getDoc(doc(db, 'clientes', uid));
+    const comprados = clienteSnap.exists() ? (clienteSnap.data().creditos_comprados || 0) : 0;
+    const q = query(collection(db, 'evaluaciones'), where('cliente_id', '==', uid), where('estado', '==', 'completado'));
+    const snapshot = await getDocs(q);
+    const usados = snapshot.size;
+    return { comprados, usados, restantes: comprados - usados };
+  } catch (e) {
+    console.error('Error calculando créditos:', e);
+    return { comprados: 0, usados: 0, restantes: 0 };
+  }
+};
+
+window.agregarCreditos = async function(uid, cantidad) {
+  try {
+    const snap = await getDoc(doc(db, 'clientes', uid));
+    const actual = snap.exists() ? (snap.data().creditos_comprados || 0) : 0;
+    await updateDoc(doc(db, 'clientes', uid), { creditos_comprados: actual + cantidad });
+    return true;
+  } catch (e) {
+    console.error('Error agregando créditos:', e);
     return false;
   }
 };
@@ -1069,9 +1097,11 @@ function go(vista) {
   if(vista==='dashboard'){
     document.getElementById('topbarRight').innerHTML=`
       <span class="hr-badge">Panel HR</span>
+      <span class="hr-badge" id="creditosBadge" style="display:none;">—</span>
       ${ES_ADMIN_CACHE ? '<button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="go(\'admin\')">⚙ Panel Admin</button>' : ''}
       <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="cargarYRenderizar()">↻ Actualizar</button>
       <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="hacerLogout()">Cerrar sesión</button>`;
+    actualizarBadgeCreditos();
   }
   if(vista==='admin'){
     document.getElementById('topbarRight').innerHTML=`
@@ -1083,28 +1113,62 @@ function go(vista) {
   window.scrollTo(0,0);
 }
 
+async function actualizarBadgeCreditos(){
+  if (ES_ADMIN_CACHE) return; // admin no maneja créditos propios
+  const uid = typeof window.getCurrentUid === 'function' ? window.getCurrentUid() : null;
+  if (!uid) return;
+  const c = await window.calcularCreditosRestantes(uid);
+  const el = document.getElementById('creditosBadge');
+  if (!el) return;
+  el.textContent = `🎫 ${c.restantes} crédito${c.restantes===1?'':'s'}`;
+  el.style.display = '';
+  el.style.color = c.restantes<=0 ? 'var(--rojo)' : '';
+}
+
 async function cargarPanelAdmin(){
   const tbody = document.getElementById('adminTablaBody');
-  tbody.innerHTML = '<tr><td colspan="4" style="padding:16px;color:var(--text-dim);">Cargando...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="5" style="padding:16px;color:var(--text-dim);">Cargando...</td></tr>';
   const clientes = await window.listarClientes();
   if(!clientes.length){
-    tbody.innerHTML = '<tr><td colspan="4" style="padding:16px;color:var(--text-dim);">No hay clientes todavía.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="padding:16px;color:var(--text-dim);">No hay clientes todavía.</td></tr>';
     return;
   }
-  tbody.innerHTML = clientes.map(c => `
+  const filas = await Promise.all(clientes.map(async c => {
+    const creditos = await window.calcularCreditosRestantes(c.uid);
+    const nombreEscapado = (c.nombre || '').replace(/'/g, "\\'");
+    return `
     <tr style="border-bottom:1px solid var(--border);">
       <td style="padding:12px 16px;">${c.nombre || '—'}</td>
       <td style="padding:12px 16px;">
         <span style="color:${c.estado==='activa'?'var(--verde)':'var(--rojo)'};font-weight:600;">${c.estado==='activa'?'● Activa':'● Bloqueada'}</span>
       </td>
       <td style="padding:12px 16px;font-size:11px;color:var(--text-dim);">${c.uid}</td>
-      <td style="padding:12px 16px;text-align:right;">
-        <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" onclick="toggleEstadoCliente('${c.uid}','${c.estado}')">
+      <td style="padding:12px 16px;">
+        <span style="font-weight:600;color:${creditos.restantes<=0?'var(--rojo)':'inherit'};">${creditos.restantes}</span>
+        <span style="font-size:11px;color:var(--text-dim);"> (usó ${creditos.usados} de ${creditos.comprados})</span>
+      </td>
+      <td style="padding:12px 16px;text-align:right;white-space:nowrap;">
+        <button class="btn btn-outline" style="font-size:12px;padding:6px 10px;" onclick="agregarCreditosDesdePanel('${c.uid}','${nombreEscapado}')">+ Créditos</button>
+        <button class="btn btn-outline" style="font-size:12px;padding:6px 10px;" onclick="toggleEstadoCliente('${c.uid}','${c.estado}')">
           ${c.estado==='activa' ? 'Bloquear' : 'Activar'}
         </button>
       </td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }));
+  tbody.innerHTML = filas.join('');
+}
+
+async function agregarCreditosDesdePanel(uid, nombre){
+  const cantidadStr = prompt(`¿Cuántos créditos agregarle a "${nombre}"?`);
+  if(!cantidadStr) return;
+  const cantidad = parseInt(cantidadStr, 10);
+  if(!cantidad || cantidad <= 0){
+    alert('Ingresá un número válido mayor a 0.');
+    return;
+  }
+  const ok = await window.agregarCreditos(uid, cantidad);
+  if(ok) cargarPanelAdmin();
+  else alert('No se pudo agregar. Revisá la consola.');
 }
 
 async function toggleEstadoCliente(uid, estadoActual){
@@ -1185,7 +1249,7 @@ function rellenarResumen(){
   document.getElementById('r_email').textContent=document.getElementById('f_email').value||'—';
 }
 
-function generarLink(){
+async function generarLink(){
   const token=Math.random().toString(36).slice(2,10);
   const nombre=document.getElementById('f_nombre').value||'candidato';
   const edad=document.getElementById('f_edad').value||'';
@@ -1193,6 +1257,13 @@ function generarLink(){
   const estratoNum=document.getElementById('f_horizonte').value||'';
   const clienteId=(typeof window.getCurrentUid==='function'?window.getCurrentUid():null)||'';
   if(!clienteId){alert('No se pudo identificar tu cuenta. Volvé a loguearte e intentá de nuevo.');return;}
+  if(!ES_ADMIN_CACHE){
+    const creditos = await window.calcularCreditosRestantes(clienteId);
+    if(creditos.restantes <= 0){
+      alert('No te quedan créditos disponibles. Contactá para comprar más antes de generar un nuevo link.');
+      return;
+    }
+  }
   const url=`https://candeladileo-sys.github.io/potenciaIA/?token=${token}&nombre=${encodeURIComponent(nombre)}&edad=${edad}&puesto=${encodeURIComponent(puesto)}&estrato_puesto=${estratoNum}&cliente_id=${encodeURIComponent(clienteId)}`;
   document.getElementById('linkUrl').textContent=url;
   document.getElementById('linkBox').classList.add('visible');
@@ -2147,6 +2218,7 @@ setTimeout(async () => {
           const btnAdmin = document.getElementById('btnPanelAdminTopbar');
           if (btnAdmin) btnAdmin.style.display = '';
         }
+        actualizarBadgeCreditos();
         await cargarYRenderizar();
         if (candidatos.length === 0) {
           candidatos = candidatosEjemplo;

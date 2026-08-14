@@ -430,7 +430,7 @@ body {
 <!-- ── FIREBASE ── -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, addDoc, doc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, addDoc, doc, setDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBHM3tvO-LmzMvTkCIKC476tE3sqmJs1QM",
@@ -444,8 +444,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-window.guardarEvaluacion = async function(data) {
+window.guardarEvaluacion = async function(data, idFijo) {
   try {
+    if (idFijo) {
+      await setDoc(doc(db, 'evaluaciones', idFijo), {
+        ...data,
+        timestamp: serverTimestamp()
+      });
+      console.log('Guardado en Firebase (id fijo):', idFijo);
+      return idFijo;
+    }
     const docRef = await addDoc(collection(db, 'evaluaciones'), {
       ...data,
       timestamp: serverTimestamp()
@@ -612,6 +620,14 @@ window.actualizarEvaluacion = async function(id, data) {
     <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">PotenciaIA · Basado en la teoría de E. Jaques</div>
   </div>
 
+  <div class="screen" id="screenExpirado">
+    <div style="text-align:center;padding:80px 24px;">
+      <div style="font-size:48px;margin-bottom:14px;">⏳</div>
+      <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;">Este link ya no está disponible</div>
+      <div style="font-size:15px;color:var(--text-dim);line-height:1.7;max-width:400px;margin:0 auto;">El link para esta evaluación expiró. Contactá a la empresa que te lo envió para que te generen uno nuevo.</div>
+    </div>
+  </div>
+
 </div>
 
 <!-- PROCESSING OVERLAY -->
@@ -632,6 +648,14 @@ const candidatoPuesto  = decodeURIComponent(urlParams.get('puesto')  || '');
 const estratoPuesto    = parseInt(urlParams.get('estrato_puesto'))    || null;
 const sessionToken     = urlParams.get('token')                       || '';
 const clienteId        = urlParams.get('cliente_id') || '';
+const generadoTs        = parseInt(urlParams.get('generado')) || 0;
+
+// ── Link expirado (7 días) ──
+const SIETE_DIAS_MS = 7 * 24 * 60 * 60 * 1000;
+const linkExpirado = generadoTs > 0 && (Date.now() - generadoTs > SIETE_DIAS_MS);
+if (linkExpirado) {
+  showScreen('screenExpirado');
+}
 
 // Mostrar banner si vino por link
 if (candidatoNombre || candidatoEdad || candidatoPuesto) {
@@ -817,6 +841,7 @@ function speak(text) {
 // ── SETUP ──
 function startSetup() {
   // La clave de Anthropic ahora la maneja el Worker, no hace falta pedirla acá.
+  if (linkExpirado) { showScreen('screenExpirado'); return; }
   let newTopic, attempts = 0;
   do {
     newTopic = TOPICS[Math.floor(Math.random() * TOPICS.length)];
@@ -1092,7 +1117,8 @@ async function transcribeWithDeepgram(audioBlob) {
     const res = await fetch('https://potenciaia-proxy.dileocande.workers.dev/deepgram-listen?model=nova-3&language=es&smart_format=true&punctuate=true', {
       method: 'POST',
       headers: {
-        'Content-Type': audioBlob.type || 'audio/webm'
+        'Content-Type': audioBlob.type || 'audio/webm',
+        'X-App-Secret': 'pASCHdB6WZOwoIRIHDwmxKweF-u2R1eLNK0p3fHP9JA'
       },
       body: audioBlob
     });
@@ -1163,7 +1189,8 @@ Máximo 15 palabras. Solo la frase, sin comillas ni prefijos.`;
     const res = await fetch('https://potenciaia-proxy.dileocande.workers.dev', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-App-Secret': 'pASCHdB6WZOwoIRIHDwmxKweF-u2R1eLNK0p3fHP9JA'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
@@ -1356,6 +1383,10 @@ async function endInterview() {
       .join('\n\n');
   }
 
+  // ── ¿Hubo discurso real capturado? (para no gastar crédito si falló la captura de audio) ──
+  const hayDiscurso = (deepgramText && deepgramText.trim().length > 0) ||
+                      transcriptLog.some(e => e.speaker !== 'agent' && e.text && e.text.trim().length > 0);
+
   // ── Guardar datos base en Firebase (incluye edad y estrato del puesto) ──
   const datosBase = {
     candidato:        candidatoNombre || 'Candidato',
@@ -1378,7 +1409,7 @@ async function endInterview() {
 
   let firebaseId = null;
   if (typeof window.guardarEvaluacion === 'function') {
-    firebaseId = await window.guardarEvaluacion(datosBase);
+    firebaseId = await window.guardarEvaluacion(datosBase, sessionToken);
   }
 
   if (!firebaseId) {
@@ -1427,7 +1458,7 @@ async function endInterview() {
 
   // ── Actualizar Firebase con resultado del análisis ──
   const datosAnalisis = {
-    estado:            analisisExitoso ? 'completado' : 'analisis_fallido',
+    estado:            (analisisExitoso && hayDiscurso) ? 'completado' : 'analisis_fallido',
     estrato:           result.estrato,
     subestrato:        result.subestrato,
     modo_procesamiento: result.modo_procesamiento,
@@ -1443,7 +1474,7 @@ async function endInterview() {
   if (typeof window.actualizarEvaluacion === 'function' && firebaseId) {
     await window.actualizarEvaluacion(firebaseId, datosAnalisis);
   } else if (typeof window.guardarEvaluacion === 'function' && !firebaseId) {
-    await window.guardarEvaluacion({ ...datosBase, ...datosAnalisis });
+    await window.guardarEvaluacion({ ...datosBase, ...datosAnalisis }, sessionToken);
   }
 
   document.getElementById('processingOverlay').classList.remove('active');
@@ -1637,7 +1668,8 @@ ${transcript}`;
     const res = await fetch('https://potenciaia-proxy.dileocande.workers.dev', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-App-Secret': 'pASCHdB6WZOwoIRIHDwmxKweF-u2R1eLNK0p3fHP9JA'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',

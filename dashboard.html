@@ -391,10 +391,6 @@ body.cuenta-bloqueada #bloqueadoScreen{display:flex;}
             <input type="number" class="form-input" id="f_edad" placeholder="35" min="18" max="70"/>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Email del candidato</label>
-          <input type="email" class="form-input" id="f_email" placeholder="candidato@email.com"/>
-        </div>
         </div>
       <!-- Paso 3 -->
       <div id="step3" style="display:none">
@@ -404,7 +400,6 @@ body.cuenta-bloqueada #bloqueadoScreen{display:flex;}
           <div class="resumen-item"><div class="resumen-label">Estrato requerido</div><div class="resumen-value" id="r_estrato">—</div></div>
           <div class="resumen-item"><div class="resumen-label">Candidato</div><div class="resumen-value" id="r_nombre">—</div></div>
           <div class="resumen-item"><div class="resumen-label">Edad</div><div class="resumen-value" id="r_edad">—</div></div>
-          <div class="resumen-item"><div class="resumen-label">Email</div><div class="resumen-value" id="r_email" style="font-size:12px">—</div></div>
         </div>
         <div style="background:var(--azul-light);border:1px solid var(--azul-soft);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#0d3d70;">
           <strong>Tema del discurso:</strong> se asignará al azar al momento de la evaluación.
@@ -1246,7 +1241,6 @@ function rellenarResumen(){
   document.getElementById('r_estrato').textContent=estratosMap[document.getElementById('f_horizonte').value]||'—';
   document.getElementById('r_nombre').textContent=document.getElementById('f_nombre').value||'—';
   document.getElementById('r_edad').textContent=document.getElementById('f_edad').value?document.getElementById('f_edad').value+' años':'—';
-  document.getElementById('r_email').textContent=document.getElementById('f_email').value||'—';
 }
 
 async function generarLink(){

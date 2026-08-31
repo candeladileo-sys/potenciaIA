@@ -77,6 +77,37 @@ td.td-name{font-weight:600;color:var(--text);font-size:14px;}
 .sp-enviado{background:var(--azul-light);color:var(--azul);border:1px solid var(--azul-soft);}
 .sp-pendiente{background:var(--yellow-light);color:#92400e;border:1px solid #fcd34d;}
 
+/* ── NUEVO: elementos "pro" del panel HR (no tocan estilos existentes) ── */
+.page-header-actions{display:flex;align-items:center;gap:10px;}
+.stat-card-v2{display:flex;flex-direction:column;gap:8px;}
+.stat-card-icon{width:26px;height:26px;border-radius:7px;background:var(--verde-light);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--verde);flex-shrink:0;}
+.insight-banner{background:var(--verde-light);border-radius:12px;padding:13px 18px;margin-bottom:16px;display:none;align-items:center;gap:12px;font-size:13px;color:var(--azul);}
+.insight-banner.visible{display:flex;}
+.insight-banner strong{font-weight:600;}
+.help-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:20px;display:none;}
+.help-panel.visible{display:block;}
+.help-panel-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:14px;}
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.help-item{display:flex;gap:10px;}
+.help-item-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.help-item-desc{font-size:12px;color:var(--text-muted);line-height:1.5;}
+.table-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.search-box{position:relative;flex:1;max-width:240px;min-width:160px;}
+.search-box input{width:100%;padding:8px 12px 8px 32px;font-size:13px;border:1px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;outline:none;}
+.search-box input:focus{border-color:var(--verde);}
+.search-box::before{content:'⌕';position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;}
+.filter-chips{display:flex;gap:8px;flex-wrap:wrap;}
+.filter-chip{font-size:12px;padding:5px 12px;border-radius:20px;background:var(--bg);color:var(--text-dim);cursor:pointer;border:1px solid transparent;user-select:none;}
+.filter-chip.active{background:var(--verde-light);color:var(--verde);border-color:var(--verde-soft);font-weight:500;}
+.avatar-ring{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.avatar-ring-inner{width:29px;height:29px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--verde);}
+.avatar-ring-pendiente{border:1.5px dashed var(--border);}
+.name-row{display:flex;align-items:center;gap:10px;}
+.dual-report-btn{display:inline-flex;border-radius:7px;overflow:hidden;border:1px solid var(--verde-soft);}
+.dual-report-btn button{font-size:11px;padding:5px 9px;border:none;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:4px;}
+.dual-report-btn .drb-main{background:var(--verde);color:white;}
+.dual-report-btn .drb-second{background:var(--surface);color:var(--verde);border-left:1px solid var(--verde-soft);}
+
 /* INFORME */
 .informe-wrap{max-width:860px;margin:0 auto;padding:32px 24px 60px;animation:fadeUp .3s ease;}
 .inf-back{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);cursor:pointer;margin-bottom:24px;width:fit-content;}
@@ -262,19 +293,52 @@ body.cuenta-bloqueada #bloqueadoScreen{display:flex;}
   <div class="main">
     <div class="page-header">
       <div class="page-title">Evaluaciones</div>
-      <button class="btn btn-primary" onclick="abrirWizard()">+ Nueva evaluación</button>
+      <div class="page-header-actions">
+        <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="toggleHelpPanel()" id="btnHelpToggle">ⓘ Cómo funciona</button>
+        <button class="btn btn-primary" onclick="abrirWizard()">+ Nueva evaluación</button>
+      </div>
     </div>
+    <div class="help-panel" id="helpPanel">
+      <div class="help-panel-title">Cómo leer este panel</div>
+      <div class="help-grid">
+        <div class="help-item">
+          <div class="stat-card-icon">↑</div>
+          <div><div class="help-item-title">Estrato detectado</div><div class="help-item-desc">Nivel de complejidad cognitiva del candidato, según la Teoría de Sistemas Estratificados.</div></div>
+        </div>
+        <div class="help-item">
+          <div class="stat-card-icon">◎</div>
+          <div><div class="help-item-title">Confianza</div><div class="help-item-desc">Qué tan seguro está el análisis del estrato asignado. No mide al candidato: mide la calidad del dato (largo y claridad del discurso).</div></div>
+        </div>
+        <div class="help-item">
+          <div class="stat-card-icon">✓</div>
+          <div><div class="help-item-title">Fit</div><div class="help-item-desc">Compara el estrato detectado contra el estrato que pide el puesto. Encaja o no encaja.</div></div>
+        </div>
+        <div class="help-item">
+          <div class="stat-card-icon">⏱</div>
+          <div><div class="help-item-title">Estado</div><div class="help-item-desc">Informe listo (ya se analizó), Análisis pendiente (falta procesar) o Discurso breve (no alcanzó el mínimo para analizar).</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="insight-banner" id="insightBanner"></div>
     <div class="stats-row">
-      <div class="stat-card"><div class="stat-label">Total evaluaciones</div><div class="stat-value" id="statTotal">3</div></div>
-      <div class="stat-card"><div class="stat-label">Estrato promedio</div><div class="stat-value" id="statProm">2.7</div></div>
-      <div class="stat-card"><div class="stat-label">Confianza promedio</div><div class="stat-value" id="statConf">81%</div></div>
-      <div class="stat-card"><div class="stat-label">Pendientes</div><div class="stat-value" id="statPend">1</div></div>
+      <div class="stat-card stat-card-v2"><div class="stat-card-icon">☰</div><div class="stat-label">Total evaluaciones</div><div class="stat-value" id="statTotal">3</div></div>
+      <div class="stat-card stat-card-v2"><div class="stat-card-icon">↑</div><div class="stat-label">Estrato promedio</div><div class="stat-value" id="statProm">2.7</div></div>
+      <div class="stat-card stat-card-v2"><div class="stat-card-icon">◎</div><div class="stat-label">Confianza promedio</div><div class="stat-value" id="statConf">81%</div></div>
+      <div class="stat-card stat-card-v2"><div class="stat-card-icon">⏱</div><div class="stat-label">Pendientes</div><div class="stat-value" id="statPend">1</div></div>
     </div>
     <div class="table-card">
       <div class="table-head">
         <div>
           <div class="table-title">Candidatos</div>
           <div class="table-sub">Hacé clic en un candidato para ver el informe completo</div>
+        </div>
+      </div>
+      <div class="table-toolbar">
+        <div class="search-box"><input type="text" id="buscarCandidato" placeholder="Buscar candidato..." oninput="renderTabla()"></div>
+        <div class="filter-chips" id="filterChips">
+          <span class="filter-chip active" data-filtro="todos" onclick="setFiltroEstado('todos')">Todos</span>
+          <span class="filter-chip" data-filtro="listo" onclick="setFiltroEstado('listo')">Listos</span>
+          <span class="filter-chip" data-filtro="pendiente" onclick="setFiltroEstado('pendiente')">Pendientes</span>
         </div>
       </div>
       <table>
@@ -710,6 +774,33 @@ function renderStats() {
   const confs = candidatos.map(c => c.confianza).filter(Boolean);
   document.getElementById('statConf').textContent = confs.length ? Math.round(confs.reduce((a,b)=>a+b,0)/confs.length)+'%' : '—';
   document.getElementById('statPend').textContent = candidatos.filter(c => !c.estrato).length || '0';
+  actualizarInsightBanner();
+}
+
+function actualizarInsightBanner() {
+  const el = document.getElementById('insightBanner');
+  if (!el) return;
+  const pendientes = candidatos.filter(c => c.estado === 'pendiente' || c.estado === 'enviado').length;
+  const listos = candidatos.filter(c => c.estado === 'listo').length;
+  if (pendientes === 0 && listos === 0) { el.classList.remove('visible'); return; }
+  const partes = [];
+  if (pendientes > 0) partes.push(`<strong>${pendientes} evaluaci${pendientes === 1 ? 'ón' : 'ones'}</strong> esperando análisis`);
+  if (listos > 0) partes.push(`<strong>${listos} informe${listos === 1 ? '' : 's'}</strong> listo${listos === 1 ? '' : 's'} para revisar`);
+  el.innerHTML = 'Tenés ' + partes.join(' y ') + '.';
+  el.classList.add('visible');
+}
+
+function toggleHelpPanel() {
+  document.getElementById('helpPanel').classList.toggle('visible');
+}
+
+let filtroEstadoActivo = 'todos';
+function setFiltroEstado(f) {
+  filtroEstadoActivo = f;
+  document.querySelectorAll('#filterChips .filter-chip').forEach(chip => {
+    chip.classList.toggle('active', chip.dataset.filtro === f);
+  });
+  renderTabla();
 }
 
 // ── DATOS DE EJEMPLO cuando Firebase está vacío ──
@@ -761,7 +852,20 @@ function renderTabla() {
     tbody.innerHTML = `<tr><td colspan="7" style="padding:48px 24px;text-align:center;color:var(--text-dim);">Todavía no generaste ninguna evaluación.<br>Click en "+ Nueva evaluación" para empezar.</td></tr>`;
     return;
   }
-  tbody.innerHTML = candidatos.map((c,i) => {
+  const _term = (document.getElementById('buscarCandidato')?.value || '').toLowerCase().trim();
+  const _filas = candidatos
+    .map((c,i) => ({c,i}))
+    .filter(({c}) => {
+      if (_term && !(c.nombre||'').toLowerCase().includes(_term)) return false;
+      if (filtroEstadoActivo === 'listo' && c.estado !== 'listo') return false;
+      if (filtroEstadoActivo === 'pendiente' && !(c.estado === 'pendiente' || c.estado === 'enviado' || c.estado === 'insuficiente')) return false;
+      return true;
+    });
+  if (_filas.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="padding:36px 24px;text-align:center;color:var(--text-muted);">Ningún candidato coincide con la búsqueda o el filtro.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = _filas.map(({c,i}) => {
     const eClass  = c.estrato ? `e${c.estrato}` : '';
     const eLabel  = c.estrato ? `E ${estratosNombres[c.estrato]} — ${c.patron}` : '—';
     const ePuesto = c.estrato_puesto ? `<span class="epill e${c.estrato_puesto}">E ${estratosNombres[c.estrato_puesto]}</span>` : '—';
@@ -789,11 +893,33 @@ function renderTabla() {
       ? `<button onclick="event.stopPropagation();toggleTranscriptRow(${i})" style="font-size:11px;color:var(--text-muted);background:none;border:1px solid var(--border);border-radius:6px;padding:3px 9px;cursor:pointer;font-family:'Inter',sans-serif;" id="btn-tr-${i}">▾ Transcript</button>`
       : '';
 
+    // Aro de confianza (o "pendiente" con borde punteado si todavía no hay dato)
+    const avatar = c.confianza
+      ? `<div class="avatar-ring" style="background:conic-gradient(var(--verde) ${c.confianza}%, var(--border) 0);"><div class="avatar-ring-inner">${c.confianza}%</div></div>`
+      : `<div class="avatar-ring avatar-ring-pendiente">⏱</div>`;
+
+    // Botón de informe(s): distingue informe de potencial vs complementario
+    const tieneComplementarioFila = c._raw && c._raw.informe_complementario_html;
+    const btnInformes = c.estado === 'listo'
+      ? (tieneComplementarioFila
+          ? `<div class="dual-report-btn" onclick="event.stopPropagation();">
+               <button class="drb-main" onclick="abrirInformeCompleto(${i})">Potencial</button>
+               <button class="drb-second" onclick="descargarComplementarioGuardado(${i})">Complementario</button>
+             </div>`
+          : `<button class="btn btn-outline" style="font-size:11px;padding:5px 10px;" onclick="event.stopPropagation();abrirInformeCompleto(${i})">Ver informe</button>`)
+      : '';
+
     return `<tr onclick="verInforme(${i})" style="cursor:pointer;">
       <td class="td-name">
-        ${c.nombre}
-        <div style="font-size:11px;color:var(--text-muted);font-weight:400;margin-top:2px;">${c.edad ? c.edad+' años · ' : ''}${c.tipo}</div>
-        <div style="margin-top:5px;display:flex;gap:6px;align-items:center;">
+        <div class="name-row">
+          ${avatar}
+          <div>
+            ${c.nombre}
+            <div style="font-size:11px;color:var(--text-muted);font-weight:400;margin-top:2px;">${c.edad ? c.edad+' años · ' : ''}${c.tipo}</div>
+          </div>
+        </div>
+        <div style="margin-top:7px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          ${btnInformes}
           ${btnTranscript}
           <button onclick="event.stopPropagation();confirmarEliminar(${i})" title="Eliminar evaluación" style="font-size:11px;color:#dc2626;background:none;border:1px solid #fca5a5;border-radius:6px;padding:3px 8px;cursor:pointer;font-family:'Inter',sans-serif;">🗑</button>
         </div>

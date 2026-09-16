@@ -539,7 +539,7 @@ body.cuenta-bloqueada #bloqueadoScreen{display:flex;}
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, getDocs, orderBy, query, where, doc, getDoc, setDoc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, orderBy, query, where, doc, getDoc, setDoc, deleteDoc, updateDoc, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 const firebaseConfig = {
@@ -1420,6 +1420,23 @@ async function generarLink(){
   document.getElementById('mensajeCandidato').value = generarMensajeCandidato(nombre, url);
   document.getElementById('btnSig').disabled=true;
   document.getElementById('btnSig').textContent='Link generado ✓';
+
+  try {
+    await addDoc(collection(db, 'evaluaciones'), {
+      token,
+      nombre,
+      edad,
+      puesto,
+      estrato_puesto: estratoNum,
+      cliente_id: clienteId,
+      estado: 'enviado',
+      timestamp: new Date().toISOString(),
+      link: url
+    });
+    await cargarCandidatos();
+  } catch(e) {
+    console.warn('No se pudo guardar el link en Firestore:', e);
+  }
 }
 
 function generarMensajeCandidato(nombre, url){

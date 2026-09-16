@@ -684,6 +684,16 @@ window.guardarInformeComplementario = async function(id, htmlInforme) {
   try { await updateDoc(doc(db, 'evaluaciones', id), { informe_complementario_html: htmlInforme, informe_complementario_fecha: new Date().toISOString() }); return true; }
   catch(e) { console.error('Error guardando informe complementario:', e); return false; }
 };
+window.guardarEvaluacionEnviada = async function(datos) {
+  try {
+    await addDoc(collection(db, 'evaluaciones'), datos);
+    return true;
+  } catch(e) {
+    console.error('Error guardando evaluación enviada:', e);
+    return false;
+  }
+};
+
 window.cargarDeFirebase = async function() {
   try {
     const uid = window.getCurrentUid();
@@ -1421,22 +1431,18 @@ async function generarLink(){
   document.getElementById('btnSig').disabled=true;
   document.getElementById('btnSig').textContent='Link generado ✓';
 
-  try {
-    await addDoc(collection(db, 'evaluaciones'), {
-      token,
-      nombre,
-      edad,
-      puesto,
-      estrato_puesto: estratoNum,
-      cliente_id: clienteId,
-      estado: 'enviado',
-      timestamp: new Date().toISOString(),
-      link: url
-    });
-    await cargarCandidatos();
-  } catch(e) {
-    console.warn('No se pudo guardar el link en Firestore:', e);
-  }
+  const ok = await window.guardarEvaluacionEnviada({
+    token,
+    nombre,
+    edad,
+    puesto,
+    estrato_puesto: estratoNum,
+    cliente_id: clienteId,
+    estado: 'enviado',
+    timestamp: new Date().toISOString(),
+    link: url
+  });
+  if (ok) await cargarCandidatos();
 }
 
 function generarMensajeCandidato(nombre, url){

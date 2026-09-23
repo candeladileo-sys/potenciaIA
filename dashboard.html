@@ -497,14 +497,14 @@ body.cuenta-bloqueada #bloqueadoScreen{display:flex;}
   <div class="wizard-box">
     <div class="wizard-top" style="padding-bottom:20px;">
       <div class="wizard-title">Informe complementario</div>
-      <div class="wizard-subtitle">Cruce de PDA, entrevista de rol y CV para <strong id="complNombre"></strong>. El informe de potencial no se modifica.</div>
+      <div class="wizard-subtitle">Cruce de PDA, entrevista de rol y/o CV para <strong id="complNombre"></strong> — subí lo que tengas disponible. El informe de potencial no se modifica.</div>
     </div>
     <div class="wizard-body">
       <div style="background:var(--azul-light);border:1px solid var(--azul-soft);border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:12px;color:#0d3d70;">
         Información para apoyar una decisión, no la decisión misma. El estrato sale del informe de potencial y no se recalcula.
       </div>
       <div class="form-group">
-        <label class="form-label">PDA (PDF) — dispara el informe</label>
+        <label class="form-label">PDA (PDF) <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text-muted)">— opcional</span></label>
         <div class="upload-zone" id="complPdaZone">
           <input type="file" accept=".pdf" onchange="handleComplUpload(this,'complPdaZone','complPdaName','pda')"/>
           <div class="upload-icon">🧠</div>
@@ -1531,15 +1531,16 @@ function handleComplUpload(input, zoneId, nameId, key){
 }
 
 async function generarComplementario(){
-  if(!_complData.pda){
-    alert('Subí el PDA — es el insumo que dispara el informe complementario.');
+  const entrevista = document.getElementById('complEntrevista').value.trim();
+
+  if(!_complData.pda && !_complData.cv && !entrevista){
+    alert('Subí al menos un insumo — PDA, CV o entrevista de rol — para generar el informe complementario.');
     return;
   }
 
   const cand = candidatos[_complIndex];
   if(!cand){ alert('No se encontró el candidato.'); return; }
 
-  const entrevista = document.getElementById('complEntrevista').value.trim();
   const btnGen = document.querySelector('#complOverlay .btn-primary');
 
   // Guardar la entrevista en Firebase para que no se pierda
@@ -1552,21 +1553,35 @@ async function generarComplementario(){
   if(btnGen){ btnGen.disabled = true; btnGen.textContent = 'Generando informe…'; }
 
   try {
-    // Convertir los PDF a base64
-    const pdaB64 = await _complPdfABase64(_complData.pda);
-    const cvB64  = _complData.cv ? await _complPdfABase64(_complData.cv) : null;
+    // Convertir los PDF a base64 (solo los que efectivamente se subieron)
+    const pdaB64 = _complData.pda ? await _complPdfABase64(_complData.pda) : null;
+    const cvB64  = _complData.cv  ? await _complPdfABase64(_complData.cv)  : null;
+
+    // Qué insumos están disponibles para este informe (varía candidato a candidato)
+    const fuentesDisponibles = { pda: !!pdaB64, cv: !!cvB64, entrevista: !!entrevista };
 
     // Estrato citado del informe de potencial (de Firebase, NO se recalcula)
     const estratoTxt = cand.estrato ? ('Estrato ' + (['','I','II','III','IV','V','VI'][cand.estrato]||cand.estrato) + (cand.subestrato ? ' (' + cand.subestrato + ')' : '')) : 'no disponible';
 
-    // Armar el contenido del mensaje para Claude
+    // Armar el contenido del mensaje para Claude — cada PDF va precedido de una
+    // etiqueta de texto que dice qué es, así no depende de en qué orden se adjuntaron
     const contenido = [];
-    contenido.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data: pdaB64 } });
+    if(pdaB64){
+      contenido.push({ type:'text', text:'El siguiente PDF adjunto es el Reporte PDA International (perfil conductual) del candidato:' });
+      contenido.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data: pdaB64 } });
+    }
     if(cvB64){
+      contenido.push({ type:'text', text:'El siguiente PDF adjunto es el CV del candidato:' });
       contenido.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data: cvB64 } });
     }
      const ROM_PUESTO = ['','I','II','III','IV','V','VI','VII','VIII'];
     const estratoPuestoTxt = cand.estrato_puesto ? ('Estrato ' + (ROM_PUESTO[cand.estrato_puesto]||cand.estrato_puesto)) : 'no especificado';
+
+    const fuentesTxt = [
+      fuentesDisponibles.pda ? 'Reporte PDA' : null,
+      fuentesDisponibles.cv ? 'CV' : null,
+      fuentesDisponibles.entrevista ? 'entrevista de rol' : null
+    ].filter(Boolean).join(', ') || 'ninguna (solo el Informe de Potencial ya calculado)';
 
     contenido.push({ type:'text', text:
       'Datos del candidato:\n' +
@@ -1575,12 +1590,12 @@ async function generarComplementario(){
       '- Estrato requerido por el puesto (dato de referencia para evaluar fit): ' + estratoPuestoTxt + '\n' +
       '- Edad: ' + (cand.edad||'—') + '\n' +
       '- Estrato del candidato según el informe de potencial (NO recalcular, solo citar): ' + estratoTxt + '\n\n'  +
-      'Transcripción de la entrevista de rol:\n' + (entrevista || '(no se cargó entrevista de rol)') + '\n\n' +
-      'El primer PDF es el reporte PDA (perfil conductual). ' + (cvB64 ? 'El segundo PDF es el CV.' : 'No se adjuntó CV.') + '\n\n' +
-      'Generá el Informe Complementario según las instrucciones del sistema.'
+      'Transcripción de la entrevista de rol:\n' + (entrevista || '(no se realizó entrevista de rol para este candidato)') + '\n\n' +
+      'Fuentes adjuntas para este informe, además del Informe de Potencial: ' + fuentesTxt + '.\n\n' +
+      'Generá el Informe Complementario según las instrucciones del sistema, usando SOLO las fuentes efectivamente adjuntas.'
     });
 
-    const systemPrompt = _complSystemPrompt();
+    const systemPrompt = _complSystemPrompt(fuentesDisponibles);
 
     const res = await fetch('https://potenciaia-proxy.dileocande.workers.dev', {
       method: 'POST',
@@ -1633,10 +1648,45 @@ function _complPdfABase64(file){
 }
 
 // Prompt de sistema para el informe complementario
-function _complSystemPrompt(){
-  return `Sos un analista de RRHH experto en la metodología de Elliott Jaques y en la interpretación de reportes PDA International. Redactás un INFORME INTEGRADO DE EVALUACIÓN DE TALENTO que cruza cuatro fuentes de evidencia: el currículum vitae, el Reporte de Perfil Conductual (PDA International), la entrevista de evaluación de potencial, y el Informe de Evaluación de Potencial (estrato de Elliott Jaques, ya calculado).
+// `fuentes` = { pda: bool, cv: bool, entrevista: bool } — qué insumos se adjuntaron para ESTE candidato en particular
+function _complSystemPrompt(fuentes){
+  fuentes = fuentes || { pda: true, cv: true, entrevista: true }; // por compatibilidad si se llama sin argumento
 
-REGLA CRÍTICA E INVIOLABLE: el estrato NO se recalcula ni se discute. Te lo doy ya calculado y solo lo citás como dato. Tu análisis NO debe inferir, corregir ni cuestionar el estrato a partir del PDA, el CV o la entrevista. El PDA, el CV y la entrevista enriquecen la lectura pero NUNCA determinan el estrato.
+  // Lista de fuentes en prosa, para el párrafo de apertura
+  const nombresFuente = [];
+  if(fuentes.cv) nombresFuente.push('el currículum vitae');
+  if(fuentes.pda) nombresFuente.push('el Reporte de Perfil Conductual (PDA International)');
+  if(fuentes.entrevista) nombresFuente.push('la entrevista de evaluación de potencial');
+  nombresFuente.push('el Informe de Evaluación de Potencial (estrato de Elliott Jaques, ya calculado)');
+  const nombresFuenteTxt = nombresFuente.length > 1
+    ? nombresFuente.slice(0,-1).join(', ') + ' y ' + nombresFuente[nombresFuente.length-1]
+    : nombresFuente[0];
+
+  // Lista de fuentes para la sección 1 (una por línea)
+  const fuentesSeccion1 = [];
+  if(fuentes.cv) fuentesSeccion1.push('CV');
+  if(fuentes.pda) fuentesSeccion1.push('Reporte PDA International');
+  if(fuentes.entrevista) fuentesSeccion1.push('entrevista de evaluación de potencial');
+  fuentesSeccion1.push('Informe de Potencial (metodología Elliott Jaques)');
+
+  // Etiquetas de cita válidas para Fortalezas/Riesgos — solo las fuentes que realmente están
+  const etiquetasCita = [];
+  if(fuentes.cv) etiquetasCita.push('(CV)');
+  if(fuentes.pda) etiquetasCita.push('(PDA)');
+  if(fuentes.entrevista) etiquetasCita.push('(entrevista)');
+  const etiquetasCitaTxt = etiquetasCita.length ? etiquetasCita.join(', ') : '(Informe de Potencial)';
+
+  const avisoFaltantes = 'IMPORTANTE — SOLO USÁ LO QUE TENÉS: ' +
+    (fuentes.pda ? '' : 'No se adjuntó PDA para este candidato: NO menciones rasgos, estilo conductual ni ningún dato atribuido a un PDA, y NO uses la etiqueta (PDA) en ninguna cita. ') +
+    (fuentes.cv ? '' : 'No se adjuntó CV para este candidato: NO inventes trayectoria laboral ni datos de CV, y NO uses la etiqueta (CV). Omití la tabla de trayectoria laboral de la sección 1. ') +
+    (fuentes.entrevista ? '' : 'No se realizó entrevista de rol para este candidato: en la sección 2, escribí un único párrafo breve indicando que no se realizó entrevista de rol, sin subsecciones 2.1 a 2.5, y NO uses la etiqueta (entrevista). ') +
+    'Nunca completes con información genérica o inventada lo que falte: si una fuente no está, simplemente no aparece en el informe.';
+
+  return `Sos un analista de RRHH experto en la metodología de Elliott Jaques y, cuando corresponda, en la interpretación de reportes PDA International. Redactás un INFORME INTEGRADO DE EVALUACIÓN DE TALENTO que cruza las fuentes de evidencia disponibles para este candidato: ${nombresFuenteTxt}.
+
+${avisoFaltantes}
+
+REGLA CRÍTICA E INVIOLABLE: el estrato NO se recalcula ni se discute. Te lo doy ya calculado y solo lo citás como dato. Tu análisis NO debe inferir, corregir ni cuestionar el estrato a partir del PDA, el CV o la entrevista (las que estén disponibles). Esas fuentes enriquecen la lectura pero NUNCA determinan el estrato.
 
 TRAZABILIDAD: citá la fuente entre paréntesis SOLO cuando aporte valor al lector. Reglas: - En Fortalezas (sección 4) y Riesgos (sección 5): SÍ citar la fuente al final de cada ítem, porque el lector necesita saber de dónde salió cada afirmación. - En Análisis de la entrevista (sección 2): NO citar la fuente, es obvio que todo viene de la entrevista.
 - En Conclusión (sección 6): citar solo cuando se introduce un dato nuevo cuya fuente no es evidente. Evitá terminar cada oración con "(entrevista, PDA)" — recarga la lectura.
@@ -1667,18 +1717,18 @@ REGLAS DE CALIBRACIÓN CON EL ESTRATO (CRÍTICO — evita informes desalineados)
 ESTRUCTURA (respetá esta numeración y estos títulos, en HTML):
 
 <h1>1. Fuentes y trayectoria</h1>
-Lista <ul> con las cuatro fuentes: CV, Reporte PDA International, entrevista de evaluación de potencial, e Informe de Potencial (metodología Elliott Jaques). Una línea por fuente.
-Después, incluí una <table> breve de trayectoria laboral según el CV, con columnas: Período | Organización | Cargo. Solo los datos que figuren en el CV, sin inventar. Máximo 6 filas (las más relevantes). Sin párrafos adicionales, solo la tabla.
+Lista <ul> con las fuentes efectivamente disponibles para este candidato: ${fuentesSeccion1.join(', ')}. Una línea por fuente. NO incluyas fuentes que no fueron aportadas.
+${fuentes.cv ? 'Después, incluí una <table> breve de trayectoria laboral según el CV, con columnas: Período | Organización | Cargo. Solo los datos que figuren en el CV, sin inventar. Máximo 6 filas (las más relevantes). Sin párrafos adicionales, solo la tabla.' : 'No incluyas tabla de trayectoria laboral: no se adjuntó CV para este candidato.'}
 <h1>2. Análisis de la entrevista de potencial</h1>
-Dividí en subsecciones con <h2>: 2.1 Toma de decisiones, 2.2 Autonomía percibida y encuadre organizacional, 2.3 Estilo de liderazgo y desarrollo de personas, 2.4 Autoconciencia y áreas de desarrollo reconocidas por el propio candidato, 2.5 Diagnóstico que realiza sobre la organización. En cada subsección, INTERPRETÁ qué capacidad o competencia demuestra el candidato: párrafos breves y analíticos, al mismo nivel de síntesis que las secciones de Fortalezas y Riesgos. NO reproduzcas diálogos ni narres situaciones completas. Si usás una cita, que sea de una oración breve y solo si aporta evidencia clave. Si alguna subsección no tiene evidencia, indicá que no se abordó.
+${fuentes.entrevista ? 'Dividí en subsecciones con <h2>: 2.1 Toma de decisiones, 2.2 Autonomía percibida y encuadre organizacional, 2.3 Estilo de liderazgo y desarrollo de personas, 2.4 Autoconciencia y áreas de desarrollo reconocidas por el propio candidato, 2.5 Diagnóstico que realiza sobre la organización. En cada subsección, INTERPRETÁ qué capacidad o competencia demuestra el candidato: párrafos breves y analíticos, al mismo nivel de síntesis que las secciones de Fortalezas y Riesgos. NO reproduzcas diálogos ni narres situaciones completas. Si usás una cita, que sea de una oración breve y solo si aporta evidencia clave. Si alguna subsección no tiene evidencia, indicá que no se abordó.' : 'No se realizó entrevista de rol para este candidato. Escribí un único párrafo breve (2-3 líneas) indicándolo, sin inventar contenido ni crear subsecciones 2.1 a 2.5.'}
 
 IMPORTANTE: NO escribas la sección 3 (Evaluación de potencial). En el lugar exacto donde iría, entre la 2 y la 4, escribí únicamente esta marca sola en una línea: [[SECCION_POTENCIAL]]. No escribas nada más de la sección 3. Seguí con la sección 4.
 
 <h1>4. Fortalezas clave</h1>
-Lista <ul> de 5 a 7 fortalezas integrando las fuentes (CV, PDA, entrevista). Usá el PDA para enriquecer aunque no tenga sección propia. En CADA ítem, citá la fuente entre paréntesis: (CV), (PDA), (entrevista).
+Lista <ul> de 5 a 7 fortalezas integrando únicamente las fuentes disponibles (${fuentesSeccion1.join(', ')}). ${fuentes.pda ? 'Usá el PDA para enriquecer aunque no tenga sección propia. ' : ''}En CADA ítem, citá la fuente entre paréntesis usando SOLO estas etiquetas: ${etiquetasCitaTxt}.
 
 <h1>5. Riesgos y áreas de desarrollo</h1>
-Lista <ul> de 4 a 6 riesgos o áreas de desarrollo, integrando las fuentes (especialmente el PDA). En CADA ítem, citá la fuente entre paréntesis.
+Lista <ul> de 4 a 6 riesgos o áreas de desarrollo, integrando únicamente las fuentes disponibles${fuentes.pda ? ' (especialmente el PDA)' : ''}. En CADA ítem, citá la fuente entre paréntesis usando SOLO estas etiquetas: ${etiquetasCitaTxt}.
 
 <h1>6. Conclusión</h1>
 Síntesis breve y ejecutiva, MÁXIMO 4 párrafos cortos, con esta estructura obligatoria:

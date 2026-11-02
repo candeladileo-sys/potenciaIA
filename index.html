@@ -480,10 +480,10 @@ window.actualizarEvaluacion = async function(id, data) {
       <div class="logo-icon">P</div>
       <div class="logo-text">
         <h1>PotenciaIA</h1>
-        <p>Análisis del discurso · Elliott Jaques</p>
+        <p data-i18n="hdr_sub">Análisis del discurso · Elliott Jaques</p>
       </div>
     </div>
-    <div class="phase-badge" id="phaseBadge">Inicio</div>
+    <div class="phase-badge" id="phaseBadge" data-i18n="phase_inicio">Inicio</div>
   </div>
 
   <!-- SCREEN 1: SETUP -->
@@ -500,69 +500,56 @@ window.actualizarEvaluacion = async function(id, data) {
     </div>
 
     <div class="card">
-      <h2 id="welcomeTitle">Bienvenido/a a PotenciaIA</h2>
-      <p>Este sistema evalúa tu capacidad de procesamiento mental a través del discurso oral libre. No hay respuestas correctas ni incorrectas — lo que se analiza es <strong style="color:var(--verde)">cómo organizás tu pensamiento</strong>, no el contenido de lo que decís.</p>
+      <h2 id="welcomeTitle" data-i18n="welcome">Bienvenido/a a PotenciaIA</h2>
+      <p data-i18n-html="intro_p">Este sistema evalúa tu capacidad de procesamiento mental a través del discurso oral libre. No hay respuestas correctas ni incorrectas — lo que se analiza es <strong style="color:var(--verde)">cómo organizás tu pensamiento</strong>, no el contenido de lo que decís.</p>
       <ul class="rule-list">
-        <li>Se te asignará un tema al azar — lo verás en la cuenta regresiva</li>
-        <li>Hablá libremente durante 6 a 10 minutos</li>
-        <li>El agente no te interrumpe. Hablás sin cortes hasta que vos decidas terminar</li>
-        <li>No hay juicio de valor sobre tus opiniones ni tu postura</li>
-        <li>Todo el intercambio es por voz</li>
+        <li data-i18n="rule1">Se te asignará un tema al azar — lo verás en la cuenta regresiva</li>
+        <li data-i18n="rule2">Hablá libremente durante 6 a 10 minutos</li>
+        <li data-i18n="rule3">El agente no te interrumpe. Hablás sin cortes hasta que vos decidas terminar</li>
+        <li data-i18n="rule4">No hay juicio de valor sobre tus opiniones ni tu postura</li>
+        <li data-i18n="rule5">Todo el intercambio es por voz</li>
       </ul>
 
       <!-- API key de Anthropic: ya no hace falta, el Worker se encarga -->
 
-      <div style="margin-top:20px; padding:16px; background:var(--azul-light); border:1.5px solid var(--azul-mid); border-radius:8px; display:flex; align-items:center; justify-content:space-between; gap:16px;">
-        <div>
-          <div style="font-size:13px; font-weight:600; color:var(--azul);">Modo Demo</div>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Probá el flujo completo sin API key. Las intervenciones y el resultado son de ejemplo.</div>
-        </div>
-        <label style="position:relative; display:inline-block; width:44px; height:24px; flex-shrink:0;">
-          <input type="checkbox" id="demoToggle" onchange="toggleDemo()" style="opacity:0; width:0; height:0;">
-          <span id="demoSlider" style="position:absolute; cursor:pointer; inset:0; background:#cdd3da; border-radius:24px; transition:0.3s;">
-            <span style="position:absolute; height:18px; width:18px; left:3px; bottom:3px; background:white; border-radius:50%; transition:0.3s; display:block;" id="demoKnob"></span>
-          </span>
-        </label>
-      </div>
-
       <div style="margin-top:20px; padding:16px; background:#f8f9fb; border:1.5px solid var(--border); border-radius:8px;">
         <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; font-size:13px; line-height:1.6; color:var(--text-dim);">
           <input type="checkbox" id="consentimientoCheck" style="margin-top:3px; flex-shrink:0;"/>
-          <span>Entiendo que esta entrevista se grabará en audio, se transcribirá y se analizará para evaluar mi potencial cognitivo, y que el resultado será compartido con la empresa que me invitó a participar.</span>
+          <span data-i18n="consent">Entiendo que esta entrevista se grabará en audio, se transcribirá y se analizará para evaluar mi potencial cognitivo, y que el resultado será compartido con la empresa que me invitó a participar.</span>
         </label>
       </div>
     </div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="startSetup()">Comenzar evaluación →</button>
+      <button class="btn btn-primary" onclick="startSetup()" data-i18n="btn_comenzar">Comenzar evaluación →</button>
     </div>
   </div>
 
   <!-- SCREEN 2: PRE-TOPIC -->
   <div class="screen" id="screenTopic">
     <div class="card">
-      <h2>Antes de comenzar</h2>
-      <p>Escuchá la introducción completa antes de ver tu tema. El tema aparecerá en la cuenta regresiva — a partir de ese momento, tenés los segundos del countdown para empezar a pensar.</p>
-      <p>La idea es ver <strong style="color:var(--verde)">cómo organizás tu discurso</strong>. No se realizará ningún juicio de valor sobre lo que digas. Tenés entre 6 y 10 minutos.</p>
+      <h2 data-i18n="topic_h2">Antes de comenzar</h2>
+      <p data-i18n="topic_p1">Escuchá la introducción completa antes de ver tu tema. El tema aparecerá en la cuenta regresiva — a partir de ese momento, tenés los segundos del countdown para empezar a pensar.</p>
+      <p data-i18n-html="topic_p2">La idea es ver <strong style="color:var(--verde)">cómo organizás tu discurso</strong>. No se realizará ningún juicio de valor sobre lo que digas. Tenés entre 6 y 10 minutos.</p>
     </div>
     <div class="btn-row">
-      <button class="btn btn-primary" id="btnStartIntro" onclick="startIntroThenCountdown()">Escuchar introducción →</button>
-      <button class="btn btn-secondary" onclick="showScreen('screenSetup')">← Volver</button>
+      <button class="btn btn-primary" id="btnStartIntro" onclick="startIntroThenCountdown()" data-i18n="btn_intro">Escuchar introducción →</button>
+      <button class="btn btn-secondary" onclick="showScreen('screenSetup')" data-i18n="btn_volver">← Volver</button>
     </div>
   </div>
 
   <!-- COUNTDOWN OVERLAY -->
   <div class="countdown-overlay" id="countdownOverlay">
     <div class="countdown-brand">PotenciaIA</div>
-    <div class="countdown-topic-label">Tu tema es</div>
+    <div class="countdown-topic-label" data-i18n="cd_tema">Tu tema es</div>
     <div class="countdown-topic-text" id="countdownTopicText"></div>
     <div class="countdown-number" id="countdownNumber">3</div>
-    <div class="countdown-instruction" id="countdownInstruction">Preparate para hablar...</div>
+    <div class="countdown-instruction" id="countdownInstruction" data-i18n="cd_prep">Preparate para hablar...</div>
   </div>
 
   <!-- QUESTION OVERLAY -->
   <div class="question-overlay" id="questionOverlay">
     <div class="question-overlay-inner">
-      <div class="question-badge">PotenciaIA · Intervención</div>
+      <div class="question-badge" data-i18n="q_badge">PotenciaIA · Intervención</div>
       <div class="question-overlay-text" id="questionOverlayText"></div>
     </div>
   </div>
@@ -577,7 +564,7 @@ window.actualizarEvaluacion = async function(id, data) {
         </svg>
         <div class="timer-center">
           <div class="timer-display" id="timerDisplay">0:00</div>
-          <div class="timer-label">Transcurrido</div>
+          <div class="timer-label" data-i18n="t_label">Transcurrido</div>
         </div>
       </div>
     </div>
@@ -590,26 +577,26 @@ window.actualizarEvaluacion = async function(id, data) {
     </div>
 
     <div class="interruption-counter">
-      <span>Intervenciones:</span>
+      <span data-i18n="int_label">Intervenciones:</span>
       <div class="int-dot" id="int1"></div>
       <div class="int-dot" id="int2"></div>
     </div>
 
     <div class="status-panel">
       <div class="status-indicator" id="statusDot"></div>
-      <div class="status-text" id="statusText">Iniciando...</div>
+      <div class="status-text" id="statusText" data-i18n="st_iniciando">Iniciando...</div>
     </div>
 
     <div class="waveform-container" id="waveform"></div>
     <div class="warning-box" id="warningBox"></div>
 
     <div class="transcript-area" id="transcriptArea">
-      <div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px 0">El transcript aparecerá aquí mientras hablás</div>
+      <div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px 0" data-i18n="tr_placeholder">El transcript aparecerá aquí mientras hablás</div>
     </div>
 
     <div class="btn-row" id="finalizarBar">
-      <button class="btn btn-secondary" id="btnSynthesis" onclick="requestSynthesis()" disabled style="display:none">Pedir síntesis</button>
-      <button class="btn btn-danger btn-finalizar-big" id="btnFinalizar" onclick="finalizarEntrevista()">Finalizar</button>
+      <button class="btn btn-secondary" id="btnSynthesis" onclick="requestSynthesis()" disabled style="display:none" data-i18n="btn_sintesis">Pedir síntesis</button>
+      <button class="btn btn-danger btn-finalizar-big" id="btnFinalizar" onclick="finalizarEntrevista()" data-i18n="btn_finalizar">Finalizar</button>
     </div>
   </div>
 
@@ -617,17 +604,17 @@ window.actualizarEvaluacion = async function(id, data) {
   <div class="screen" id="screenThanks">
     <div style="text-align:center;padding:80px 24px;">
       <div class="thanks-check">✓</div>
-      <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;">¡Muchas gracias!</div>
-      <div style="font-size:15px;color:var(--text-dim);line-height:1.7;max-width:400px;margin:0 auto;">Tu evaluación fue registrada correctamente. El equipo de selección recibirá los resultados en breve.</div>
+      <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;" data-i18n="thanks_t">¡Muchas gracias!</div>
+      <div style="font-size:15px;color:var(--text-dim);line-height:1.7;max-width:400px;margin:0 auto;" data-i18n="thanks_p">Tu evaluación fue registrada correctamente. El equipo de selección recibirá los resultados en breve.</div>
     </div>
-    <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">PotenciaIA · Basado en la teoría de E. Jaques</div>
+    <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:20px;padding-top:20px;border-top:1px solid var(--border);" data-i18n="footer">PotenciaIA · Basado en la teoría de E. Jaques</div>
   </div>
 
   <div class="screen" id="screenExpirado">
     <div style="text-align:center;padding:80px 24px;">
       <div style="font-size:48px;margin-bottom:14px;">⏳</div>
-      <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;">Este link ya no está disponible</div>
-      <div style="font-size:15px;color:var(--text-dim);line-height:1.7;max-width:400px;margin:0 auto;">El link para esta evaluación expiró. Contactá a la empresa que te lo envió para que te generen uno nuevo.</div>
+      <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:14px;" data-i18n="exp_t">Este link ya no está disponible</div>
+      <div style="font-size:15px;color:var(--text-dim);line-height:1.7;max-width:400px;margin:0 auto;" data-i18n="exp_p">El link para esta evaluación expiró. Contactá a la empresa que te lo envió para que te generen uno nuevo.</div>
     </div>
   </div>
 
@@ -636,11 +623,331 @@ window.actualizarEvaluacion = async function(id, data) {
 <!-- PROCESSING OVERLAY -->
 <div class="processing-overlay" id="processingOverlay">
   <div class="processing-spinner"></div>
-  <div class="processing-text">Analizando el discurso...</div>
+  <div class="processing-text" data-i18n="proc_analizando">Analizando el discurso...</div>
   <div class="processing-sub">PotenciaIA · Elliott Jaques</div>
 </div>
 
 <script>
+// ══════════════════════════════════════════════════
+// IDIOMA — viene en el link (&lang=es|en|pt). Sin parámetro = español.
+// ══════════════════════════════════════════════════
+const IDIOMA = (function(){
+  const l = (new URLSearchParams(window.location.search).get('lang') || 'es').toLowerCase().slice(0,2);
+  return ['es','en','pt'].includes(l) ? l : 'es';
+})();
+const LOCALES       = { es:'es-AR', en:'en-US', pt:'pt-BR' };   // fechas
+const SPEECH_LANG   = { es:'es-AR', en:'en-US', pt:'pt-BR' };   // voz y reconocimiento del navegador
+const DEEPGRAM_LANG = { es:'es',    en:'en',    pt:'pt-BR' };   // transcripción del audio
+const VOICE_PREFS   = {
+  es: ['es-AR','es-MX','es-US','es-419','es-ES'],
+  en: ['en-US','en-GB','en-AU','en-CA','en-IE'],
+  pt: ['pt-BR','pt-PT']
+};
+
+const I18N = {
+  es: {
+    hdr_sub: 'Análisis del discurso · Elliott Jaques',
+    phase_inicio: 'Inicio', phase_prep: 'Preparación', phase_entrevista: 'Entrevista', phase_fin: 'Finalizado',
+    welcome: 'Bienvenido/a a PotenciaIA',
+    hola: 'Hola, {n}',
+    intro_p: 'Este sistema evalúa tu capacidad de procesamiento mental a través del discurso oral libre. No hay respuestas correctas ni incorrectas — lo que se analiza es <strong style="color:var(--verde)">cómo organizás tu pensamiento</strong>, no el contenido de lo que decís.',
+    rule1: 'Se te asignará un tema al azar — lo verás en la cuenta regresiva',
+    rule2: 'Hablá libremente durante 6 a 10 minutos',
+    rule3: 'El agente no te interrumpe. Hablás sin cortes hasta que vos decidas terminar',
+    rule4: 'No hay juicio de valor sobre tus opiniones ni tu postura',
+    rule5: 'Todo el intercambio es por voz',
+    consent: 'Entiendo que esta entrevista se grabará en audio, se transcribirá y se analizará para evaluar mi potencial cognitivo, y que el resultado será compartido con la empresa que me invitó a participar.',
+    btn_comenzar: 'Comenzar evaluación →',
+    topic_h2: 'Antes de comenzar',
+    topic_p1: 'Escuchá la introducción completa antes de ver tu tema. El tema aparecerá en la cuenta regresiva — a partir de ese momento, tenés los segundos del countdown para empezar a pensar.',
+    topic_p2: 'La idea es ver <strong style="color:var(--verde)">cómo organizás tu discurso</strong>. No se realizará ningún juicio de valor sobre lo que digas. Tenés entre 6 y 10 minutos.',
+    btn_intro: 'Escuchar introducción →',
+    escuchando: 'Escuchando...',
+    btn_volver: '← Volver',
+    cd_tema: 'Tu tema es', cd_prep: 'Preparate para hablar...', cd_ya: '¡YA!', cd_empeza: 'Empezá a hablar ahora',
+    q_badge: 'PotenciaIA · Intervención',
+    t_label: 'Transcurrido',
+    int_label: 'Intervenciones:',
+    st_iniciando: 'Iniciando...',
+    tr_placeholder: 'El transcript aparecerá aquí mientras hablás',
+    btn_sintesis: 'Pedir síntesis',
+    btn_finalizar: 'Finalizar',
+    thanks_t: '¡Muchas gracias!',
+    thanks_p: 'Tu evaluación fue registrada correctamente. El equipo de selección recibirá los resultados en breve.',
+    footer: 'PotenciaIA · Basado en la teoría de E. Jaques',
+    exp_t: 'Este link ya no está disponible',
+    exp_p: 'El link para esta evaluación expiró. Contactá a la empresa que te lo envió para que te generen uno nuevo.',
+    proc_analizando: 'Analizando el discurso...',
+    anios: '{n} años',
+    puesto_e: 'Puesto E {e}',
+    spk_user: '◆ Participante',
+    alert_consent: 'Para continuar, tenés que aceptar que la entrevista se grabará y analizará.',
+    alert_mic: 'No pudimos acceder a tu micrófono. Revisá que tu navegador tenga permiso para usarlo (buscá el ícono de micrófono en la barra de direcciones) e intentá de nuevo.',
+    alert_browser: 'Tu navegador no soporta reconocimiento de voz. Usá Chrome.',
+    speech_intro: 'Te voy a pedir que hables sobre un tema que te voy a indicar. La idea es ver cómo organizás tu discurso. No voy a realizar ningún juicio de valor sobre lo que digas ni sobre el contenido. Puedo hacerte alguna pregunta para que te explayés más, pero la consigna es que hables durante al menos diez minutos sobre el tema. En unos segundos vas a ver tu tema.',
+    speech_adelante: 'Adelante. La idea es ver cómo organizás tu discurso sobre el tema que acabás de ver. Tenés entre seis y diez minutos. Cuando quieras, comenzá.',
+    closing_warn: 'Bien. Antes de cerrar, hacé una síntesis de los puntos más importantes que planteaste.',
+    closing_speak: 'Bien, antes de cerrar, hacé una síntesis de los puntos más importantes que planteaste.',
+    closing_tr: 'Hacé una síntesis de los puntos más importantes que planteaste.',
+    st_intervencion: 'PotenciaIA tiene una intervención...',
+    st_tu_respuesta: 'Tu respuesta...',
+    int_fallback: 'Antes dijiste "{w}", ¿podés ampliar sobre eso?',
+    synth_warn: 'Vas llegando al límite de tiempo. Se te pedirá una síntesis.',
+    synth_speak8: 'Llevás ya más de ocho minutos. Te pido que hagas una síntesis de los puntos más importantes que planteaste.',
+    synth_tr8: 'Te pido una síntesis de los puntos más importantes que planteaste.',
+    req_synth: 'Bien. ¿Podés hacer una síntesis de lo que planteaste hasta ahora?',
+    em_titulo: 'Transcript de evaluación', em_candidato: 'Candidato', em_no_reg: 'No registrado',
+    em_tema: 'Tema', em_fecha: 'Fecha', em_duracion: 'Duración', seg: 'seg',
+    st_pregunta: 'PotenciaIA tiene una pregunta...',
+    btn_ya_respondi: 'Ya respondí →',
+    st_pide_sintesis: 'PotenciaIA pide una síntesis...',
+    sintesis_frase: 'Para cerrar, te pido que hagas una síntesis de los puntos más importantes que planteaste.',
+    btn_terminar: 'Terminar y enviar →',
+    st_tu_sintesis: 'Tu síntesis...',
+    end_speak: 'Muchas gracias. Voy a analizar tu discurso ahora.',
+    proc_transcribiendo: 'Transcribiendo el audio...',
+    proc_grabacion: 'Procesando la grabación completa',
+    proc_tarda: 'Esto puede tardar hasta 90 segundos',
+    proc_guardando: 'Guardando resultados...',
+    proc_guardando_tr: 'Guardando transcript...',
+    proc_error: 'Error: {m} — el transcript fue guardado',
+    thanks_speak: 'Muchas gracias por tu participación. Tu evaluación fue registrada correctamente.',
+    resumen_proceso: 'Análisis en proceso...',
+    fb_pendiente: 'Análisis pendiente',
+    fb_resumen: 'Análisis automático no completado ({m}). El transcript fue guardado correctamente en Firebase.',
+    fb_alerta: 'Error de análisis: {m}',
+    tr_agente: 'POTENCIAÍA', tr_participante: 'PARTICIPANTE',
+    tr_header: '[TRANSCRIPT COMPLETO - Deepgram]', tr_intervenciones: '--- Intervenciones del agente ---',
+    demo_resumen: 'MODO DEMO — El participante mostró un patrón acumulativo: juntó múltiples causas hacia un diagnóstico propio.',
+    demo_evidencia: 'DEMO: Acumuló causas distintas hacia un diagnóstico central.',
+    demo_alerta: 'Resultado de ejemplo — modo demo activo.',
+    demo_modo: 'Acumulativo (Y-Y)', demo_nombre: 'Acumulación Diagnóstica', demo_horizonte: 'meses'
+  },
+  en: {
+    hdr_sub: 'Discourse analysis · Elliott Jaques',
+    phase_inicio: 'Start', phase_prep: 'Preparation', phase_entrevista: 'Interview', phase_fin: 'Finished',
+    welcome: 'Welcome to PotenciaIA',
+    hola: 'Hi, {n}',
+    intro_p: 'This system assesses your mental processing capability through free spoken discourse. There are no right or wrong answers — what is analyzed is <strong style="color:var(--verde)">how you organize your thinking</strong>, not the content of what you say.',
+    rule1: 'You will be given a random topic — you will see it during the countdown',
+    rule2: 'Speak freely for 6 to 10 minutes',
+    rule3: 'The agent will not interrupt you. You speak without breaks until you decide to finish',
+    rule4: 'There is no value judgment about your opinions or your position',
+    rule5: 'The whole exchange is by voice',
+    consent: 'I understand that this interview will be audio-recorded, transcribed and analyzed to assess my cognitive potential, and that the result will be shared with the company that invited me to take part.',
+    btn_comenzar: 'Start assessment →',
+    topic_h2: 'Before you start',
+    topic_p1: 'Listen to the full introduction before seeing your topic. The topic will appear during the countdown — from that moment, you have the seconds of the countdown to start thinking.',
+    topic_p2: 'The idea is to see <strong style="color:var(--verde)">how you organize your discourse</strong>. No value judgment will be made about what you say. You have between 6 and 10 minutes.',
+    btn_intro: 'Listen to the introduction →',
+    escuchando: 'Listening...',
+    btn_volver: '← Back',
+    cd_tema: 'Your topic is', cd_prep: 'Get ready to speak...', cd_ya: 'GO!', cd_empeza: 'Start speaking now',
+    q_badge: 'PotenciaIA · Intervention',
+    t_label: 'Elapsed',
+    int_label: 'Interventions:',
+    st_iniciando: 'Starting...',
+    tr_placeholder: 'The transcript will appear here while you speak',
+    btn_sintesis: 'Request summary',
+    btn_finalizar: 'Finish',
+    thanks_t: 'Thank you very much!',
+    thanks_p: 'Your assessment was recorded successfully. The selection team will receive the results shortly.',
+    footer: 'PotenciaIA · Based on E. Jaques’ theory',
+    exp_t: 'This link is no longer available',
+    exp_p: 'The link for this assessment has expired. Please contact the company that sent it to you to get a new one.',
+    proc_analizando: 'Analyzing the discourse...',
+    anios: '{n} years old',
+    puesto_e: 'Role E {e}',
+    spk_user: '◆ Participant',
+    alert_consent: 'To continue, you need to accept that the interview will be recorded and analyzed.',
+    alert_mic: 'We could not access your microphone. Check that your browser has permission to use it (look for the microphone icon in the address bar) and try again.',
+    alert_browser: 'Your browser does not support speech recognition. Please use Chrome.',
+    speech_intro: 'I am going to ask you to talk about a topic that I will give you. The idea is to see how you organize your discourse. I will not make any value judgment about what you say or about the content. I may ask you a question so that you can elaborate further, but the instruction is to speak for at least ten minutes about the topic. In a few seconds you will see your topic.',
+    speech_adelante: 'Go ahead. The idea is to see how you organize your discourse on the topic you just saw. You have between six and ten minutes. Whenever you are ready, begin.',
+    closing_warn: 'Good. Before closing, give a summary of the most important points you raised.',
+    closing_speak: 'Good, before closing, give a summary of the most important points you raised.',
+    closing_tr: 'Give a summary of the most important points you raised.',
+    st_intervencion: 'PotenciaIA has an intervention...',
+    st_tu_respuesta: 'Your answer...',
+    int_fallback: 'Earlier you said "{w}", can you expand on that?',
+    synth_warn: 'You are reaching the time limit. You will be asked for a summary.',
+    synth_speak8: 'You have been speaking for more than eight minutes. Please give a summary of the most important points you raised.',
+    synth_tr8: 'Please give a summary of the most important points you raised.',
+    req_synth: 'Good. Can you give a summary of what you have said so far?',
+    em_titulo: 'Assessment transcript', em_candidato: 'Candidate', em_no_reg: 'Not registered',
+    em_tema: 'Topic', em_fecha: 'Date', em_duracion: 'Duration', seg: 'sec',
+    st_pregunta: 'PotenciaIA has a question...',
+    btn_ya_respondi: 'I answered →',
+    st_pide_sintesis: 'PotenciaIA asks for a summary...',
+    sintesis_frase: 'To close, I ask you to give a summary of the most important points you raised.',
+    btn_terminar: 'Finish and submit →',
+    st_tu_sintesis: 'Your summary...',
+    end_speak: 'Thank you very much. I will now analyze your discourse.',
+    proc_transcribiendo: 'Transcribing the audio...',
+    proc_grabacion: 'Processing the full recording',
+    proc_tarda: 'This may take up to 90 seconds',
+    proc_guardando: 'Saving results...',
+    proc_guardando_tr: 'Saving transcript...',
+    proc_error: 'Error: {m} — the transcript was saved',
+    thanks_speak: 'Thank you very much for taking part. Your assessment was recorded successfully.',
+    resumen_proceso: 'Analysis in progress...',
+    fb_pendiente: 'Analysis pending',
+    fb_resumen: 'Automatic analysis not completed ({m}). The transcript was saved successfully in Firebase.',
+    fb_alerta: 'Analysis error: {m}',
+    tr_agente: 'POTENCIAIA', tr_participante: 'PARTICIPANT',
+    tr_header: '[FULL TRANSCRIPT - Deepgram]', tr_intervenciones: '--- Agent interventions ---',
+    demo_resumen: 'DEMO MODE — The participant showed a cumulative pattern: brought several causes together toward a diagnosis of their own.',
+    demo_evidencia: 'DEMO: Accumulated different causes toward a central diagnosis.',
+    demo_alerta: 'Example result — demo mode active.',
+    demo_modo: 'Cumulative (And-And)', demo_nombre: 'Diagnostic Accumulation', demo_horizonte: 'months'
+  },
+  pt: {
+    hdr_sub: 'Análise do discurso · Elliott Jaques',
+    phase_inicio: 'Início', phase_prep: 'Preparação', phase_entrevista: 'Entrevista', phase_fin: 'Finalizado',
+    welcome: 'Bem-vindo(a) ao PotenciaIA',
+    hola: 'Olá, {n}',
+    intro_p: 'Este sistema avalia sua capacidade de processamento mental por meio do discurso oral livre. Não há respostas certas ou erradas — o que se analisa é <strong style="color:var(--verde)">como você organiza seu pensamento</strong>, não o conteúdo do que você diz.',
+    rule1: 'Você receberá um tema aleatório — vai vê-lo durante a contagem regressiva',
+    rule2: 'Fale livremente durante 6 a 10 minutos',
+    rule3: 'O agente não vai interromper você. Você fala sem pausas até decidir terminar',
+    rule4: 'Não há julgamento de valor sobre suas opiniões nem sobre sua posição',
+    rule5: 'Toda a interação é por voz',
+    consent: 'Entendo que esta entrevista será gravada em áudio, transcrita e analisada para avaliar meu potencial cognitivo, e que o resultado será compartilhado com a empresa que me convidou a participar.',
+    btn_comenzar: 'Iniciar avaliação →',
+    topic_h2: 'Antes de começar',
+    topic_p1: 'Ouça a introdução completa antes de ver seu tema. O tema aparecerá na contagem regressiva — a partir desse momento, você tem os segundos da contagem para começar a pensar.',
+    topic_p2: 'A ideia é ver <strong style="color:var(--verde)">como você organiza seu discurso</strong>. Não será feito nenhum julgamento de valor sobre o que você disser. Você tem entre 6 e 10 minutos.',
+    btn_intro: 'Ouvir a introdução →',
+    escuchando: 'Ouvindo...',
+    btn_volver: '← Voltar',
+    cd_tema: 'Seu tema é', cd_prep: 'Prepare-se para falar...', cd_ya: 'JÁ!', cd_empeza: 'Comece a falar agora',
+    q_badge: 'PotenciaIA · Intervenção',
+    t_label: 'Decorrido',
+    int_label: 'Intervenções:',
+    st_iniciando: 'Iniciando...',
+    tr_placeholder: 'A transcrição aparecerá aqui enquanto você fala',
+    btn_sintesis: 'Pedir síntese',
+    btn_finalizar: 'Finalizar',
+    thanks_t: 'Muito obrigado!',
+    thanks_p: 'Sua avaliação foi registrada com sucesso. A equipe de seleção receberá os resultados em breve.',
+    footer: 'PotenciaIA · Baseado na teoria de E. Jaques',
+    exp_t: 'Este link não está mais disponível',
+    exp_p: 'O link desta avaliação expirou. Entre em contato com a empresa que o enviou para que gerem um novo.',
+    proc_analizando: 'Analisando o discurso...',
+    anios: '{n} anos',
+    puesto_e: 'Cargo E {e}',
+    spk_user: '◆ Participante',
+    alert_consent: 'Para continuar, você precisa aceitar que a entrevista será gravada e analisada.',
+    alert_mic: 'Não conseguimos acessar seu microfone. Verifique se o navegador tem permissão para usá-lo (procure o ícone de microfone na barra de endereços) e tente novamente.',
+    alert_browser: 'Seu navegador não suporta reconhecimento de voz. Use o Chrome.',
+    speech_intro: 'Vou pedir que você fale sobre um tema que vou indicar. A ideia é ver como você organiza seu discurso. Não vou fazer nenhum julgamento de valor sobre o que você disser nem sobre o conteúdo. Posso fazer alguma pergunta para que você desenvolva mais, mas a instrução é que você fale durante pelo menos dez minutos sobre o tema. Em alguns segundos você verá seu tema.',
+    speech_adelante: 'Pode começar. A ideia é ver como você organiza seu discurso sobre o tema que acabou de ver. Você tem entre seis e dez minutos. Quando quiser, comece.',
+    closing_warn: 'Muito bem. Antes de encerrar, faça uma síntese dos pontos mais importantes que você levantou.',
+    closing_speak: 'Muito bem, antes de encerrar, faça uma síntese dos pontos mais importantes que você levantou.',
+    closing_tr: 'Faça uma síntese dos pontos mais importantes que você levantou.',
+    st_intervencion: 'PotenciaIA tem uma intervenção...',
+    st_tu_respuesta: 'Sua resposta...',
+    int_fallback: 'Antes você disse "{w}", pode desenvolver isso?',
+    synth_warn: 'Você está chegando ao limite de tempo. Será pedida uma síntese.',
+    synth_speak8: 'Você já está falando há mais de oito minutos. Peço que faça uma síntese dos pontos mais importantes que levantou.',
+    synth_tr8: 'Peço uma síntese dos pontos mais importantes que você levantou.',
+    req_synth: 'Muito bem. Pode fazer uma síntese do que você disse até agora?',
+    em_titulo: 'Transcrição da avaliação', em_candidato: 'Candidato', em_no_reg: 'Não registrado',
+    em_tema: 'Tema', em_fecha: 'Data', em_duracion: 'Duração', seg: 'seg',
+    st_pregunta: 'PotenciaIA tem uma pergunta...',
+    btn_ya_respondi: 'Já respondi →',
+    st_pide_sintesis: 'PotenciaIA pede uma síntese...',
+    sintesis_frase: 'Para encerrar, peço que você faça uma síntese dos pontos mais importantes que levantou.',
+    btn_terminar: 'Terminar e enviar →',
+    st_tu_sintesis: 'Sua síntese...',
+    end_speak: 'Muito obrigado. Agora vou analisar seu discurso.',
+    proc_transcribiendo: 'Transcrevendo o áudio...',
+    proc_grabacion: 'Processando a gravação completa',
+    proc_tarda: 'Isso pode levar até 90 segundos',
+    proc_guardando: 'Salvando resultados...',
+    proc_guardando_tr: 'Salvando transcrição...',
+    proc_error: 'Erro: {m} — a transcrição foi salva',
+    thanks_speak: 'Muito obrigado pela sua participação. Sua avaliação foi registrada com sucesso.',
+    resumen_proceso: 'Análise em andamento...',
+    fb_pendiente: 'Análise pendente',
+    fb_resumen: 'Análise automática não concluída ({m}). A transcrição foi salva com sucesso no Firebase.',
+    fb_alerta: 'Erro de análise: {m}',
+    tr_agente: 'POTENCIAIA', tr_participante: 'PARTICIPANTE',
+    tr_header: '[TRANSCRIÇÃO COMPLETA - Deepgram]', tr_intervenciones: '--- Intervenções do agente ---',
+    demo_resumen: 'MODO DEMO — O participante mostrou um padrão cumulativo: reuniu várias causas em direção a um diagnóstico próprio.',
+    demo_evidencia: 'DEMO: Acumulou causas diferentes em direção a um diagnóstico central.',
+    demo_alerta: 'Resultado de exemplo — modo demo ativo.',
+    demo_modo: 'Cumulativo (E-E)', demo_nombre: 'Acumulação Diagnóstica', demo_horizonte: 'meses'
+  }
+};
+
+// Listas que cambian según el idioma
+const I18N_LISTAS = {
+  es: {
+    topics: ['Legalización de la droga','Inseguridad ciudadana','Cambio climático','Deserción escolar'],
+    demos: ['Antes dijiste "{w}", ¿podés ampliar eso?','¿Qué más me podés contar sobre eso?','¿Cómo lo pensás vos?','¿Podés desarrollar ese punto un poco más?'],
+    fallbacks: ['¿Podés contarme más?','¿Qué más?','¿Podés desarrollar eso?']
+  },
+  en: {
+    topics: ['Drug legalization','Public safety and crime','Climate change','School dropout'],
+    demos: ['Earlier you said "{w}", can you expand on that?','What else can you tell me about that?','How do you see it?','Can you develop that point a little more?'],
+    fallbacks: ['Can you tell me more?','What else?','Can you develop that?']
+  },
+  pt: {
+    topics: ['Legalização das drogas','Insegurança pública','Mudanças climáticas','Evasão escolar'],
+    demos: ['Antes você disse "{w}", pode desenvolver isso?','O que mais você pode me contar sobre isso?','Como você pensa isso?','Pode desenvolver esse ponto um pouco mais?'],
+    fallbacks: ['Pode me contar mais?','O que mais?','Pode desenvolver isso?']
+  }
+};
+
+function t(key, vars) {
+  let s = (I18N[IDIOMA] && I18N[IDIOMA][key] != null) ? I18N[IDIOMA][key]
+        : (I18N.es[key] != null ? I18N.es[key] : key);
+  if (vars) Object.keys(vars).forEach(k => { s = s.split('{' + k + '}').join(vars[k]); });
+  return s;
+}
+function lista(nombre) { return (I18N_LISTAS[IDIOMA] || I18N_LISTAS.es)[nombre]; }
+
+// Aplica los textos fijos de la pantalla (elementos con data-i18n / data-i18n-html)
+function aplicarIdioma() {
+  document.documentElement.lang = IDIOMA === 'pt' ? 'pt-BR' : IDIOMA;
+  if (IDIOMA === 'es') return; // el HTML ya está en español
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+}
+aplicarIdioma();
+
+// Instrucción extra de idioma para el análisis del discurso (solo si no es español)
+function bloqueIdiomaAnalisis() {
+  if (IDIOMA === 'es') return '';
+  const nombre = IDIOMA === 'en' ? 'inglés' : 'portugués de Brasil';
+  const salida = IDIOMA === 'en' ? 'inglés (English, US)' : 'portugués de Brasil (Português do Brasil)';
+  const modos = IDIOMA === 'en'
+    ? '"Declarative (Or-Or)", "Cumulative (And-And)", "Serial (If→Then→Then)", "Parallel (A if and only if B)"'
+    : '"Declarativo (Ou-Ou)", "Cumulativo (E-E)", "Serial (Se→Então→Então)", "Paralelo (A se e somente se B)"';
+  return `
+
+════════════════════════════════════
+IDIOMA DEL DISCURSO Y DE LA RESPUESTA — CRÍTICO
+════════════════════════════════════
+El participante habló en ${nombre}. El transcript está en ese idioma.
+- Aplicá EXACTAMENTE el mismo algoritmo, los mismos criterios y las mismas trampas. Los ejemplos calibrados están en español: buscá en el discurso las ESTRUCTURAS equivalentes (cadenas causales, condicionales, secuencias con dependencias, comparación de modelos en paralelo), no las palabras literales.
+- El idioma no suma ni resta: no penalices ni favorezcas al participante por hablar en ${nombre}.
+- Escribí en ${salida} los campos "resumen", "evidencias", "alertas", "nombre_estrato" y "horizonte_implicito".
+- En "modo_procesamiento" usá exactamente uno de estos valores: ${modos}.
+- NO traduzcas ni cambies el formato de estos campos: "estrato" (número), "subestrato" (formato exacto "E1-bajo", "E2-medio", "E3-alto", etc., siempre con bajo/medio/alto en español), "modo_curva" ("I" a "VI") y "confianza" (número).
+- Las citas textuales del discurso dentro de "evidencias" van en el idioma original del participante.`;
+}
+
+// Instrucción extra de idioma para las intervenciones (preguntas cortas al candidato)
+function bloqueIdiomaIntervencion() {
+  if (IDIOMA === 'es') return '';
+  if (IDIOMA === 'en') return `
+IDIOMA: el participante habla en inglés. Formulá la intervención SOLO en inglés, con estas fórmulas: "Earlier you said [literal words], can you expand on that?", "What else?", "How do you see it?", "What do you mean by [exact term]?"`;
+  return `
+IDIOMA: el participante habla en portugués de Brasil. Formulá la intervención SOLO en portugués de Brasil, con estas fórmulas: "Antes você disse [palavras literais], pode desenvolver isso?", "O que mais?", "Como você pensa isso?", "O que você quer dizer com [termo exato]?"`;
+}
+
 // ══════════════════════════════════════════════════
 // LEER PARÁMETROS DE URL (vienen del wizard del dashboard)
 // ══════════════════════════════════════════════════
@@ -666,11 +973,11 @@ if (candidatoNombre || candidatoEdad || candidatoPuesto) {
   info.classList.add('visible');
   if (candidatoNombre) {
     document.getElementById('ciNombre').textContent = candidatoNombre;
-    document.getElementById('welcomeTitle').textContent = `Hola, ${candidatoNombre.split(' ')[0]}`;
+    document.getElementById('welcomeTitle').textContent = t('hola', { n: candidatoNombre.split(' ')[0] });
   }
-  if (candidatoEdad)   document.getElementById('ciEdad').textContent    = `${candidatoEdad} años`;
+  if (candidatoEdad)   document.getElementById('ciEdad').textContent    = t('anios', { n: candidatoEdad });
   if (candidatoPuesto) document.getElementById('ciPuesto').textContent  = candidatoPuesto;
-  if (estratoPuesto)   document.getElementById('ciEstratoPuesto').textContent = `Puesto E ${['','I','II','III','IV','V'][estratoPuesto] || estratoPuesto}`;
+  if (estratoPuesto)   document.getElementById('ciEstratoPuesto').textContent = t('puesto_e', { e: ['','I','II','III','IV','V'][estratoPuesto] || estratoPuesto });
 }
 
 // ══════════════════════════════════════════════════
@@ -693,19 +1000,14 @@ function toggleDemo() {
 
 const DEMO_RESULT = {
   estrato: 2, subestrato: 'E2-medio',
-  modo_procesamiento: 'Acumulativo (Y-Y)', confianza: 65,
-  nombre_estrato: 'Acumulación Diagnóstica', horizonte_implicito: 'meses',
-  resumen: 'MODO DEMO — El participante mostró un patrón acumulativo: juntó múltiples causas hacia un diagnóstico propio.',
-  evidencias: ['DEMO: Acumuló causas distintas hacia un diagnóstico central.'],
-  alertas: ['Resultado de ejemplo — modo demo activo.']
+  modo_procesamiento: t('demo_modo'), confianza: 65,
+  nombre_estrato: t('demo_nombre'), horizonte_implicito: t('demo_horizonte'),
+  resumen: t('demo_resumen'),
+  evidencias: [t('demo_evidencia')],
+  alertas: [t('demo_alerta')]
 };
 
-const TOPICS = [
-  'Legalización de la droga',
-  'Inseguridad ciudadana',
-  'Cambio climático',
-  'Deserción escolar'
-];
+const TOPICS = lista('topics');
 
 // ══════════════════════════════════════════════════
 // ESTADO GLOBAL
@@ -736,8 +1038,8 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   const labels = {
-    screenSetup: 'Inicio', screenTopic: 'Preparación',
-    screenInterview: 'Entrevista', screenThanks: 'Finalizado'
+    screenSetup: t('phase_inicio'), screenTopic: t('phase_prep'),
+    screenInterview: t('phase_entrevista'), screenThanks: t('phase_fin')
   };
   document.getElementById('phaseBadge').textContent = labels[id] || '';
 }
@@ -778,7 +1080,7 @@ function addTranscriptEntry(speaker, text) {
   entry.className = 'transcript-entry';
   const sp = document.createElement('div');
   sp.className = 'speaker ' + speaker;
-  sp.textContent = speaker === 'agent' ? '▶ PotenciaIA' : '◆ Participante';
+  sp.textContent = speaker === 'agent' ? '▶ PotenciaIA' : t('spk_user');
   const ct = document.createElement('div');
   ct.className = 'content';
   ct.textContent = text;
@@ -802,17 +1104,18 @@ function hideQuestionOverlay() {
 let cachedVoice = null;
 
 function pickSpanishVoice() {
+  // (el nombre quedó por compatibilidad: elige la voz del idioma de la entrevista)
   if (cachedVoice) return cachedVoice;
   const voices = speechSynthesis.getVoices();
   if (!voices.length) return null;
-  // Prioridad: es-AR > es-MX > es-US > es-419 > es-ES > cualquier español
-  const prefs = ['es-AR','es-MX','es-US','es-419','es-ES'];
+  // Prioridad según el idioma (en español: es-AR > es-MX > es-US > es-419 > es-ES)
+  const prefs = VOICE_PREFS[IDIOMA] || VOICE_PREFS.es;
   for (const lang of prefs) {
-    const v = voices.find(v => v.lang === lang);
+    const v = voices.find(v => v.lang === lang || (v.lang && v.lang.replace('_','-') === lang));
     if (v) { cachedVoice = v; return v; }
   }
-  const anyEs = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('es'));
-  if (anyEs) { cachedVoice = anyEs; return anyEs; }
+  const anyLang = voices.find(v => v.lang && v.lang.toLowerCase().startsWith(IDIOMA));
+  if (anyLang) { cachedVoice = anyLang; return anyLang; }
   return null;
 }
 
@@ -828,7 +1131,7 @@ function speak(text) {
 
     const spoken = fixPronunciation(text);
     const u = new SpeechSynthesisUtterance(spoken);
-    u.lang = 'es-AR'; u.rate = 0.88; u.pitch = 1.05; u.volume = 1;
+    u.lang = SPEECH_LANG[IDIOMA]; u.rate = 0.88; u.pitch = 1.05; u.volume = 1;
 
     const voice = pickSpanishVoice();
     if (voice) { u.voice = voice; u.lang = voice.lang; }
@@ -846,7 +1149,7 @@ async function startSetup() {
   // La clave de Anthropic ahora la maneja el Worker, no hace falta pedirla acá.
   if (linkExpirado) { showScreen('screenExpirado'); return; }
   if (!document.getElementById('consentimientoCheck').checked) {
-    alert('Para continuar, tenés que aceptar que la entrevista se grabará y analizará.');
+    alert(t('alert_consent'));
     return;
   }
   if (!demoMode) {
@@ -854,7 +1157,7 @@ async function startSetup() {
       const testStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       testStream.getTracks().forEach(t => t.stop()); // solo probamos el permiso, todavía no grabamos
     } catch (err) {
-      alert('No pudimos acceder a tu micrófono. Revisá que tu navegador tenga permiso para usarlo (buscá el ícono de micrófono en la barra de direcciones) e intentá de nuevo.');
+      alert(t('alert_mic'));
       return;
     }
   }
@@ -870,8 +1173,8 @@ async function startSetup() {
 async function startIntroThenCountdown() {
   const btn = document.getElementById('btnStartIntro');
   btn.disabled = true;
-  btn.textContent = 'Escuchando...';
-  const intro = 'Te voy a pedir que hables sobre un tema que te voy a indicar. La idea es ver cómo organizás tu discurso. No voy a realizar ningún juicio de valor sobre lo que digas ni sobre el contenido. Puedo hacerte alguna pregunta para que te explayés más, pero la consigna es que hables durante al menos diez minutos sobre el tema. En unos segundos vas a ver tu tema.';
+  btn.textContent = t('escuchando');
+  const intro = t('speech_intro');
   await speak(intro);
   triggerCountdown();
 }
@@ -892,13 +1195,13 @@ function triggerCountdown() {
     if (count > 0) {
       numEl.textContent = count;
       numEl.classList.remove('go');
-      instrEl.textContent = 'Preparate para hablar...';
+      instrEl.textContent = t('cd_prep');
       count--;
       setTimeout(tick, 1000);
     } else {
-      numEl.textContent = '¡YA!';
+      numEl.textContent = t('cd_ya');
       numEl.classList.add('go');
-      instrEl.textContent = 'Empezá a hablar ahora';
+      instrEl.textContent = t('cd_empeza');
       setTimeout(() => { overlay.classList.remove('active'); startInterview(); }, 700);
     }
   }
@@ -912,17 +1215,17 @@ async function startInterview() {
   interviewPhase = 'speaking'; lastSpeechTimestamp = Date.now();
   clearTimeout(closingSilenceTimer);
 
-  document.getElementById('transcriptArea').innerHTML = '<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px 0">El transcript aparecerá aquí mientras hablás</div>';
+  document.getElementById('transcriptArea').innerHTML = '<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px 0">' + t('tr_placeholder') + '</div>';
   initWaveform();
   showScreen('screenInterview');
 
-  const intro = 'Adelante. La idea es ver cómo organizás tu discurso sobre el tema que acabás de ver. Tenés entre seis y diez minutos. Cuando quieras, comenzá.';
+  const intro = t('speech_adelante');
   await speak(intro);
   addTranscriptEntry('agent', intro);
   interviewPhase = 'speaking';
   startTimer();
   startDeepgramRecording();  // fuente única del transcript — se queda con el micrófono
-  setStatus('listening', 'Escuchando...');
+  setStatus('listening', t('escuchando'));
 }
 
 // ── TIMER ──
@@ -982,10 +1285,10 @@ async function triggerClosingSynthesis() {
   if (interviewPhase === 'ended') return;
   if (lastUserText.trim().length > 5) { addTranscriptEntry('user', lastUserText.trim()); lastUserText = ''; }
   const wb = document.getElementById('warningBox');
-  wb.textContent = 'Bien. Antes de cerrar, hacé una síntesis de los puntos más importantes que planteaste.';
+  wb.textContent = t('closing_warn');
   wb.classList.add('visible');
-  await speak('Bien, antes de cerrar, hacé una síntesis de los puntos más importantes que planteaste.');
-  addTranscriptEntry('agent', 'Hacé una síntesis de los puntos más importantes que planteaste.');
+  await speak(t('closing_speak'));
+  addTranscriptEntry('agent', t('closing_tr'));
 }
 
 // ── SPEECH RECOGNITION — instancia única durante toda la entrevista ──
@@ -994,12 +1297,12 @@ let flushTimer = null;
 
 function initRecognition() {
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert('Tu navegador no soporta reconocimiento de voz. Usá Chrome.');
+    alert(t('alert_browser'));
     return null;
   }
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   const rec = new SR();
-  rec.lang = 'es-AR'; rec.continuous = true; rec.interimResults = true;
+  rec.lang = SPEECH_LANG[IDIOMA]; rec.continuous = true; rec.interimResults = true;
 
   rec.onresult = (e) => {
     if (isSpeaking || interviewPhase === 'ended') return;
@@ -1070,7 +1373,7 @@ function startContinuousListening() {
   }
   if (!recognitionInstance) return;
   try { recognitionInstance.start(); } catch(err) {}
-  setStatus('listening', 'Escuchando...');
+  setStatus('listening', t('escuchando'));
 }
 
 function stopListening() {
@@ -1130,7 +1433,7 @@ function stopDeepgramRecording() {
 async function transcribeWithDeepgram(audioBlob) {
   if (!audioBlob) return null;
   try {
-    const res = await fetch('https://potenciaia-proxy.dileocande.workers.dev/deepgram-listen?model=nova-3&language=es&smart_format=true&punctuate=true', {
+    const res = await fetch('https://potenciaia-proxy.dileocande.workers.dev/deepgram-listen?model=nova-3&language=' + DEEPGRAM_LANG[IDIOMA] + '&smart_format=true&punctuate=true', {
       method: 'POST',
       headers: {
         'Content-Type': audioBlob.type || 'audio/webm',
@@ -1164,7 +1467,7 @@ async function triggerInterruption() {
   lastUserText = '';
   document.getElementById('int' + (interruptionCount + 1)).classList.add('done');
   interruptionCount++;
-  setStatus('speaking', 'PotenciaIA tiene una intervención...');
+  setStatus('speaking', t('st_intervencion'));
   const question = await generateInterruptionQuestion(accumulatedUserText.slice(-300));
   showQuestionOverlay(question);
   await speak(question);
@@ -1173,25 +1476,20 @@ async function triggerInterruption() {
   interviewPhase = 'speaking';
   lastUserText = '';
   lastSpeechTimestamp = Date.now();
-  setStatus('listening', 'Tu respuesta...');
+  setStatus('listening', t('st_tu_respuesta'));
   startContinuousListening();
 }
 
 async function generateInterruptionQuestion(context) {
   if (demoMode) {
     const lw = context.trim().split(' ').slice(-4).join(' ');
-    const demos = [
-      `Antes dijiste "${lw}", ¿podés ampliar eso?`,
-      '¿Qué más me podés contar sobre eso?',
-      '¿Cómo lo pensás vos?',
-      '¿Podés desarrollar ese punto un poco más?'
-    ];
-    return demos[interruptionCount % demos.length];
+    const demos = lista('demos');
+    return demos[interruptionCount % demos.length].split('{w}').join(lw);
   }
 
   const words = context.trim().split(/\s+/).filter(Boolean);
   if (words.length < 20) {
-    const fallbacks = ['¿Podés contarme más?', '¿Qué más?', '¿Podés desarrollar eso?'];
+    const fallbacks = lista('fallbacks');
     return fallbacks[interruptionCount % fallbacks.length];
   }
 
@@ -1199,7 +1497,7 @@ async function generateInterruptionQuestion(context) {
 Tu única función es lograr que el candidato AMPLÍE lo que ya dijo. NO introducís contenido nuevo.
 Solo tomás palabras literales de su discurso y pedís que desarrolle.
 FÓRMULAS: "Antes dijiste [palabras literales], ¿podés ampliar eso?", "¿Qué más?", "¿Cómo lo pensás vos?", "¿A qué te referís con [término exacto]?"
-Máximo 15 palabras. Solo la frase, sin comillas ni prefijos.`;
+Máximo 15 palabras. Solo la frase, sin comillas ni prefijos.` + bloqueIdiomaIntervencion();
 
   try {
     const res = await fetch('https://potenciaia-proxy.dileocande.workers.dev', {
@@ -1219,7 +1517,7 @@ Máximo 15 palabras. Solo la frase, sin comillas ni prefijos.`;
     return data.content[0].text.trim();
   } catch(e) {
     const lw = context.split(' ').slice(-5).join(' ');
-    return `Antes dijiste "${lw}", ¿podés ampliar sobre eso?`;
+    return t('int_fallback', { w: lw });
   }
 }
 
@@ -1227,18 +1525,18 @@ Máximo 15 palabras. Solo la frase, sin comillas ni prefijos.`;
 async function triggerSynthesisRequest() {
   if (interviewPhase === 'ended') return;
   const wb = document.getElementById('warningBox');
-  wb.textContent = 'Vas llegando al límite de tiempo. Se te pedirá una síntesis.';
+  wb.textContent = t('synth_warn');
   wb.classList.add('visible');
-  await speak('Llevás ya más de ocho minutos. Te pido que hagas una síntesis de los puntos más importantes que planteaste.');
-  addTranscriptEntry('agent', 'Te pido una síntesis de los puntos más importantes que planteaste.');
+  await speak(t('synth_speak8'));
+  addTranscriptEntry('agent', t('synth_tr8'));
 }
 
 async function requestSynthesis() {
   if (synthesisRequested) return;
   synthesisRequested = true;
   document.getElementById('btnSynthesis').disabled = true;
-  await speak('Bien. ¿Podés hacer una síntesis de lo que planteaste hasta ahora?');
-  addTranscriptEntry('agent', '¿Podés hacer una síntesis de lo que planteaste hasta ahora?');
+  await speak(t('req_synth'));
+  addTranscriptEntry('agent', t('req_synth').replace(/^[^.?!]*[.!]\s*/, ''));
 }
 
 // ── RESPALDO TRANSCRIPT ──
@@ -1248,12 +1546,12 @@ function descargarTranscriptEmergencia(transcript, nombre) {
     const nombreArchivo = `PotenciaIA_${(nombre||'candidato').replace(/\s+/g,'_')}_${fecha}.txt`;
     const contenido = [
       '═══════════════════════════════════════',
-      'POTENCIAÍA · Transcript de evaluación',
+      `POTENCIAÍA · ${t('em_titulo')}`,
       '═══════════════════════════════════════',
-      `Candidato: ${nombre || 'No registrado'}`,
-      `Tema: ${selectedTopic}`,
-      `Fecha: ${new Date().toLocaleString('es-AR')}`,
-      `Duración: ${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
+      `${t('em_candidato')}: ${nombre || t('em_no_reg')}`,
+      `${t('em_tema')}: ${selectedTopic}`,
+      `${t('em_fecha')}: ${new Date().toLocaleString(LOCALES[IDIOMA])}`,
+      `${t('em_duracion')}: ${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} ${t('seg')}`,
       '═══════════════════════════════════════',
       '',
       transcript
@@ -1317,7 +1615,7 @@ async function finalizarEntrevista() {
 
 async function hacerPregunta() {
   interviewPhase = 'interrupted';
-  setStatus('speaking', 'PotenciaIA tiene una pregunta...');
+  setStatus('speaking', t('st_pregunta'));
   const pregunta = await generateInterruptionQuestion(accumulatedUserText.slice(-300));
   showQuestionOverlay(pregunta);
   await speak(pregunta);
@@ -1330,16 +1628,16 @@ async function hacerPregunta() {
   lastSpeechTimestamp = Date.now();
   closingStage = 'pregunta';
     const btn = document.getElementById('btnFinalizar');
-  if (btn) btn.textContent = 'Ya respondí →';
-  setStatus('listening', 'Tu respuesta...');
+  if (btn) btn.textContent = t('btn_ya_respondi');
+  setStatus('listening', t('st_tu_respuesta'));
 }
 
 async function pedirSintesis() {
   interviewPhase = 'interrupted';
-  setStatus('speaking', 'PotenciaIA pide una síntesis...');
-  const frase = 'Para cerrar, te pido que hagas una síntesis de los puntos más importantes que planteaste.';
+  setStatus('speaking', t('st_pide_sintesis'));
+  const frase = t('sintesis_frase');
   await speak(frase);
-  addTranscriptEntry('agent', 'Hacé una síntesis de los puntos más importantes que planteaste.');
+  addTranscriptEntry('agent', t('closing_tr'));
 
   // Reabrimos el micrófono para escuchar la síntesis
   interviewPhase = 'speaking';
@@ -1347,8 +1645,8 @@ async function pedirSintesis() {
   lastSpeechTimestamp = Date.now();
   closingStage = 'sintesis';
   const btn = document.getElementById('btnFinalizar');
-  if (btn) btn.textContent = 'Terminar y enviar →';
-  setStatus('listening', 'Tu síntesis...');
+  if (btn) btn.textContent = t('btn_terminar');
+  setStatus('listening', t('st_tu_sintesis'));
 }
 // ══════════════════════════════════════════════════
 // FIN DE ENTREVISTA
@@ -1360,8 +1658,8 @@ async function endInterview() {
   clearInterval(waveInterval);
   clearTimeout(closingSilenceTimer);
 
-  await speak('Muchas gracias. Voy a analizar tu discurso ahora.');
-  addTranscriptEntry('agent', 'Muchas gracias. Voy a analizar tu discurso ahora.');
+  await speak(t('end_speak'));
+  addTranscriptEntry('agent', t('end_speak'));
 
   // ── Volcar TODO texto pendiente antes de construir el transcript ──
   flushPendingText();
@@ -1378,8 +1676,8 @@ async function endInterview() {
   const procSub0  = document.querySelector('.processing-sub');
   let deepgramText = null;
   try {
-    if (procText0) procText0.textContent = 'Transcribiendo el audio...';
-    if (procSub0)  procSub0.textContent  = 'Procesando la grabación completa';
+    if (procText0) procText0.textContent = t('proc_transcribiendo');
+    if (procSub0)  procSub0.textContent  = t('proc_grabacion');
     const audioBlob = await stopDeepgramRecording();
     deepgramText = await transcribeWithDeepgram(audioBlob);
   } catch(e) {
@@ -1391,11 +1689,11 @@ async function endInterview() {
   if (deepgramText && deepgramText.length > 0) {
     const agentLines = transcriptLog
       .filter(e => e.speaker === 'agent')
-      .map(e => `[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] POTENCIAÍA: ${e.text}`);
-    fullTranscript = `[TRANSCRIPT COMPLETO - Deepgram]\n\nPARTICIPANTE: ${deepgramText}\n\n--- Intervenciones del agente ---\n${agentLines.join('\n')}`;
+      .map(e => `[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] ${t('tr_agente')}: ${e.text}`);
+    fullTranscript = `${t('tr_header')}\n\n${t('tr_participante')}: ${deepgramText}\n\n${t('tr_intervenciones')}\n${agentLines.join('\n')}`;
   } else {
     fullTranscript = transcriptLog
-      .map(e => `[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] ${e.speaker==='agent'?'POTENCIAÍA':'PARTICIPANTE'}: ${e.text}`)
+      .map(e => `[${Math.floor(e.time/60)}:${String(e.time%60).padStart(2,'0')}] ${e.speaker==='agent'?t('tr_agente'):t('tr_participante')}: ${e.text}`)
       .join('\n\n');
   }
 
@@ -1411,16 +1709,17 @@ async function endInterview() {
     estrato_puesto:   estratoPuesto   || null,   // ← CLAVE para comparar fit
     cliente_id:       clienteId       || null,   // ← CLAVE: a qué cliente HR pertenece esta evaluación
     token:            sessionToken    || null,
+    idioma:           IDIOMA,                    // idioma de la entrevista (es / en / pt)
     consentimiento_otorgado: true,
     consentimiento_fecha:    new Date().toISOString(),
     tema:             selectedTopic,
-    duracion:         `${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} seg`,
+    duracion:         `${Math.floor(elapsedSeconds/60)} min ${elapsedSeconds%60} ${t('seg')}`,
     duracion_segundos: elapsedSeconds,
     transcript:       fullTranscript,
     estado:           'pendiente_analisis',
     estrato:          null,
     confianza:        null,
-    resumen:          'Análisis en proceso...',
+    resumen:          t('resumen_proceso'),
     evidencias:       '',
     alertas:          ''
   };
@@ -1443,8 +1742,8 @@ async function endInterview() {
   const procSub  = document.querySelector('.processing-sub');
 
   try {
-    if (procText) procText.textContent = 'Analizando el discurso...';
-    if (procSub)  procSub.textContent  = 'Esto puede tardar hasta 90 segundos';
+    if (procText) procText.textContent = t('proc_analizando');
+    if (procSub)  procSub.textContent  = t('proc_tarda');
 
     const analysisPromise = analyzeWithClaude(fullTranscript);
     const timeoutPromise  = new Promise((_, reject) =>
@@ -1453,21 +1752,21 @@ async function endInterview() {
     result = await Promise.race([analysisPromise, timeoutPromise]);
     analisisExitoso = true;
 
-    if (procText) procText.textContent = 'Guardando resultados...';
+    if (procText) procText.textContent = t('proc_guardando');
 
   } catch(e) {
     console.error('Análisis falló:', e.message);
 
     // Mostrar el error en el overlay para debugging
-    if (procText) procText.textContent = 'Guardando transcript...';
-    if (procSub)  procSub.textContent  = `Error: ${e.message} — el transcript fue guardado`;
+    if (procText) procText.textContent = t('proc_guardando_tr');
+    if (procSub)  procSub.textContent  = t('proc_error', { m: e.message });
 
     result = {
-      estrato: 0, subestrato: 'N/A', modo_procesamiento: 'Análisis pendiente',
-      modo_curva: null, confianza: 0, nombre_estrato: 'Análisis pendiente',
+      estrato: 0, subestrato: 'N/A', modo_procesamiento: t('fb_pendiente'),
+      modo_curva: null, confianza: 0, nombre_estrato: t('fb_pendiente'),
       horizonte_implicito: 'N/A',
-      resumen: `Análisis automático no completado (${e.message}). El transcript fue guardado correctamente en Firebase.`,
-      evidencias: [], alertas: [`Error de análisis: ${e.message}`]
+      resumen: t('fb_resumen', { m: e.message }),
+      evidencias: [], alertas: [t('fb_alerta', { m: e.message })]
     };
 
     // Esperar 2s para que el usuario pueda leer el mensaje
@@ -1497,7 +1796,7 @@ async function endInterview() {
 
   document.getElementById('processingOverlay').classList.remove('active');
   showScreen('screenThanks');
-  speak('Muchas gracias por tu participación. Tu evaluación fue registrada correctamente.');
+  speak(t('thanks_speak'));
 }
 
 // ══════════════════════════════════════════════════
@@ -1692,7 +1991,7 @@ ${transcript}`;
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
         max_tokens: 1200,
-        system: systemPrompt,
+        system: systemPrompt + bloqueIdiomaAnalisis(),
         messages: [{ role: 'user', content: userMsg }]
       })
     });
@@ -1730,7 +2029,7 @@ function restart() {
   lastSpeechTimestamp=Date.now();
   closingStage='idle';
   const bf = document.getElementById('btnFinalizar');
-  if (bf) bf.textContent = 'Finalizar';
+  if (bf) bf.textContent = t('btn_finalizar');
   document.getElementById('warningBox').classList.remove('visible');
   document.getElementById('int1').classList.remove('done');
   document.getElementById('int2').classList.remove('done');
@@ -1739,7 +2038,7 @@ function restart() {
   document.getElementById('ringProgress').style.stroke = 'var(--verde)';
   document.getElementById('m6').classList.remove('active');
   const btn = document.getElementById('btnStartIntro');
-  if (btn) { btn.disabled=false; btn.textContent='Escuchar introducción →'; }
+  if (btn) { btn.disabled=false; btn.textContent=t('btn_intro'); }
   showScreen('screenSetup');
 }
 

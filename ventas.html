@@ -149,12 +149,50 @@ details.data{margin-top:10px;font-size:13px;color:var(--muted)}
 details.data summary{cursor:pointer}
 details.data table{margin-top:8px;font-size:13px}
 .spin{display:grid;place-items:center;min-height:40vh;color:var(--muted)}
+/* Hoy */
+.today-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
+.week{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.week .wd{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px}
+.week .wd .dn{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-top:3px}
+.week .wd .dn b{display:block;font:700 18px var(--f-display);color:var(--fg);letter-spacing:0}
+.week .wd .evs{display:flex;flex-direction:column;gap:4px;min-width:0;border-top:1px solid var(--line);padding-top:6px}
+.pend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
+.pend button{all:unset;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.pend button:hover{border-color:var(--brand)}
+.pend button:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.pend b{font:700 22px var(--f-display);color:var(--fg)}
+.pend span{color:var(--muted);font-size:13px}
+.pend em{font-style:normal;color:var(--brand);font-size:13px;font-weight:600;margin-top:4px}
+/* Agenda */
+.calbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.calbar h2{font-size:20px;margin-right:auto}
+input[type=checkbox]{accent-color:var(--brand)}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.cal .h{background:var(--surface-2);font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:6px 8px}
+.cal .d{background:var(--surface);min-height:112px;padding:6px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.cal .d.out{background:var(--surface-2)} .cal .d.out .num{color:var(--faint)}
+.cal .num{font-size:13px;font-weight:600;width:24px;height:24px;display:grid;place-items:center;border-radius:50%}
+.cal .d.today .num{background:var(--brand);color:var(--on-brand)}
+.ev{all:unset;box-sizing:border-box;cursor:pointer;font-size:12px;font-weight:500;padding:3px 7px;border-radius:6px;background:var(--brand-soft);color:var(--brand-deep);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ev:hover{filter:brightness(.96)} .ev:focus-visible{outline:2px solid var(--brand)}
+.ev.late{background:var(--late-soft);color:var(--late)} .ev.today{background:var(--today-soft);color:var(--today)} .ev.meet{background:var(--brand);color:var(--on-brand)}
+.ev.more{background:none;color:var(--muted);padding-left:2px}
+.callist{display:none;flex-direction:column;gap:14px}
+/* LinkedIn */
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumbs img{width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.drop{border:1.5px dashed var(--brand-line);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:14px;background:var(--brand-soft)}
+.drop input{margin-top:10px;background:none;border:0;padding:0}
+.lirow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;border-top:1px solid var(--line);padding-top:10px}
+.lirow input[type=checkbox]{width:18px;height:18px;margin-top:3px}
 @media (max-width:900px){.stats.six{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:760px){
   .stats,.stats.six{grid-template-columns:repeat(2,minmax(0,1fr))}
   .cols,.mgrid{grid-template-columns:minmax(0,1fr)}
   nav.tabs{order:3;width:100%} nav.tabs button{flex:1;padding:7px 4px;font-size:13px}
   .outcomes{grid-template-columns:minmax(0,1fr)}
+  .today-grid,.pend{grid-template-columns:minmax(0,1fr)}
+  .cal{display:none} .callist{display:flex}
   .logo-badge{display:none}
   .hb{grid-template-columns:96px minmax(0,1fr) 40px}
 }
@@ -167,12 +205,14 @@ details.data table{margin-top:8px;font-size:13px}
   <div class="logo"><div class="logo-icon">P</div><div class="logo-name">PotenciaIA</div><span class="logo-badge">Ventas</span></div>
   <nav class="tabs" role="tablist" id="tabs" hidden>
     <button role="tab" data-view="hoy" aria-selected="true">Hoy</button>
+    <button role="tab" data-view="agenda" aria-selected="false">Agenda</button>
     <button role="tab" data-view="embudo" aria-selected="false">Embudo</button>
     <button role="tab" data-view="ventas" aria-selected="false">Ventas</button>
     <button role="tab" data-view="metricas" aria-selected="false">Métricas</button>
   </nav>
   <div class="btns" id="actions" hidden>
     <button class="btn ghost sm" data-act="reload" id="btnReload" hidden>Actualizar</button>
+    <button class="btn" data-act="linkedin">Desde LinkedIn</button>
     <button class="btn primary" data-act="nuevo">+ Nuevo contacto</button>
   </div>
 </div></header>
@@ -189,6 +229,10 @@ const CONFIG = {
   SHEET_ID: "1MJ6lRXrJRnMrNeAXuvO-y2_8gIxdR0fooCZYUoqBRVk",
   HOJA_CONTACTOS: "Contactos",
   HOJA_VENTAS: "Ventas",
+  // Mismo Worker de Cloudflare que usa el dashboard (lee las capturas de LinkedIn con IA)
+  PROXY_URL: "https://potenciaia-proxy.dileocande.workers.dev",
+  PROXY_SECRET: "pASCHdB6WZOwoIRIHDwmxKweF-u2R1eLNK0p3fHP9JA",
+  MODELO: "claude-sonnet-4-5-20250929",
 };
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
 
@@ -306,6 +350,14 @@ async function saveMany(kind, list){
   try{ await api(`/values:batchUpdate`, { method: "POST", body: JSON.stringify({ valueInputOption: "USER_ENTERED", data }) }); }
   catch(e){ handleErr(e); }
 }
+async function appendRows(recs){
+  let id = Math.max(0, ...S.P.map(x => x.id < 100000 ? x.id : 0));
+  recs.forEach(r => r.id = ++id);
+  if (S.mode !== "live"){ recs.forEach(r => { r._row = 0; S.P.push(r); }); return true; }
+  const rows = recs.map(rec => { const row = Array(S.cWidth).fill(""); for (const f in S.cCols) row[S.cCols[f]] = cellValue(rec[f], C_TYPE[f]); return row; });
+  try{ await api(`/values/${encodeURIComponent(quoteSheet(CONFIG.HOJA_CONTACTOS) + "!A1")}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, { method: "POST", body: JSON.stringify({ values: rows }) }); await loadLive(true); return true; }
+  catch(e){ handleErr(e); return false; }
+}
 async function appendRow(kind, rec){
   const list = kind === "c" ? S.P : S.V;
   rec.id = Math.max(0, ...list.map(x => x.id < 100000 ? x.id : 0)) + 1;
@@ -418,18 +470,27 @@ const enSeguimiento = () => S.P.filter(p => ACTIVAS.includes(p.etapa) || p.etapa
 function row(p){ const e = estado(p); return `<li class="row" data-open="${p.id}"><div class="rmain"><div class="rn">${esc(p.empresa)}</div><div class="rs">${esc(p.contacto)} · ${esc(p.etapa || "Sin etapa")} · ${esc(proxPaso(p)) || ultTxt(p)}</div></div>${e ? `<span class="chip ${e.c}">${e.t}</span>` : ""}</li>`; }
 function panel(title, items, emptyTxt, hint = ""){ return `<section class="panel"><h2>${title} <span class="count">${items.length}</span></h2>${hint ? `<p class="hint">${hint}</p>` : ""}<ul class="list">${items.length ? items.map(row).join("") : `<li class="empty">${emptyTxt}</li>`}</ul></section>`; }
 
+function evChip(p){ const e = estado(p), pp = proxPaso(p), meet = /^Reuni[oó]n/i.test(pp) || p.etapa === "Reunión"; return `<button class="ev ${meet ? "meet" : e && (e.c === "late" || e.c === "today") ? e.c : ""}" data-open="${p.id}" data-tip="${esc(p.empresa + " · " + (pp || p.etapa || ""))}">${esc(p.empresa)}</button>`; }
+function weekList(){
+  let html = "", d = new Date(today);
+  for (let i = 0; i < 7; i++){
+    const L = enSeguimiento().filter(p => p.prox && iso(p.prox) === iso(d));
+    if (i === 0 || L.length) html += `<div class="wd"><div class="dn">${i === 0 ? "Hoy" : d.toLocaleDateString("es-AR",{weekday:"short"}).replace(".","")}<b>${d.getDate()}</b></div><div class="evs">${L.length ? L.map(evChip).join("") : `<span class="rs">Libre</span>`}</div></div>`;
+    d = new Date(d.getTime() + DAY);
+  }
+  return html;
+}
 function vHoy(){
   const act = enSeguimiento();
   const late = act.filter(p => p.prox && diff(p.prox) < 0).sort((a,b) => a.prox - b.prox);
   const hoy = act.filter(p => p.prox && diff(p.prox) === 0);
-  const sem = act.filter(p => p.prox && diff(p.prox) > 0 && diff(p.prox) <= 7).sort((a,b) => a.prox - b.prox);
   const sin = S.P.filter(p => (ACTIVAS.includes(p.etapa) || !p.etapa) && !p.prox);
   const rev = S.P.filter(p => p.revisar);
   const aCobrar = S.V.filter(v => !v.cobro);
   const prueba = S.P.filter(p => p.etapa === "Prueba gratis").length;
   const h = new Date().getHours(), saludo = h < 13 ? "Buen día" : h < 20 ? "Buenas tardes" : "Buenas noches";
   const fecha = capWord(today.toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"}));
-  const tot = late.length + hoy.length;
+  const todo = [...late, ...hoy], tot = todo.length;
   return `<h1>${saludo}. ${tot ? `Hoy tenés ${tot} seguimiento${tot === 1 ? "" : "s"}.` : "Hoy no tenés seguimientos pendientes."}</h1><p class="sub">${fecha}</p>
   <div class="stats">
     <div class="stat late"><b>${late.length}</b><span>Atrasados</span></div>
@@ -437,13 +498,42 @@ function vHoy(){
     <div class="stat"><b>${prueba}</b><span>Probando gratis</span></div>
     <div class="stat ok"><b>${money(aCobrar.reduce((s,v) => s + (v.vendido || 0), 0))}</b><span>Pendiente de cobro</span></div>
   </div>
-  <div class="cols">
-    <div class="stack">${panel("Atrasados", late, "Nada atrasado. ¡Bien ahí!")}${panel("Para hoy", hoy, "Nada para hoy.")}${panel("Próximos 7 días", sem, "Nada en la semana.")}</div>
-    <div class="stack">${panel("Sin próximo paso", sin, "Todos tienen próximo paso.", sin.length ? `Empresas activas sin fecha de seguimiento.</p><p style="margin:10px 0 2px"><button class="btn primary sm" data-act="plan">Armar próximos pasos</button>` : "")}
-      <section class="panel"><h2>Cobros pendientes <span class="count">${aCobrar.length}</span></h2><ul class="list">${aCobrar.map(v => `<li class="row" data-venta="${v.id}"><div class="rmain"><div class="rn">${esc(v.empresa)}</div><div class="rs">Vendido el ${fd(v.fecha)} · ${v.creditos ?? "?"} créditos</div></div><span class="chip today">${money(v.vendido)}</span></li>`).join("") || `<li class="empty">Todo cobrado.</li>`}</ul></section>
-      ${rev.length ? panel("Datos para completar", rev, "", "Contactos con algo marcado en la columna “Revisar” de la planilla.") : ""}
-    </div>
+  <div class="today-grid">
+    ${panel("Para hacer hoy", todo, sin.length ? "Nada con fecha para hoy. Tocá “Armar próximos pasos” abajo para organizar la semana." : "Nada pendiente para hoy. ¡Bien ahí!", late.length ? "Primero los atrasados (en rojo), después los de hoy." : "")}
+    <section class="panel"><h2>Esta semana</h2><div class="week">${weekList()}</div><p style="margin:14px 0 0"><button class="btn sm" data-view="agenda">Ver el calendario completo</button></p></section>
+  </div>
+  <div class="pend">
+    <button data-act="lista-sin"><b>${sin.length}</b><span>Sin próximo paso</span>${sin.length ? `<em>Armar próximos pasos →</em>` : ""}</button>
+    <button data-act="lista-rev"><b>${rev.length}</b><span>Datos para completar</span>${rev.length ? `<em>Ver cuáles →</em>` : ""}</button>
+    <button data-act="lista-cob"><b>${money(aCobrar.reduce((s,v) => s + (v.vendido || 0), 0))}</b><span>${aCobrar.length} cobro${aCobrar.length === 1 ? "" : "s"} pendiente${aCobrar.length === 1 ? "" : "s"}</span>${aCobrar.length ? `<em>Ver cuáles →</em>` : ""}</button>
   </div>`;
+}
+function modalLista(title, items, extra = ""){
+  return `<div class="scrim" data-act="closemodal" style="z-index:30"></div><div class="modal" role="dialog" aria-label="${esc(title)}"><h2>${title} <span class="count">${items.length}</span></h2>${extra}<ul class="list">${items.map(row).join("") || `<li class="empty">No hay nada acá.</li>`}</ul><div class="btns" style="justify-content:flex-end"><button class="btn" data-act="closemodal">Cerrar</button></div></div>`;
+}
+function modalCobros(){
+  const L = S.V.filter(v => !v.cobro);
+  return `<div class="scrim" data-act="closemodal" style="z-index:30"></div><div class="modal" role="dialog" aria-label="Cobros pendientes"><h2>Cobros pendientes <span class="count">${L.length}</span></h2><ul class="list">${L.map(v => `<li class="row" data-venta="${v.id}"><div class="rmain"><div class="rn">${esc(v.empresa)}</div><div class="rs">Vendido el ${fd(v.fecha)} · ${v.creditos ?? "?"} créditos</div></div><span class="chip today">${money(v.vendido)}</span></li>`).join("") || `<li class="empty">Todo cobrado.</li>`}</ul><div class="btns" style="justify-content:flex-end"><button class="btn" data-act="closemodal">Cerrar</button></div></div>`;
+}
+function vAgenda(){
+  const m = S.cal || new Date(today.getFullYear(), today.getMonth(), 1);
+  const start = new Date(m); start.setDate(1 - ((m.getDay() + 6) % 7));
+  const last = new Date(m.getFullYear(), m.getMonth() + 1, 0);
+  const weeks = Math.ceil((((m.getDay() + 6) % 7) + last.getDate()) / 7);
+  const by = {}; enSeguimiento().filter(p => p.prox).forEach(p => (by[iso(p.prox)] = by[iso(p.prox)] || []).push(p));
+  let cells = "", list = "";
+  for (let i = 0; i < weeks * 7; i++){
+    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), k = iso(d), L = by[k] || [];
+    const cls = (d.getMonth() !== m.getMonth() ? " out" : "") + (k === iso(today) ? " today" : "");
+    cells += `<div class="d${cls}"><span class="num">${d.getDate()}</span>${L.slice(0, 4).map(evChip).join("")}${L.length > 4 ? `<button class="ev more" data-act="dia" data-dia="${k}">+${L.length - 4} más</button>` : ""}</div>`;
+    if (d.getMonth() === m.getMonth() && L.length) list += `<section class="panel"><h2>${capWord(d.toLocaleDateString("es-AR",{weekday:"long",day:"numeric"}))}${k === iso(today) ? ' <span class="chip today">Hoy</span>' : ""}</h2><ul class="list">${L.map(row).join("")}</ul></section>`;
+  }
+  const atras = enSeguimiento().filter(p => p.prox && diff(p.prox) < 0).length;
+  return `<h1>Agenda</h1><p class="sub">Los seguimientos y reuniones de cada día. Tocá una empresa para abrir su ficha.${atras ? ` Tenés ${atras} atrasado${atras === 1 ? "" : "s"} (en rojo, en su día original).` : ""}</p>
+  <div class="calbar"><h2>${capWord(m.toLocaleDateString("es-AR",{month:"long"}))} ${m.getFullYear()}</h2><button class="btn sm" data-act="calprev" aria-label="Mes anterior">‹</button><button class="btn sm" data-act="caltoday">Hoy</button><button class="btn sm" data-act="calnext" aria-label="Mes siguiente">›</button></div>
+  <div class="legend" style="margin:0 0 10px"><span><i style="background:var(--brand)"></i>Reunión</span><span><i style="background:var(--brand-soft);outline:1px solid var(--brand-line)"></i>Seguimiento</span><span><i style="background:var(--late-soft);outline:1px solid var(--late)"></i>Atrasado</span></div>
+  <div class="cal">${["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].map(x => `<div class="h">${x}</div>`).join("")}${cells}</div>
+  <div class="callist">${list || `<p class="empty">No hay nada agendado este mes.</p>`}</div>`;
 }
 function vEmbudo(){
   const extra = [...new Set(S.P.map(p => p.etapa).filter(e => e && !ETAPAS.includes(e)))];
@@ -519,7 +609,7 @@ function vMetricas(){
 /* ===================== FICHA ===================== */
 const MSG = {
   "Por contactar": p => p.origen === "LinkedIn"
-    ? `Hola ${first(p.contacto)}, ¡gracias por interactuar con mi publicación! Vi que estás en ${p.empresa} y pensé que te podía interesar: con PotenciaIA evaluamos el potencial de las personas de tu equipo con inteligencia artificial. ¿Te cuento en 15 minutos?`
+    ? `Hola ${first(p.contacto)}, ¡gracias por interactuar con mi publicación${(String(p.notas || "").match(/publicación sobre ([^:\n“]+)/) || [])[1] ? " sobre " + String(p.notas).match(/publicación sobre ([^:\n“]+)/)[1].trim() : ""}! Vi que estás en ${p.empresa} y pensé que te podía interesar: con PotenciaIA evaluamos el potencial de las personas de tu equipo con inteligencia artificial. ¿Te cuento en 15 minutos?`
     : `Hola ${first(p.contacto)}, ¿cómo estás? Te escribo por PotenciaIA, una plataforma que evalúa el potencial de las personas de tu equipo con inteligencia artificial. ¿Te puedo contar en 15 minutos cómo funciona?`,
   "Contactado": p => `Hola ${first(p.contacto)}, te escribo para retomar lo que hablamos sobre PotenciaIA. ¿Tenés un rato esta semana para que te muestre cómo funciona?`,
   "Presentado": p => `Hola ${first(p.contacto)}, ¿cómo estás? Quería saber si pudiste ver la presentación de PotenciaIA. Si te sirve, te habilito créditos de prueba sin costo para que lo veas funcionando con tu equipo.`,
@@ -569,15 +659,71 @@ function modalPlan(){
   <div style="display:flex;flex-direction:column;gap:10px">${L.map((x, i) => `<div style="display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:10px;align-items:center;border-top:1px solid var(--line);padding-top:10px"><div style="min-width:0"><div class="rn">${esc(x.p.empresa)} <span class="chip">${esc(x.p.etapa || "Sin etapa")}</span></div><div class="rs" style="white-space:normal">${esc(x.acc)}</div></div><input type="date" id="pp-${i}" data-pid="${x.p.id}" data-acc="${esc(x.acc)}" value="${iso(x.fecha)}" aria-label="Fecha para ${esc(x.p.empresa)}"></div>`).join("")}</div>
   <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn primary" type="submit">Aplicar a ${L.length} empresa${L.length === 1 ? "" : "s"}</button></div></form>`;
 }
+const LI = { imgs: [], res: null, busy: false, err: "" };
+function modalLinkedIn(){
+  const body = LI.res ? `<p class="hint" style="margin:0">Encontré ${LI.res.length} persona${LI.res.length === 1 ? "" : "s"}. Dejé tildadas las que parecen de RRHH, talento o dirección. Revisá y agregá.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">${LI.res.map((r, i) => `<label class="lirow" style="color:var(--fg);font-weight:400"><input type="checkbox" data-li="${i}" ${r.objetivo && !r.dup ? "checked" : ""}><span style="min-width:0"><span class="rn">${esc(r.nombre)}</span> ${r.dup ? '<span class="chip">Ya está en el tablero</span>' : r.objetivo ? '<span class="chip acc">Le interesa a PotenciaIA</span>' : ""}<span class="rs" style="display:block;white-space:normal">${esc([r.cargo, r.empresa].filter(Boolean).join(" · ") || "Sin cargo visible")} · ${esc(r.tipo || "")}</span>${r.comentario ? `<span class="rs" style="display:block;white-space:normal">“${esc(r.comentario)}”</span>` : ""}${r.motivo ? `<span class="rs" style="display:block;white-space:normal;color:var(--faint)">${esc(r.motivo)}</span>` : ""}</span></label>`).join("")}</div>
+    <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="li-reset">Subir otra captura</button><button type="button" class="btn primary" data-act="li-add">Agregar al tablero</button></div>`
+  : `<p class="hint" style="margin:0">Subí capturas de quienes <b>reaccionaron, comentaron o vieron tu perfil</b>. La IA lee nombres, cargos y empresas, y los cargás al tablero con un clic.</p>
+    <label>¿De qué era la publicación? (opcional)<input id="li-post" value="${esc(LI.post || "")}" placeholder="Ej: cómo detectar líderes en tu equipo"></label>
+    <div class="drop">Elegí las capturas o pegalas con Ctrl+V (Cmd+V en Mac)<br><input type="file" id="li-files" accept="image/*" multiple aria-label="Elegir capturas"></div>
+    <div class="thumbs">${LI.imgs.map(u => `<img src="${u}" alt="Captura">`).join("")}</div>
+    ${LI.err ? `<p class="err" style="margin:0">${esc(LI.err)}</p>` : ""}
+    <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="closemodal">Cancelar</button><button type="button" class="btn primary" data-act="li-read" ${LI.imgs.length && !LI.busy ? "" : 'aria-disabled="true"'}>${LI.busy ? "Leyendo…" : `Leer ${LI.imgs.length || ""} captura${LI.imgs.length === 1 ? "" : "s"}`}</button></div>`;
+  return `<div class="scrim" data-act="closemodal" style="z-index:30"></div><div class="modal" id="mli" role="dialog" aria-label="Contactos desde LinkedIn" style="width:min(620px,calc(100% - 32px))"><h2>Contactos desde LinkedIn</h2>${body}</div>`;
+}
+function showLI(){ closeModal(); $("#layer").insertAdjacentHTML("beforeend", modalLinkedIn()); const f = $("#li-files"); if (f) f.onchange = () => addImgs([...f.files]); const pi = $("#li-post"); if (pi) pi.oninput = () => LI.post = pi.value; }
+function shrink(file){
+  return new Promise((ok, bad) => { const fr = new FileReader(); fr.onerror = bad; fr.onload = () => { const im = new Image(); im.onerror = bad; im.onload = () => {
+    const k = Math.min(1, 1600 / Math.max(im.width, im.height)), c = document.createElement("canvas"); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+    c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); ok(c.toDataURL("image/jpeg", .85)); }; im.src = fr.result; }; fr.readAsDataURL(file); });
+}
+async function addImgs(files){ for (const f of files.filter(f => f.type.startsWith("image/")).slice(0, 6 - LI.imgs.length)){ try{ LI.imgs.push(await shrink(f)); }catch(_){} } LI.err = ""; showLI(); }
+document.addEventListener("paste", e => { if (!$("#mli") || LI.res) return; const fs = [...(e.clipboardData && e.clipboardData.files || [])]; if (fs.length){ e.preventDefault(); addImgs(fs); } });
+async function leerCapturas(){
+  LI.busy = true; LI.err = ""; showLI();
+  try{
+    let out;
+    if (S.mode !== "live"){
+      await new Promise(r => setTimeout(r, 900));
+      out = [{nombre:"Lucía Fernández",cargo:"Gerente de Recursos Humanos",empresa:"Grupo Andes",tipo:"comentó",comentario:"¡Muy interesante! ¿Lo usan en pymes?",objetivo:true,motivo:"Gerencia de RRHH"},{nombre:"Tomás Rivas",cargo:"HR Business Partner",empresa:"Fintech Plus",tipo:"reaccionó",comentario:"",objetivo:true,motivo:"Rol de RRHH"},{nombre:"Valeria Ortiz",cargo:"Head of People",empresa:"Consultora Nexo",tipo:"reaccionó",comentario:"",objetivo:true,motivo:"Dirección de personas"},{nombre:"Santiago Pérez",cargo:"Estudiante de Ingeniería",empresa:"",tipo:"reaccionó",comentario:"",objetivo:false,motivo:"No decide compras de RRHH"}];
+    } else {
+      const content = LI.imgs.map(u => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: u.split(",")[1] } }));
+      content.push({ type: "text", text: `Estas son capturas de LinkedIn de una vendedora de PotenciaIA (plataforma de evaluación de potencial con IA para áreas de RRHH). Muestran personas que reaccionaron o comentaron una publicación${LI.post ? ` sobre "${LI.post}"` : ""}, o que vieron su perfil.
+Extraé cada persona visible. Devolvé SOLO un array JSON, sin texto antes ni después, con objetos así:
+{"nombre":"", "cargo":"titular tal como aparece", "empresa":"empresa si se deduce del titular, si no vacío", "tipo":"reaccionó | comentó | vio tu perfil", "comentario":"texto del comentario si hay, si no vacío", "objetivo":true/false, "motivo":"frase corta"}
+"objetivo" es true si la persona probablemente decide o influye en compras de RRHH: RRHH, personas, talento, capacitación, selección, HRBP, dirección general, gerencia general, dueños o fundadores. No inventes datos que no se vean. No repitas personas.` });
+      const r = await fetch(CONFIG.PROXY_URL, { method: "POST", headers: { "Content-Type": "application/json", "X-App-Secret": CONFIG.PROXY_SECRET }, body: JSON.stringify({ model: CONFIG.MODELO, max_tokens: 4000, messages: [{ role: "user", content }] }) });
+      if (!r.ok) throw new Error("La IA respondió con error " + r.status);
+      const data = await r.json(), txt = (data.content || []).map(c => c.text || "").join("");
+      out = JSON.parse(txt.slice(txt.indexOf("["), txt.lastIndexOf("]") + 1));
+    }
+    LI.res = out.filter(x => x && x.nombre).map(x => ({ ...x, dup: S.P.some(p => norm(p.contacto) === norm(x.nombre)) }));
+  }catch(e){ console.error(e); LI.err = "No pude leer las capturas. Probá de nuevo con una imagen más nítida, o cargalos con “+ Nuevo contacto”."; }
+  LI.busy = false; showLI();
+}
+async function agregarLI(){
+  const sel = [...document.querySelectorAll("#mli input[data-li]:checked")].map(i => LI.res[+i.dataset.li]);
+  if (!sel.length){ toast("No hay nadie tildado"); return; }
+  let day = new Date(today), n = 0;
+  const recs = sel.map(r => {
+    if (n === 4){ day = nextBiz(day); n = 0; } n++;
+    const verbo = r.tipo === "vio tu perfil" ? "Vio tu perfil" : `${capWord(r.tipo || "interactuó")} ${LI.post ? `tu publicación sobre ${LI.post}` : "tu publicación"}`;
+    return { empresa: r.empresa || "(completar)", contacto: r.nombre, cargo: r.cargo || "", tel: "", email: "", li: "", etapa: "Por contactar", origen: "LinkedIn", canal: "LinkedIn", veces: 0, ult: null, prox: new Date(day),
+      notas: `${fd(today)}: Próximo paso: Escribirle por LinkedIn agradeciendo y presentando PotenciaIA\n${fd(today)}: ${verbo}${r.comentario ? `: “${r.comentario}”` : ""}`, revisar: r.empresa ? "" : "Completar la empresa." };
+  });
+  const btn = document.querySelector('[data-act="li-add"]'); if (btn) btn.setAttribute("aria-disabled", "true");
+  if (await appendRows(recs)){ LI.imgs = []; LI.res = null; LI.post = ""; closeModal(); S.view = "hoy"; render(); toast(`Agregué ${recs.length} contacto${recs.length === 1 ? "" : "s"} de LinkedIn`); }
+}
 function modalContacto(p){
   const n = !p; p = p || {};
-  return `<div class="scrim" data-act="closemodal" style="z-index:30"></div><form class="modal" id="fcontacto" data-id="${p.id || ""}"><h2>${n ? "Nuevo contacto" : "Editar datos"}</h2>
+  return `<div class="scrim" data-act="closemodal" style="z-index:30"></div><form class="modal" id="fcontacto" data-id="${p.id || ""}"><h2>${n ? "Nuevo contacto" : "Editar datos"}</h2>${!n && p.revisar ? `<p class="hint" style="margin:0;color:var(--today)">Esta empresa tiene algo para revisar (abajo de todo).</p>` : ""}
   <label>Empresa<input id="n-emp" required value="${esc(p.empresa)}"></label>
   <div class="grid2"><label>Persona<input id="n-con" required value="${esc(p.contacto)}"></label><label>Cargo<input id="n-car" value="${esc(p.cargo)}"></label></div>
   <div class="grid2"><label>WhatsApp (con 549…)<input id="n-tel" inputmode="tel" placeholder="5491155551234" value="${esc(p.tel)}"></label><label>Mail<input id="n-mail" type="email" value="${esc(p.email)}"></label></div>
   <label>LinkedIn (link del perfil)<input id="n-li" placeholder="https://www.linkedin.com/in/..." value="${esc(p.li)}"></label>
   <div class="grid2"><label>¿De dónde viene?<select id="n-ori">${["","LinkedIn","Recomendación","Evento","Base propia","Otro"].map(o => `<option ${o === (p.origen || (n ? "LinkedIn" : "")) ? "selected" : ""} value="${o}">${o || "—"}</option>`).join("")}</select></label><label>Canal<select id="n-can">${["","Mail","WhatsApp","LinkedIn","Mail + WhatsApp","Teléfono"].map(o => `<option ${o === (p.canal || "") ? "selected" : ""} value="${o}">${o || "—"}</option>`).join("")}</select></label></div>
-  ${n ? `<label>Nota inicial<input id="n-not" placeholder="Ej: comentó mi publicación sobre liderazgo"></label>` : `<label>Revisar<input id="n-rev" value="${esc(p.revisar)}" placeholder="Vacío si ya está todo bien"></label>`}
+  ${n ? `<label>Nota inicial<input id="n-not" placeholder="Ej: comentó mi publicación sobre liderazgo"></label>` : p.revisar ? `<div class="sec warn"><h4>Para revisar</h4><div>${esc(p.revisar)}</div><label style="flex-direction:row;align-items:center;gap:8px;color:var(--fg)"><input type="checkbox" id="n-ok" style="width:auto" checked> Ya está corregido (sale de “Datos para completar”)</label></div>` : ""}
   <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn primary" type="submit">${n ? "Crear y abrir ficha" : "Guardar"}</button></div></form>`;
 }
 function modalVenta(v){
@@ -596,7 +742,7 @@ function modalVenta(v){
 /* ===================== RENDER Y EVENTOS ===================== */
 function render(){
   const v = S.view;
-  $("#view").innerHTML = v === "hoy" ? vHoy() : v === "embudo" ? vEmbudo() : v === "ventas" ? vVentas() : vMetricas();
+  $("#view").innerHTML = v === "hoy" ? vHoy() : v === "agenda" ? vAgenda() : v === "embudo" ? vEmbudo() : v === "ventas" ? vVentas() : vMetricas();
   document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.view === v));
   const m = $("#mes"); if (m) m.onchange = () => { S.mes = m.value; render(); };
   drawCharts();
@@ -618,8 +764,8 @@ async function copy(text, ok){ try{ await navigator.clipboard.writeText(text); t
 document.addEventListener("click", async ev => {
   const t = ev.target.closest("[data-view],[data-open],[data-act],[data-out],[data-venta]"); if (!t || t.getAttribute("aria-disabled") === "true") return;
   if (t.dataset.view){ S.view = t.dataset.view; S.openId = null; $("#layer").innerHTML = ""; render(); window.scrollTo(0, 0); return; }
-  if (t.dataset.open){ openP(+t.dataset.open); return; }
-  if (t.dataset.venta){ $("#layer").insertAdjacentHTML("beforeend", modalVenta(S.V.find(v => v.id === +t.dataset.venta))); return; }
+  if (t.dataset.open){ if (t.closest(".modal")) closeModal(); openP(+t.dataset.open); return; }
+  if (t.dataset.venta){ if (t.closest(".modal")) closeModal(); $("#layer").insertAdjacentHTML("beforeend", modalVenta(S.V.find(v => v.id === +t.dataset.venta))); return; }
   const a = t.dataset.act, p = S.openId && get(S.openId);
   if (a === "login"){ tokenClient && tokenClient.requestAccessToken({ prompt: "" }); return; }
   if (a === "reload"){ loadLive(true).then(() => toast("Datos actualizados")); return; }
@@ -641,7 +787,17 @@ document.addEventListener("click", async ev => {
   if (a === "copy"){ copy($("#msg").value, "Mensaje copiado"); return; }
   if (a === "wa" && p){ window.open(`https://wa.me/${p.tel}?text=${encodeURIComponent($("#msg").value)}`, "_blank", "noopener"); return; }
   if (a === "mail" && p){ window.open(outlookMail(p.email, $("#msg").value), "_blank", "noopener"); return; }
-  if (a === "plan"){ $("#layer").insertAdjacentHTML("beforeend", modalPlan()); return; }
+  if (a === "linkedin"){ LI.err = ""; showLI(); return; }
+  if (a === "li-read"){ leerCapturas(); return; }
+  if (a === "li-reset"){ LI.res = null; LI.imgs = []; showLI(); return; }
+  if (a === "li-add"){ agregarLI(); return; }
+  if (a === "lista-sin"){ closeModal(); const sin = S.P.filter(p => (ACTIVAS.includes(p.etapa) || !p.etapa) && !p.prox); $("#layer").insertAdjacentHTML("beforeend", modalLista("Sin próximo paso", sin, sin.length ? `<p class="hint" style="margin:0">Empresas activas sin fecha. Con un clic les armo fecha y qué hacer a todas.</p><p style="margin:0"><button class="btn primary sm" data-act="plan">Armar próximos pasos</button></p>` : "")); return; }
+  if (a === "lista-rev"){ $("#layer").insertAdjacentHTML("beforeend", modalLista("Datos para completar", S.P.filter(p => p.revisar), `<p class="hint" style="margin:0">Abrí cada una, tocá “Editar datos” y corregí lo que falta.</p>`)); return; }
+  if (a === "lista-cob"){ $("#layer").insertAdjacentHTML("beforeend", modalCobros()); return; }
+  if (a === "calprev" || a === "calnext"){ const m = S.cal || new Date(today.getFullYear(), today.getMonth(), 1); S.cal = new Date(m.getFullYear(), m.getMonth() + (a === "calnext" ? 1 : -1), 1); render(); return; }
+  if (a === "caltoday"){ S.cal = null; render(); return; }
+  if (a === "dia"){ const k = t.dataset.dia; $("#layer").insertAdjacentHTML("beforeend", modalLista(capWord(fromIso(k).toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"})), enSeguimiento().filter(p => p.prox && iso(p.prox) === k))); return; }
+  if (a === "plan"){ closeModal(); $("#layer").insertAdjacentHTML("beforeend", modalPlan()); return; }
   if (a === "outlook" && p){
     const day = $("#prox").value || iso(nextBiz(today)), hora = $("#hora").value || "10:00";
     window.open(outlookEvent(`Seguimiento ${p.empresa} – ${p.contacto}`, day, hora, fichaTxt(p, (proxPaso(p) ? "Próximo paso: " + proxPaso(p) + "\n\n" : "") + $("#msg").value)), "_blank", "noopener");
@@ -674,7 +830,7 @@ document.addEventListener("submit", async ev => {
   }
   if (f.id === "fcontacto"){
     const data = { empresa: $("#n-emp").value.trim(), contacto: $("#n-con").value.trim(), cargo: $("#n-car").value.trim(), tel: toTel($("#n-tel").value), email: $("#n-mail").value.trim(), li: $("#n-li").value.trim(), origen: $("#n-ori").value, canal: $("#n-can").value };
-    if (f.dataset.id){ data.revisar = $("#n-rev").value.trim(); await saveFields("c", get(+f.dataset.id), data); closeModal(); refresh("Datos guardados"); }
+    if (f.dataset.id){ const ok = $("#n-ok"); if (ok && ok.checked) data.revisar = ""; await saveFields("c", get(+f.dataset.id), data); closeModal(); refresh("Datos guardados"); }
     else {
       const nota = $("#n-not").value.trim();
       Object.assign(data, { etapa: "Por contactar", veces: 0, ult: null, prox: today, notas: `${fd(today)}: Contacto creado` + (nota ? `\n${fd(today)}: ${nota}` : ""), revisar: "" });

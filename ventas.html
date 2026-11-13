@@ -150,12 +150,28 @@ details.data summary{cursor:pointer}
 details.data table{margin-top:8px;font-size:13px}
 .spin{display:grid;place-items:center;min-height:40vh;color:var(--muted)}
 /* Hoy */
-.today-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
-.week{display:flex;flex-direction:column;gap:12px;margin-top:12px}
-.week .wd{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px}
-.week .wd .dn{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-top:3px}
-.week .wd .dn b{display:block;font:700 18px var(--f-display);color:var(--fg);letter-spacing:0}
-.week .wd .evs{display:flex;flex-direction:column;gap:4px;min-width:0;border-top:1px solid var(--line);padding-top:6px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}
+.tile{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile:hover{border-color:var(--brand)} .tile:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.tile b{font:700 26px/1.2 var(--f-display);color:var(--brand);font-variant-numeric:tabular-nums}
+.tile span{color:var(--muted);font-size:13px}
+.tile em{font-style:normal;font-size:13px;font-weight:600;color:var(--brand);margin-top:4px}
+.tile.main{background:var(--brand);border-color:var(--brand)}
+.tile.main b,.tile.main span,.tile.main em{color:var(--on-brand)}
+.tile.main:hover{background:var(--brand-deep)}
+.tile.late b{color:var(--late)} .tile.ok b{color:var(--ok)}
+.weekbar{display:flex;align-items:center;gap:8px;margin:0 0 12px}
+.weekbar h2{font-size:18px;margin-right:auto}
+.wk{display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:10px;overflow-x:auto;padding-bottom:6px}
+.wk .col{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:220px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.wk .col.today{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand) inset}
+.wk .col.we{background:var(--surface-2)}
+.wk .dh2{display:flex;align-items:baseline;gap:6px;margin-bottom:4px}
+.wk .dh2 span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.wk .dh2 b{font:700 22px var(--f-display)}
+.wk .col.today .dh2 span,.wk .col.today .dh2 b{color:var(--brand)}
+.wk .free{color:var(--faint);font-size:13px}
+.ev small{display:block;font-weight:400;opacity:.8;font-size:11px;overflow:hidden;text-overflow:ellipsis}
 .pend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
 .pend button{all:unset;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
 .pend button:hover{border-color:var(--brand)}
@@ -191,7 +207,7 @@ input[type=checkbox]{accent-color:var(--brand)}
   .cols,.mgrid{grid-template-columns:minmax(0,1fr)}
   nav.tabs{order:3;width:100%} nav.tabs button{flex:1;padding:7px 4px;font-size:13px}
   .outcomes{grid-template-columns:minmax(0,1fr)}
-  .today-grid,.pend{grid-template-columns:minmax(0,1fr)}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))} .pend{grid-template-columns:minmax(0,1fr)}
   .cal{display:none} .callist{display:flex}
   .logo-badge{display:none}
   .hb{grid-template-columns:96px minmax(0,1fr) 40px}
@@ -270,6 +286,9 @@ function toNum(v){
 }
 const toTel = v => String(v ?? "").replace(/\D/g,"");
 const isSi = v => norm(v).startsWith("s");
+const isPrueba = v => norm(v.tipo).startsWith("prueba");
+const ventasReales = () => S.V.filter(v => !isPrueba(v));
+const aCobrarL = () => S.V.filter(v => !v.cobro && !isPrueba(v));
 
 /* ===================== ESTADO ===================== */
 const S = { mode:"demo", token:null, exp:0, P:[], V:[], cCols:{}, vCols:{}, cWidth:0, vWidth:0, view:"hoy", openId:null, mes:"todos" };
@@ -277,7 +296,7 @@ const get = id => S.P.find(p => p.id === id);
 
 /* Columnas: se buscan por el título, así no importa el orden en la planilla */
 const C_DEF = [["id","id"],["empresa","empresa"],["persona","contacto"],["cargo","cargo"],["telefono","tel"],["mail","email"],["linkedin","li"],["etapa","etapa"],["origen","origen"],["canal","canal"],["veces","veces"],["ultimo","ult"],["proximo","prox"],["notas","notas"],["revisar","revisar"]];
-const V_DEF = [["id","id"],["fecha de venta","fecha"],["empresa","empresa"],["creditos","creditos"],["monto","vendido"],["cobro","cobro"],["fecha de cobro","fcobro"],["neto","neto"],["post","iibb"],["notas","notas"]];
+const V_DEF = [["id","id"],["fecha de venta","fecha"],["empresa","empresa"],["creditos","creditos"],["monto","vendido"],["cobro","cobro"],["fecha de cobro","fcobro"],["neto","neto"],["post","iibb"],["notas","notas"],["tipo","tipo"]];
 const C_TYPE = {id:"num",veces:"num",ult:"date",prox:"date",tel:"tel"};
 const V_TYPE = {id:"num",fecha:"date",fcobro:"date",creditos:"num",vendido:"num",neto:"num",iibb:"num",cobro:"sino"};
 function mapCols(head, defs){
@@ -325,6 +344,10 @@ async function loadLive(silent){
     const [c, v] = res.valueRanges.map(x => x.values || []);
     S.cCols = mapCols(c[0] || [], C_DEF); S.vCols = mapCols(v[0] || [], V_DEF);
     S.cWidth = (c[0] || []).length; S.vWidth = (v[0] || []).length;
+    if (S.vCols.tipo == null && v[0]){
+      await api(`/values/${encodeURIComponent(quoteSheet(CONFIG.HOJA_VENTAS) + "!" + colLetter(S.vWidth) + "1")}?valueInputOption=RAW`, { method: "PUT", body: JSON.stringify({ values: [["Tipo"]] }) });
+      S.vCols.tipo = S.vWidth; S.vWidth++;
+    }
     S.P = parseRows(c.slice(1), S.cCols, C_TYPE); S.V = parseRows(v.slice(1), S.vCols, V_TYPE);
     S.P.forEach(p => { if (p.id == null) p.id = 100000 + p._row; });
     S.V.forEach(x => { if (x.id == null) x.id = 100000 + x._row; });
@@ -430,7 +453,11 @@ function startDemo(msg){
     {id:4,empresa:"Industrias Sol",fecha:m(-1),creditos:25,vendido:275000,cobro:true,fcobro:m(-1),neto:264000,iibb:254800,notas:"Recarga"},
     {id:5,empresa:"Banco Sur",fecha:addDays(-11),creditos:50,vendido:500000,cobro:true,fcobro:addDays(-4),neto:480000,iibb:463200,notas:""},
     {id:6,empresa:"Agro Pampa",fecha:addDays(-5),creditos:10,vendido:110000,cobro:false,fcobro:null,neto:null,iibb:null,notas:"Anticipo"},
+    {id:7,empresa:"Agro Pampa",fecha:addDays(-20),creditos:3,vendido:null,cobro:false,fcobro:null,neto:null,iibb:null,notas:"Prueba con 3 personas",tipo:"Prueba"},
+    {id:8,empresa:"Seguros Faro",fecha:addDays(-8),creditos:5,vendido:null,cobro:false,fcobro:null,neto:null,iibb:null,notas:"",tipo:"Prueba"},
+    {id:9,empresa:"Banco Sur",fecha:addDays(-30),creditos:5,vendido:null,cobro:false,fcobro:null,neto:null,iibb:null,notas:"",tipo:"Prueba"},
   ];
+  S.V.forEach(v => { if (!v.tipo) v.tipo = "Venta"; });
   showApp(); render();
 }
 
@@ -471,12 +498,16 @@ function row(p){ const e = estado(p); return `<li class="row" data-open="${p.id}
 function panel(title, items, emptyTxt, hint = ""){ return `<section class="panel"><h2>${title} <span class="count">${items.length}</span></h2>${hint ? `<p class="hint">${hint}</p>` : ""}<ul class="list">${items.length ? items.map(row).join("") : `<li class="empty">${emptyTxt}</li>`}</ul></section>`; }
 
 function evChip(p){ const e = estado(p), pp = proxPaso(p), meet = /^Reuni[oó]n/i.test(pp) || p.etapa === "Reunión"; return `<button class="ev ${meet ? "meet" : e && (e.c === "late" || e.c === "today") ? e.c : ""}" data-open="${p.id}" data-tip="${esc(p.empresa + " · " + (pp || p.etapa || ""))}">${esc(p.empresa)}</button>`; }
-function weekList(){
-  let html = "", d = new Date(today);
+function evChipBig(p){ const e = estado(p), pp = proxPaso(p), meet = /^Reuni[oó]n/i.test(pp) || p.etapa === "Reunión"; return `<button class="ev ${meet ? "meet" : e && (e.c === "late" || e.c === "today") ? e.c : ""}" data-open="${p.id}" data-tip="${esc(p.empresa + " · " + (pp || p.etapa || ""))}">${esc(p.empresa)}<small>${esc(pp || p.etapa || "")}</small></button>`; }
+function weekStrip(){
+  const off = S.wk || 0, base = new Date(today.getTime() + off * 7 * DAY);
+  let html = "";
   for (let i = 0; i < 7; i++){
-    const L = enSeguimiento().filter(p => p.prox && iso(p.prox) === iso(d));
-    if (i === 0 || L.length) html += `<div class="wd"><div class="dn">${i === 0 ? "Hoy" : d.toLocaleDateString("es-AR",{weekday:"short"}).replace(".","")}<b>${d.getDate()}</b></div><div class="evs">${L.length ? L.map(evChip).join("") : `<span class="rs">Libre</span>`}</div></div>`;
-    d = new Date(d.getTime() + DAY);
+    const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + i), k = iso(d);
+    let L = enSeguimiento().filter(p => p.prox && iso(p.prox) === k);
+    if (k === iso(today)) L = [...enSeguimiento().filter(p => p.prox && diff(p.prox) < 0).sort((a,b) => a.prox - b.prox), ...L];
+    const we = d.getDay() === 0 || d.getDay() === 6;
+    html += `<div class="col${k === iso(today) ? " today" : ""}${we ? " we" : ""}"><div class="dh2"><span>${k === iso(today) ? "Hoy" : d.toLocaleDateString("es-AR",{weekday:"short"}).replace(".","")}</span><b>${d.getDate()}</b></div>${L.length ? L.map(evChipBig).join("") : `<span class="free">Libre</span>`}</div>`;
   }
   return html;
 }
@@ -484,35 +515,36 @@ function vHoy(){
   const act = enSeguimiento();
   const late = act.filter(p => p.prox && diff(p.prox) < 0).sort((a,b) => a.prox - b.prox);
   const hoy = act.filter(p => p.prox && diff(p.prox) === 0);
+  const semana = act.filter(p => p.prox && diff(p.prox) > 0 && diff(p.prox) <= 7).length;
   const sin = S.P.filter(p => (ACTIVAS.includes(p.etapa) || !p.etapa) && !p.prox);
   const rev = S.P.filter(p => p.revisar);
-  const aCobrar = S.V.filter(v => !v.cobro);
+  const aCobrar = aCobrarL(), deuda = aCobrar.reduce((s,v) => s + (v.vendido || 0), 0);
   const prueba = S.P.filter(p => p.etapa === "Prueba gratis").length;
   const h = new Date().getHours(), saludo = h < 13 ? "Buen día" : h < 20 ? "Buenas tardes" : "Buenas noches";
   const fecha = capWord(today.toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"}));
-  const todo = [...late, ...hoy], tot = todo.length;
+  const tot = late.length + hoy.length;
+  const off = S.wk || 0;
   return `<h1>${saludo}. ${tot ? `Hoy tenés ${tot} seguimiento${tot === 1 ? "" : "s"}.` : "Hoy no tenés seguimientos pendientes."}</h1><p class="sub">${fecha}</p>
-  <div class="stats">
-    <div class="stat late"><b>${late.length}</b><span>Atrasados</span></div>
-    <div class="stat today"><b>${hoy.length}</b><span>Para hoy</span></div>
-    <div class="stat"><b>${prueba}</b><span>Probando gratis</span></div>
-    <div class="stat ok"><b>${money(aCobrar.reduce((s,v) => s + (v.vendido || 0), 0))}</b><span>Pendiente de cobro</span></div>
+  <div class="tiles">
+    <button class="tile main" data-act="lista-hoy"><b>${tot}</b><span>Para hacer hoy${late.length ? ` · ${late.length} atrasado${late.length === 1 ? "" : "s"}` : ""}</span><em>Ver a quién escribirle →</em></button>
+    <button class="tile" data-view="agenda"><b>${semana}</b><span>Próximos 7 días</span><em>Ver agenda →</em></button>
+    <button class="tile" data-act="lista-prueba"><b>${prueba}</b><span>Probando gratis</span><em>Ver cuáles →</em></button>
+    <button class="tile ok" data-act="lista-cob"><b>${moneyShort(deuda)}</b><span>${aCobrar.length} cobro${aCobrar.length === 1 ? "" : "s"} pendiente${aCobrar.length === 1 ? "" : "s"}</span><em>Ver cuáles →</em></button>
   </div>
-  <div class="today-grid">
-    ${panel("Para hacer hoy", todo, sin.length ? "Nada con fecha para hoy. Tocá “Armar próximos pasos” abajo para organizar la semana." : "Nada pendiente para hoy. ¡Bien ahí!", late.length ? "Primero los atrasados (en rojo), después los de hoy." : "")}
-    <section class="panel"><h2>Esta semana</h2><div class="week">${weekList()}</div><p style="margin:14px 0 0"><button class="btn sm" data-view="agenda">Ver el calendario completo</button></p></section>
-  </div>
+  <div class="weekbar"><h2>${off ? "Semana del " + fd(new Date(today.getTime() + off * 7 * DAY)) : "Tu semana"}</h2><button class="btn sm" data-act="wkprev" aria-label="Semana anterior" ${off <= 0 ? 'aria-disabled="true"' : ""}>‹</button><button class="btn sm" data-act="wkhoy">Hoy</button><button class="btn sm" data-act="wknext" aria-label="Semana siguiente">›</button></div>
+  <div class="legend" style="margin:0 0 10px"><span><i style="background:var(--brand)"></i>Reunión</span><span><i style="background:var(--brand-soft);outline:1px solid var(--brand-line)"></i>Seguimiento</span><span><i style="background:var(--late-soft);outline:1px solid var(--late)"></i>Atrasado</span><span><i style="background:var(--today-soft);outline:1px solid var(--today)"></i>Hoy</span></div>
+  <div class="wk">${weekStrip()}</div>
   <div class="pend">
     <button data-act="lista-sin"><b>${sin.length}</b><span>Sin próximo paso</span>${sin.length ? `<em>Armar próximos pasos →</em>` : ""}</button>
     <button data-act="lista-rev"><b>${rev.length}</b><span>Datos para completar</span>${rev.length ? `<em>Ver cuáles →</em>` : ""}</button>
-    <button data-act="lista-cob"><b>${money(aCobrar.reduce((s,v) => s + (v.vendido || 0), 0))}</b><span>${aCobrar.length} cobro${aCobrar.length === 1 ? "" : "s"} pendiente${aCobrar.length === 1 ? "" : "s"}</span>${aCobrar.length ? `<em>Ver cuáles →</em>` : ""}</button>
+    <button data-act="linkedin"><b>LinkedIn</b><span>Sumar contactos desde una captura</span><em>Subir captura →</em></button>
   </div>`;
 }
 function modalLista(title, items, extra = ""){
   return `<div class="scrim" data-act="closemodal" style="z-index:30"></div><div class="modal" role="dialog" aria-label="${esc(title)}"><h2>${title} <span class="count">${items.length}</span></h2>${extra}<ul class="list">${items.map(row).join("") || `<li class="empty">No hay nada acá.</li>`}</ul><div class="btns" style="justify-content:flex-end"><button class="btn" data-act="closemodal">Cerrar</button></div></div>`;
 }
 function modalCobros(){
-  const L = S.V.filter(v => !v.cobro);
+  const L = aCobrarL();
   return `<div class="scrim" data-act="closemodal" style="z-index:30"></div><div class="modal" role="dialog" aria-label="Cobros pendientes"><h2>Cobros pendientes <span class="count">${L.length}</span></h2><ul class="list">${L.map(v => `<li class="row" data-venta="${v.id}"><div class="rmain"><div class="rn">${esc(v.empresa)}</div><div class="rs">Vendido el ${fd(v.fecha)} · ${v.creditos ?? "?"} créditos</div></div><span class="chip today">${money(v.vendido)}</span></li>`).join("") || `<li class="empty">Todo cobrado.</li>`}</ul><div class="btns" style="justify-content:flex-end"><button class="btn" data-act="closemodal">Cerrar</button></div></div>`;
 }
 function vAgenda(){
@@ -543,19 +575,30 @@ function vEmbudo(){
 }
 const mesKey = d => d ? capWord(d.toLocaleDateString("es-AR",{month:"long",year:"numeric"})) : "Sin fecha";
 function vVentas(){
-  const meses = [...new Set([...S.V].sort((a,b) => (b.fecha || 0) - (a.fecha || 0)).map(v => mesKey(v.fecha)))];
-  const L = S.V.filter(v => S.mes === "todos" || mesKey(v.fecha) === S.mes).sort((a,b) => (b.fecha || 0) - (a.fecha || 0));
-  const sum = k => L.reduce((s,v) => s + (v[k] || 0), 0);
-  return `<h1>Ventas y cobros</h1><p class="sub">Vos cargás los montos. El tablero solo suma.</p>
-  <div class="bar"><label class="grow" style="max-width:240px">Período<select id="mes"><option value="todos">Todo</option>${meses.map(m => `<option ${m === S.mes ? "selected" : ""}>${m}</option>`).join("")}</select></label><button class="btn primary" data-act="venta">+ Registrar venta</button></div>
-  <div class="stats">
-    <div class="stat"><b>${sum("creditos")}</b><span>Créditos vendidos</span></div>
-    <div class="stat"><b>${money(sum("vendido"))}</b><span>Vendido</span></div>
-    <div class="stat ok"><b>${money(sum("neto"))}</b><span>Neto cobrado</span></div>
-    <div class="stat"><b>${money(sum("iibb"))}</b><span>Post IIBB</span></div>
+  const f = S.vfiltro || "todo";
+  const base = S.V.filter(v => f === "todo" || (f === "prueba") === isPrueba(v));
+  const meses = [...new Set([...base].sort((a,b) => (b.fecha || 0) - (a.fecha || 0)).map(v => mesKey(v.fecha)))];
+  const L = base.filter(v => S.mes === "todos" || mesKey(v.fecha) === S.mes).sort((a,b) => (b.fecha || 0) - (a.fecha || 0));
+  const VR = L.filter(v => !isPrueba(v)), PR = L.filter(isPrueba);
+  const sum = (A, k) => A.reduce((s,v) => s + (v[k] || 0), 0);
+  const empPrueba = [...new Set(PR.map(v => norm(v.empresa)))].length;
+  const tab = (k, t, n) => `<button class="btn sm ${f === k ? "primary" : ""}" data-act="vfiltro" data-f="${k}">${t} <span style="opacity:.7">${n}</span></button>`;
+  return `<h1>Ventas y pruebas</h1><p class="sub">Vos cargás los datos. El tablero solo suma.</p>
+  <div class="bar"><div class="btns grow">${tab("todo","Todo",S.V.length)}${tab("venta","Ventas",ventasReales().length)}${tab("prueba","Pruebas",S.V.filter(isPrueba).length)}</div>
+    <label style="max-width:200px">Período<select id="mes"><option value="todos">Todo</option>${meses.map(m => `<option ${m === S.mes ? "selected" : ""}>${m}</option>`).join("")}</select></label>
+    <button class="btn" data-act="prueba">+ Registrar prueba</button><button class="btn primary" data-act="venta">+ Registrar venta</button></div>
+  <div class="stats six">
+    <div class="stat"><b>${sum(VR,"creditos")}</b><span>Créditos vendidos</span></div>
+    <div class="stat"><b>${moneyShort(sum(VR,"vendido"))}</b><span>Vendido</span></div>
+    <div class="stat ok"><b>${moneyShort(sum(VR,"neto"))}</b><span>Neto cobrado</span></div>
+    <div class="stat"><b>${moneyShort(sum(VR,"iibb"))}</b><span>Post IIBB</span></div>
+    <div class="stat"><b>${sum(PR,"creditos")}</b><span>Créditos de prueba</span></div>
+    <div class="stat"><b>${empPrueba}</b><span>Empresas con prueba</span></div>
   </div>
-  <div class="panel tablewrap"><table><thead><tr><th>Empresa</th><th>Fecha</th><th class="n">Créditos</th><th class="n">Vendido</th><th>¿Cobró?</th><th>Cobro</th><th class="n">Neto</th><th class="n">Post IIBB</th><th></th></tr></thead><tbody>
-  ${L.map(v => `<tr><td><b>${esc(v.empresa)}</b></td><td>${fd(v.fecha)}</td><td class="n">${v.creditos ?? "—"}</td><td class="n">${money(v.vendido)}</td><td>${v.cobro ? '<span class="chip ok">Cobrado</span>' : '<span class="chip today">Pendiente</span>'}</td><td>${fd(v.fcobro)}</td><td class="n">${money(v.neto)}</td><td class="n">${money(v.iibb)}</td><td><button class="btn sm" data-venta="${v.id}">${v.cobro ? "Editar" : "Cargar cobro"}</button></td></tr>`).join("") || `<tr><td colspan="9" class="empty">Todavía no hay ventas cargadas.</td></tr>`}
+  <div class="panel tablewrap"><table><thead><tr><th>Tipo</th><th>Empresa</th><th>Fecha</th><th class="n">Créditos</th><th class="n">Vendido</th><th>¿Cobró?</th><th>Cobro</th><th class="n">Neto</th><th class="n">Post IIBB</th><th>Notas</th><th></th></tr></thead><tbody>
+  ${L.map(v => isPrueba(v)
+    ? `<tr><td><span class="chip acc">Prueba</span></td><td><b>${esc(v.empresa)}</b></td><td>${fd(v.fecha)}</td><td class="n">${v.creditos ?? "—"}</td><td class="n" style="color:var(--faint)">—</td><td><span class="chip">No aplica</span></td><td>—</td><td class="n" style="color:var(--faint)">—</td><td class="n" style="color:var(--faint)">—</td><td style="white-space:normal;min-width:140px">${esc(v.notas)}</td><td><button class="btn sm" data-venta="${v.id}">Editar</button></td></tr>`
+    : `<tr><td><span class="chip ok">Venta</span></td><td><b>${esc(v.empresa)}</b></td><td>${fd(v.fecha)}</td><td class="n">${v.creditos ?? "—"}</td><td class="n">${money(v.vendido)}</td><td>${v.cobro ? '<span class="chip ok">Cobrado</span>' : '<span class="chip today">Pendiente</span>'}</td><td>${fd(v.fcobro)}</td><td class="n">${money(v.neto)}</td><td class="n">${money(v.iibb)}</td><td style="white-space:normal;min-width:140px">${esc(v.notas)}</td><td><button class="btn sm" data-venta="${v.id}">${v.cobro ? "Editar" : "Cargar cobro"}</button></td></tr>`).join("") || `<tr><td colspan="11" class="empty">Todavía no hay nada cargado acá.</td></tr>`}
   </tbody></table></div>`;
 }
 
@@ -566,8 +609,8 @@ function hbars(items, tipFn){
 }
 function niceMax(v){ if (v <= 0) return 1; const p = Math.pow(10, Math.floor(Math.log10(v))); const f = v / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p; }
 function chartMeses(Wpx){
-  const months = []; for (let k = 5; k >= 0; k--){ const d = new Date(today.getFullYear(), today.getMonth() - k, 1); months.push(d); }
-  const data = months.map(d => { const L = S.V.filter(v => v.fecha && v.fecha.getFullYear() === d.getFullYear() && v.fecha.getMonth() === d.getMonth());
+  const SV = ventasReales(); const months = []; for (let k = 5; k >= 0; k--){ const d = new Date(today.getFullYear(), today.getMonth() - k, 1); months.push(d); }
+  const data = months.map(d => { const L = SV.filter(v => v.fecha && v.fecha.getFullYear() === d.getFullYear() && v.fecha.getMonth() === d.getMonth());
     return { d, lab: capWord(d.toLocaleDateString("es-AR",{month:"short"}).replace(".","")), vend: L.reduce((s,v) => s + (v.vendido || 0), 0), cob: L.filter(v => v.cobro).reduce((s,v) => s + (v.neto || v.vendido || 0), 0) }; });
   const W = Math.max(300, Wpx || 640), H = 250, pl = 64, pr = 8, pt = 10, pb = 28, iw = W - pl - pr, ih = H - pt - pb;
   const top = niceMax(Math.max(...data.map(x => Math.max(x.vend, x.cob))));
@@ -582,8 +625,11 @@ function vMetricas(){
   const total = S.P.length, clientes = S.P.filter(p => p.etapa === "Compró").length;
   const prueba = S.P.filter(p => p.etapa === "Prueba gratis").length, perd = S.P.filter(p => p.etapa === "Perdido").length;
   const cerradas = clientes + perd, tasa = cerradas ? Math.round(clientes / cerradas * 100) : null;
-  const cred = S.V.reduce((s,v) => s + (v.creditos || 0), 0), vend = S.V.reduce((s,v) => s + (v.vendido || 0), 0);
-  const pend = S.V.filter(v => !v.cobro).reduce((s,v) => s + (v.vendido || 0), 0);
+  const cred = ventasReales().reduce((s,v) => s + (v.creditos || 0), 0), vend = ventasReales().reduce((s,v) => s + (v.vendido || 0), 0);
+  const pend = aCobrarL().reduce((s,v) => s + (v.vendido || 0), 0);
+  const empP = [...new Set(S.V.filter(isPrueba).map(v => norm(v.empresa)))];
+  const empV = new Set(ventasReales().map(v => norm(v.empresa)));
+  const convP = empP.filter(e => empV.has(e)).length, credP = S.V.filter(isPrueba).reduce((s,v) => s + (v.creditos || 0), 0);
   const tocados = S.P.filter(p => p.ult && diff(p.ult) >= -7).length;
   const embudo = ETAPAS.map(k => ({ k, v: S.P.filter(p => p.etapa === k).length }));
   const cuenta = f => { const m = {}; S.P.forEach(p => { const k = p[f] || "Sin dato"; m[k] = (m[k] || 0) + 1; }); return Object.entries(m).map(([k,v]) => ({k,v})).sort((a,b) => b.v - a.v).slice(0, 7); };
@@ -601,6 +647,7 @@ function vMetricas(){
     <section class="panel wide"><h2>Vendido y cobrado por mes</h2><p class="hint">Últimos 6 meses. Total vendido en la planilla: ${money(vend)}.</p><div class="legend"><span><i style="background:var(--c1)"></i>Vendido</span><span><i style="background:var(--c2)"></i>Cobrado (neto)</span></div><div class="chart" id="chartMeses" role="img" aria-label="Vendido y cobrado por mes, últimos 6 meses"></div></section>
     <section class="panel"><h2>Embudo</h2><p class="hint">Cuántas empresas hay en cada etapa.</p>${hbars(embudo, i => `${i.k}: ${i.v} empresa${i.v === 1 ? "" : "s"} (${pct(i.v)})`)}</section>
     <section class="panel"><h2>Por canal de contacto</h2><p class="hint">Por dónde se habló con cada empresa.</p>${hbars(cuenta("canal"), i => `${i.k}: ${i.v} empresa${i.v === 1 ? "" : "s"}`)}</section>
+    <section class="panel"><h2>Pruebas gratis</h2><p class="hint">Empresas a las que les diste créditos de prueba y cuántas después compraron.</p><div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr));margin:12px 0 0"><div class="stat" style="border:0;padding:0"><b>${empP.length}</b><span>Empresas con prueba</span></div><div class="stat" style="border:0;padding:0"><b>${credP}</b><span>Créditos regalados</span></div><div class="stat ok" style="border:0;padding:0"><b>${empP.length ? Math.round(convP / empP.length * 100) + "%" : "—"}</b><span>Compraron después (${convP})</span></div></div></section>
     <section class="panel"><h2>Actividad</h2><p class="hint">Empresas con contacto registrado en los últimos 7 días.</p><div class="stat" style="border:0;padding:12px 0 0"><b>${tocados}</b><span>de ${enSeguimiento().length} en seguimiento</span></div></section>
     <section class="panel"><h2>De dónde llegan</h2><p class="hint">Origen de cada contacto.</p>${hbars(cuenta("origen"), i => `${i.k}: ${i.v} empresa${i.v === 1 ? "" : "s"}`)}</section>
   </div>`;
@@ -726,18 +773,22 @@ function modalContacto(p){
   ${n ? `<label>Nota inicial<input id="n-not" placeholder="Ej: comentó mi publicación sobre liderazgo"></label>` : p.revisar ? `<div class="sec warn"><h4>Para revisar</h4><div>${esc(p.revisar)}</div><label style="flex-direction:row;align-items:center;gap:8px;color:var(--fg)"><input type="checkbox" id="n-ok" style="width:auto" checked> Ya está corregido (sale de “Datos para completar”)</label></div>` : ""}
   <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn primary" type="submit">${n ? "Crear y abrir ficha" : "Guardar"}</button></div></form>`;
 }
-function modalVenta(v){
-  v = v || { empresa:"", fecha:today, creditos:"", vendido:"", cobro:false, fcobro:null, neto:"", iibb:"" };
-  return `<div class="scrim" data-act="closemodal" style="z-index:30"></div><form class="modal" id="fventa" data-id="${v.id || ""}"><h2>${v.id ? "Editar venta" : "Registrar venta"}</h2>
+function modalVenta(v, tipo){
+  v = v || { empresa:"", fecha:today, creditos:"", vendido:"", cobro:false, fcobro:null, neto:"", iibb:"", notas:"", tipo: tipo || "Venta" };
+  const pr = isPrueba(v);
+  return `<div class="scrim" data-act="closemodal" style="z-index:30"></div><form class="modal" id="fventa" data-id="${v.id || ""}"><h2>${v.id ? "Editar" : "Registrar"} ${pr ? "prueba" : "venta"}</h2>
+  <label>Tipo<select id="v-tipo"><option ${!pr ? "selected" : ""}>Venta</option><option ${pr ? "selected" : ""}>Prueba</option></select></label>
   <label>Empresa<input id="v-emp" required value="${esc(v.empresa)}" list="emps"></label><datalist id="emps">${[...new Set(S.P.map(p => p.empresa))].map(e => `<option value="${esc(e)}">`).join("")}</datalist>
-  <div class="grid2"><label>Fecha de venta<input type="date" id="v-fecha" required value="${iso(v.fecha)}"></label><label>Créditos<input type="number" min="0" id="v-cred" value="${v.creditos ?? ""}"></label></div>
+  <div class="grid2"><label><span id="v-flab">${pr ? "Fecha en que le diste la prueba" : "Fecha de venta"}</span><input type="date" id="v-fecha" required value="${iso(v.fecha)}"></label><label>${pr ? "Créditos de prueba" : "Créditos"}<input type="number" min="0" id="v-cred" value="${v.creditos ?? ""}"></label></div>
+  <div id="v-money" style="display:flex;flex-direction:column;gap:12px" ${pr ? "hidden" : ""}>
   <label>Monto vendido ($)<input type="number" min="0" id="v-vend" value="${v.vendido ?? ""}"></label>
   <label style="flex-direction:row;align-items:center;gap:8px;color:var(--fg)"><input type="checkbox" id="v-cobro" style="width:auto" ${v.cobro ? "checked" : ""}> Ya cobró</label>
   <div class="grid2"><label>Fecha de cobro<input type="date" id="v-fcobro" value="${iso(v.fcobro)}"></label><label>Neto cobrado ($)<input type="number" min="0" id="v-neto" value="${v.neto ?? ""}"></label></div>
-  <label>Post IIBB ($)<input type="number" min="0" id="v-iibb" value="${v.iibb ?? ""}"></label>
-  <label>Notas<input id="v-not" value="${esc(v.notas)}"></label>
+  <label>Post IIBB ($)<input type="number" min="0" id="v-iibb" value="${v.iibb ?? ""}"></label></div>
+  <label>Notas<input id="v-not" value="${esc(v.notas)}" placeholder="${pr ? "Ej: para 3 mandos medios" : ""}"></label>
   <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn primary" type="submit">Guardar</button></div></form>`;
 }
+function bindVenta(){ const t = $("#v-tipo"); if (t) t.onchange = () => { const pr = t.value === "Prueba"; $("#v-money").hidden = pr; $("#v-flab").textContent = pr ? "Fecha en que le diste la prueba" : "Fecha de venta"; }; }
 
 /* ===================== RENDER Y EVENTOS ===================== */
 function render(){
@@ -765,7 +816,7 @@ document.addEventListener("click", async ev => {
   const t = ev.target.closest("[data-view],[data-open],[data-act],[data-out],[data-venta]"); if (!t || t.getAttribute("aria-disabled") === "true") return;
   if (t.dataset.view){ S.view = t.dataset.view; S.openId = null; $("#layer").innerHTML = ""; render(); window.scrollTo(0, 0); return; }
   if (t.dataset.open){ if (t.closest(".modal")) closeModal(); openP(+t.dataset.open); return; }
-  if (t.dataset.venta){ if (t.closest(".modal")) closeModal(); $("#layer").insertAdjacentHTML("beforeend", modalVenta(S.V.find(v => v.id === +t.dataset.venta))); return; }
+  if (t.dataset.venta){ if (t.closest(".modal")) closeModal(); $("#layer").insertAdjacentHTML("beforeend", modalVenta(S.V.find(v => v.id === +t.dataset.venta))); bindVenta(); return; }
   const a = t.dataset.act, p = S.openId && get(S.openId);
   if (a === "login"){ tokenClient && tokenClient.requestAccessToken({ prompt: "" }); return; }
   if (a === "reload"){ loadLive(true).then(() => toast("Datos actualizados")); return; }
@@ -776,14 +827,16 @@ document.addEventListener("click", async ev => {
     if (o[3]) ch.etapa = o[3];
     await saveFields("c", p, ch);
     refresh(o[4] == null ? "Guardado" : `Guardado. Te lo recuerdo el ${fd(ch.prox)}`);
-    if (o[0] === "compro") $("#layer").insertAdjacentHTML("beforeend", modalVenta({ empresa: p.empresa, fecha: today, creditos: "", vendido: "", cobro: false }));
+    if (o[0] === "compro"){ $("#layer").insertAdjacentHTML("beforeend", modalVenta({ empresa: p.empresa, fecha: today, creditos: "", vendido: "", cobro: false, tipo: "Venta" })); bindVenta(); }
+    if (o[0] === "prueba"){ $("#layer").insertAdjacentHTML("beforeend", modalVenta({ empresa: p.empresa, fecha: today, creditos: "", vendido: null, cobro: false, tipo: "Prueba" })); bindVenta(); }
     return;
   }
   if (a === "close"){ S.openId = null; $("#layer").innerHTML = ""; return; }
   if (a === "closemodal"){ closeModal(); return; }
   if (a === "nuevo"){ $("#layer").insertAdjacentHTML("beforeend", modalContacto()); $("#n-emp").focus(); return; }
   if (a === "editar" && p){ $("#layer").insertAdjacentHTML("beforeend", modalContacto(p)); return; }
-  if (a === "venta"){ $("#layer").insertAdjacentHTML("beforeend", modalVenta()); return; }
+  if (a === "venta" || a === "prueba"){ $("#layer").insertAdjacentHTML("beforeend", modalVenta(null, a === "prueba" ? "Prueba" : "Venta")); bindVenta(); return; }
+  if (a === "vfiltro"){ S.vfiltro = t.dataset.f; S.mes = "todos"; render(); return; }
   if (a === "copy"){ copy($("#msg").value, "Mensaje copiado"); return; }
   if (a === "wa" && p){ window.open(`https://wa.me/${p.tel}?text=${encodeURIComponent($("#msg").value)}`, "_blank", "noopener"); return; }
   if (a === "mail" && p){ window.open(outlookMail(p.email, $("#msg").value), "_blank", "noopener"); return; }
@@ -793,6 +846,11 @@ document.addEventListener("click", async ev => {
   if (a === "li-add"){ agregarLI(); return; }
   if (a === "lista-sin"){ closeModal(); const sin = S.P.filter(p => (ACTIVAS.includes(p.etapa) || !p.etapa) && !p.prox); $("#layer").insertAdjacentHTML("beforeend", modalLista("Sin próximo paso", sin, sin.length ? `<p class="hint" style="margin:0">Empresas activas sin fecha. Con un clic les armo fecha y qué hacer a todas.</p><p style="margin:0"><button class="btn primary sm" data-act="plan">Armar próximos pasos</button></p>` : "")); return; }
   if (a === "lista-rev"){ $("#layer").insertAdjacentHTML("beforeend", modalLista("Datos para completar", S.P.filter(p => p.revisar), `<p class="hint" style="margin:0">Abrí cada una, tocá “Editar datos” y corregí lo que falta.</p>`)); return; }
+  if (a === "lista-hoy"){ const act = enSeguimiento(); const L = [...act.filter(p => p.prox && diff(p.prox) < 0).sort((a,b) => a.prox - b.prox), ...act.filter(p => p.prox && diff(p.prox) === 0)]; $("#layer").insertAdjacentHTML("beforeend", modalLista("Para hacer hoy", L, L.length ? `<p class="hint" style="margin:0">Primero los atrasados (en rojo). Tocá cada empresa para ver el mensaje y los botones.</p>` : "")); return; }
+  if (a === "lista-prueba"){ $("#layer").insertAdjacentHTML("beforeend", modalLista("Probando gratis", S.P.filter(p => p.etapa === "Prueba gratis"))); return; }
+  if (a === "wkprev"){ S.wk = Math.max(0, (S.wk || 0) - 1); render(); return; }
+  if (a === "wknext"){ S.wk = (S.wk || 0) + 1; render(); return; }
+  if (a === "wkhoy"){ S.wk = 0; render(); return; }
   if (a === "lista-cob"){ $("#layer").insertAdjacentHTML("beforeend", modalCobros()); return; }
   if (a === "calprev" || a === "calnext"){ const m = S.cal || new Date(today.getFullYear(), today.getMonth(), 1); S.cal = new Date(m.getFullYear(), m.getMonth() + (a === "calnext" ? 1 : -1), 1); render(); return; }
   if (a === "caltoday"){ S.cal = null; render(); return; }
@@ -814,9 +872,10 @@ document.addEventListener("submit", async ev => {
   ev.preventDefault(); const f = ev.target, num = id => { const v = $(id).value; return v === "" ? null : +v; };
   const btn = f.querySelector('[type="submit"]'); btn.setAttribute("aria-disabled", "true");
   if (f.id === "fventa"){
-    const data = { empresa: $("#v-emp").value.trim(), fecha: fromIso($("#v-fecha").value), creditos: num("#v-cred"), vendido: num("#v-vend"), cobro: $("#v-cobro").checked, fcobro: fromIso($("#v-fcobro").value), neto: num("#v-neto"), iibb: num("#v-iibb"), notas: $("#v-not").value.trim() };
+    const pr = $("#v-tipo").value === "Prueba";
+    const data = { tipo: pr ? "Prueba" : "Venta", empresa: $("#v-emp").value.trim(), fecha: fromIso($("#v-fecha").value), creditos: num("#v-cred"), vendido: pr ? null : num("#v-vend"), cobro: pr ? false : $("#v-cobro").checked, fcobro: pr ? null : fromIso($("#v-fcobro").value), neto: pr ? null : num("#v-neto"), iibb: pr ? null : num("#v-iibb"), notas: $("#v-not").value.trim() };
     if (f.dataset.id) await saveFields("v", S.V.find(v => v.id === +f.dataset.id), data); else await appendRow("v", data);
-    closeModal(); refresh("Venta guardada");
+    closeModal(); refresh(pr ? "Prueba guardada" : "Venta guardada");
   }
   if (f.id === "freunion"){
     const p = get(+f.dataset.id), day = $("#r-dia").value, hora = $("#r-hora").value || "10:00", d = fromIso(day);

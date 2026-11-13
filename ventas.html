@@ -293,14 +293,15 @@ function handleErr(e){
   console.error(e); toast("No se pudo guardar. Revisá la conexión y tocá Actualizar.");
 }
 /* Guarda solo las celdas que cambian, para no pisar lo que otra persona (o Claude) haya cargado */
-async function saveFields(kind, rec, changes){
-  Object.assign(rec, changes);
+const saveFields = (kind, rec, changes) => saveMany(kind, [[rec, changes]]);
+async function saveMany(kind, list){
+  list.forEach(([rec, ch]) => Object.assign(rec, ch));
   if (S.mode !== "live") return;
   const cols = kind === "c" ? S.cCols : S.vCols, types = kind === "c" ? C_TYPE : V_TYPE;
   const hoja = kind === "c" ? CONFIG.HOJA_CONTACTOS : CONFIG.HOJA_VENTAS;
-  const data = Object.keys(changes).filter(f => cols[f] != null).map(f => ({
-    range: `${quoteSheet(hoja)}!${colLetter(cols[f])}${rec._row}`, values: [[cellValue(changes[f], types[f])]]
-  }));
+  const data = list.flatMap(([rec, ch]) => rec._row ? Object.keys(ch).filter(f => cols[f] != null).map(f => ({
+    range: `${quoteSheet(hoja)}!${colLetter(cols[f])}${rec._row}`, values: [[cellValue(ch[f], types[f])]]
+  })) : []);
   if (!data.length) return;
   try{ await api(`/values:batchUpdate`, { method: "POST", body: JSON.stringify({ valueInputOption: "USER_ENTERED", data }) }); }
   catch(e){ handleErr(e); }
@@ -393,10 +394,28 @@ function estado(p){
   return { c:"acc", t:`En ${n} días` };
 }
 function ultTxt(p){ if (!p.ult) return "Sin contacto registrado"; const n = -diff(p.ult); return n <= 0 ? "Último contacto: hoy" : `Último contacto: hace ${n} día${n === 1 ? "" : "s"}`; }
+const proxPaso = p => { const l = String(p.notas || "").split(/\n+/).find(x => /Próximo paso:/i.test(x)); return l ? l.replace(/^.*Próximo paso:\s*/i, "") : ""; };
+const outlookEvent = (subject, dayIso, hora, body) => `https://outlook.office.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent&subject=${encodeURIComponent(subject)}&startdt=${dayIso}T${hora}:00&enddt=${dayIso}T${addMin(hora, 30)}:00&body=${encodeURIComponent(body.replace(/\n/g, "<br>"))}`;
+const addMin = (h, m) => { const [a, b] = h.split(":").map(Number), t = a * 60 + b + m; return `${String(Math.floor(t / 60) % 24).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`; };
+const outlookMail = (to, msg) => `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent("PotenciaIA")}&body=${encodeURIComponent(msg)}`;
+const fichaTxt = (p, msg) => "Empresa: " + p.empresa + "\nContacto: " + p.contacto + "\nTel: " + (p.tel ? "+" + p.tel : "—") + "\nMail: " + (p.email || "—") + (msg ? "\n\nMensaje sugerido:\n" + msg : "");
+const ACCION = { "Reunión": "Confirmar día y hora de la reunión", "Prueba gratis": "Preguntar cómo les fue con la prueba y ofrecer la devolución de resultados", "Presentado": "Hacer seguimiento de la presentación y ofrecer la prueba gratis", "Contactado": "Volver a escribir y proponer una llamada corta", "Por contactar": "Primer contacto", "Compró": "Preguntar cómo vienen y ofrecer más créditos" };
+const PRIO = ["Reunión", "Prueba gratis", "Presentado", "Contactado", "Por contactar", "Compró"];
+const nextBiz = d => { const x = new Date(d); do { x.setDate(x.getDate() + 1); } while (x.getDay() === 0 || x.getDay() === 6); return x; };
+function planPasos(){
+  const L = S.P.filter(p => !p.prox && (ACTIVAS.includes(p.etapa) || !p.etapa || p.etapa === "Compró"))
+    .sort((a, b) => PRIO.indexOf(a.etapa || "Por contactar") - PRIO.indexOf(b.etapa || "Por contactar"));
+  let day = nextBiz(today), n = 0;
+  return L.map(p => {
+    if (p.etapa === "Compró"){ let f = addDays(14); while (f.getDay() === 0 || f.getDay() === 6) f = new Date(f.getTime() + DAY); return { p, fecha: f, acc: ACCION["Compró"] }; }
+    if (n === 4){ day = nextBiz(day); n = 0; } n++;
+    return { p, fecha: new Date(day), acc: ACCION[p.etapa || "Por contactar"] || "Hacer seguimiento" };
+  });
+}
 const enSeguimiento = () => S.P.filter(p => ACTIVAS.includes(p.etapa) || p.etapa === "Compró" || !p.etapa);
 
 /* ===================== VISTAS ===================== */
-function row(p){ const e = estado(p); return `<li class="row" data-open="${p.id}"><div class="rmain"><div class="rn">${esc(p.empresa)}</div><div class="rs">${esc(p.contacto)} · ${esc(p.etapa || "Sin etapa")} · ${ultTxt(p)}</div></div>${e ? `<span class="chip ${e.c}">${e.t}</span>` : ""}</li>`; }
+function row(p){ const e = estado(p); return `<li class="row" data-open="${p.id}"><div class="rmain"><div class="rn">${esc(p.empresa)}</div><div class="rs">${esc(p.contacto)} · ${esc(p.etapa || "Sin etapa")} · ${esc(proxPaso(p)) || ultTxt(p)}</div></div>${e ? `<span class="chip ${e.c}">${e.t}</span>` : ""}</li>`; }
 function panel(title, items, emptyTxt, hint = ""){ return `<section class="panel"><h2>${title} <span class="count">${items.length}</span></h2>${hint ? `<p class="hint">${hint}</p>` : ""}<ul class="list">${items.length ? items.map(row).join("") : `<li class="empty">${emptyTxt}</li>`}</ul></section>`; }
 
 function vHoy(){
@@ -420,7 +439,7 @@ function vHoy(){
   </div>
   <div class="cols">
     <div class="stack">${panel("Atrasados", late, "Nada atrasado. ¡Bien ahí!")}${panel("Para hoy", hoy, "Nada para hoy.")}${panel("Próximos 7 días", sem, "Nada en la semana.")}</div>
-    <div class="stack">${panel("Sin próximo paso", sin, "Todos tienen próximo paso.", "Empresas activas sin fecha de seguimiento. Ponele una fecha a cada una para que ninguna se pierda.")}
+    <div class="stack">${panel("Sin próximo paso", sin, "Todos tienen próximo paso.", sin.length ? `Empresas activas sin fecha de seguimiento.</p><p style="margin:10px 0 2px"><button class="btn primary sm" data-act="plan">Armar próximos pasos</button>` : "")}
       <section class="panel"><h2>Cobros pendientes <span class="count">${aCobrar.length}</span></h2><ul class="list">${aCobrar.map(v => `<li class="row" data-venta="${v.id}"><div class="rmain"><div class="rn">${esc(v.empresa)}</div><div class="rs">Vendido el ${fd(v.fecha)} · ${v.creditos ?? "?"} créditos</div></div><span class="chip today">${money(v.vendido)}</span></li>`).join("") || `<li class="empty">Todo cobrado.</li>`}</ul></section>
       ${rev.length ? panel("Datos para completar", rev, "", "Contactos con algo marcado en la columna “Revisar” de la planilla.") : ""}
     </div>
@@ -519,25 +538,36 @@ const OUT = [
   ["nointeresa","No le interesa","Pasa a Perdido", "Perdido", null],
 ];
 function drawer(p){
-  const e = estado(p), msg = (MSG[p.etapa] || MSG["Contactado"])(p);
-  const st = p.prox && diff(p.prox) >= 0 ? p.prox : addDays(1), day = iso(st);
-  const body = ("Empresa: " + p.empresa + "\nTel: " + (p.tel ? "+" + p.tel : "—") + "\nMail: " + (p.email || "—") + "\n\nMensaje sugerido:\n" + msg).replace(/\n/g, "<br>");
-  const outlook = `https://outlook.office.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent&subject=${encodeURIComponent("Seguimiento " + p.empresa + " – " + p.contacto)}&startdt=${day}T10:00:00&enddt=${day}T10:30:00&body=${encodeURIComponent(body)}`;
-  const wa = p.tel ? `https://wa.me/${p.tel}?text=${encodeURIComponent(msg)}` : "";
+  const e = estado(p), msg = (MSG[p.etapa] || MSG["Contactado"])(p), pp = proxPaso(p);
   const hist = String(p.notas || "").split(/\n+/).filter(Boolean);
   return `<div class="scrim" data-act="close"></div><aside class="drawer" role="dialog" aria-label="Ficha de ${esc(p.empresa)}">
     <div class="dh"><div><h2>${esc(p.empresa)}</h2><div class="rs">${esc(p.contacto)}${p.cargo ? " · " + esc(p.cargo) : ""}</div></div><button class="btn sm x" data-act="close">Cerrar</button></div>
+    ${pp || p.prox ? `<div class="sec" style="background:var(--brand-soft);border-color:var(--brand-line)"><h4 style="color:var(--brand)">Próximo paso${p.prox ? " · " + fd(p.prox) : ""}</h4><div>${esc(pp) || "Hacer seguimiento"}</div></div>` : ""}
     ${p.revisar ? `<div class="sec warn"><h4>Para revisar</h4><div>${esc(p.revisar)}</div></div>` : ""}
     <div class="btns"><label style="flex:1;min-width:180px">Etapa<select id="etapa">${(ETAPAS.includes(p.etapa) ? ETAPAS : [p.etapa || "", ...ETAPAS]).map(x => `<option ${x === p.etapa ? "selected" : ""} value="${esc(x)}">${esc(x || "Sin etapa")}</option>`).join("")}</select></label>${e ? `<span class="chip ${e.c}" style="margin-bottom:9px">${e.t}</span>` : ""}</div>
     <dl class="facts"><dt>Teléfono</dt><dd>${p.tel ? "+" + esc(p.tel) : "—"}</dd><dt>Mail</dt><dd>${esc(p.email) || "—"}</dd><dt>Canal</dt><dd>${esc(p.canal) || "—"}</dd><dt>Origen</dt><dd>${esc(p.origen) || "—"}</dd><dt>Contactos</dt><dd>${p.veces || 0} · ${ultTxt(p)}</dd></dl>
     <div><button class="btn sm" data-act="editar">Editar datos</button></div>
     <div class="sec"><h4>Mensaje sugerido</h4><textarea id="msg">${esc(msg)}</textarea>
-      <div class="btns"><button class="btn" data-act="copy">Copiar</button>${wa ? `<a class="btn" href="${wa}" target="_blank" rel="noopener">WhatsApp</a>` : `<span class="btn" aria-disabled="true" title="Falta el teléfono">WhatsApp</span>`}${p.email ? `<button class="btn" data-act="copymail">Copiar mail</button>` : ""}${p.li ? `<a class="btn" href="${esc(p.li)}" target="_blank" rel="noopener">LinkedIn</a>` : ""}</div></div>
+      <div class="btns"><button class="btn" data-act="wa" ${p.tel ? "" : 'aria-disabled="true" title="Falta el teléfono"'}>WhatsApp</button><button class="btn" data-act="mail" ${p.email ? "" : 'aria-disabled="true" title="Falta el mail"'}>Mail</button>${p.li ? `<a class="btn" href="${esc(p.li)}" target="_blank" rel="noopener">LinkedIn</a>` : ""}<button class="btn ghost" data-act="copy">Copiar texto</button></div></div>
     <div class="sec"><h4>¿Qué pasó?</h4><div class="outcomes">${OUT.map(o => `<button class="btn" data-out="${o[0]}">${o[1]}<small>${o[2]}</small></button>`).join("")}</div></div>
-    <div class="sec"><h4>Próximo seguimiento</h4><div class="nextline"><label>Fecha<input type="date" id="prox" value="${iso(p.prox)}"></label><button class="btn" data-act="saveprox">Guardar</button><a class="btn" href="${outlook}" target="_blank" rel="noopener">Agendar en Outlook</a></div></div>
+    <div class="sec"><h4>Próximo seguimiento y agenda</h4><div class="nextline"><label>Fecha<input type="date" id="prox" value="${iso(p.prox)}"></label><label style="flex:0 0 110px;min-width:0">Hora<input type="time" id="hora" value="10:00"></label></div>
+      <div class="btns"><button class="btn" data-act="saveprox">Guardar fecha</button><button class="btn primary" data-act="outlook">Guardar y agendar en Outlook</button></div></div>
     <div class="sec"><h4>Historial y notas</h4><div class="nextline"><label>Agregar nota<input id="nota" placeholder="Ej: la llamé, me pidió que vuelva el lunes"></label><button class="btn" data-act="addnota">Agregar</button></div>
       <ul class="hist">${hist.length ? hist.map(h => `<li>${esc(h)}</li>`).join("") : `<li class="rs">Sin notas todavía.</li>`}</ul></div>
   </aside>`;
+}
+function modalReunion(p){
+  return `<div class="scrim" data-act="closemodal" style="z-index:30"></div><form class="modal" id="freunion" data-id="${p.id}"><h2>¿Cuándo es la reunión con ${esc(p.empresa)}?</h2>
+  <div class="grid2"><label>Día<input type="date" id="r-dia" required value="${iso(nextBiz(today))}"></label><label>Hora<input type="time" id="r-hora" required value="10:00"></label></div>
+  <p class="hint" style="margin:0">Se guarda en el tablero y se abre Outlook con el evento listo para guardar.</p>
+  <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn primary" type="submit">Guardar y abrir Outlook</button></div></form>`;
+}
+function modalPlan(){
+  const L = planPasos();
+  return `<div class="scrim" data-act="closemodal" style="z-index:30"></div><form class="modal" id="fplan" style="width:min(640px,calc(100% - 32px))"><h2>Próximos pasos sugeridos</h2>
+  <p class="hint" style="margin:0">Ordené por prioridad (primero reuniones y pruebas) y repartí hasta 4 por día hábil. Podés cambiar cualquier fecha antes de aplicar.</p>
+  <div style="display:flex;flex-direction:column;gap:10px">${L.map((x, i) => `<div style="display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:10px;align-items:center;border-top:1px solid var(--line);padding-top:10px"><div style="min-width:0"><div class="rn">${esc(x.p.empresa)} <span class="chip">${esc(x.p.etapa || "Sin etapa")}</span></div><div class="rs" style="white-space:normal">${esc(x.acc)}</div></div><input type="date" id="pp-${i}" data-pid="${x.p.id}" data-acc="${esc(x.acc)}" value="${iso(x.fecha)}" aria-label="Fecha para ${esc(x.p.empresa)}"></div>`).join("")}</div>
+  <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn primary" type="submit">Aplicar a ${L.length} empresa${L.length === 1 ? "" : "s"}</button></div></form>`;
 }
 function modalContacto(p){
   const n = !p; p = p || {};
@@ -595,6 +625,7 @@ document.addEventListener("click", async ev => {
   if (a === "reload"){ loadLive(true).then(() => toast("Datos actualizados")); return; }
   if (t.dataset.out && p){
     const o = OUT.find(x => x[0] === t.dataset.out); if (!o) return;
+    if (o[0] === "reunion"){ $("#layer").insertAdjacentHTML("beforeend", modalReunion(p)); return; }
     const ch = { ult: today, veces: (p.veces || 0) + 1, prox: o[4] == null ? null : addDays(o[4]), notas: logLine(p, o[1]) };
     if (o[3]) ch.etapa = o[3];
     await saveFields("c", p, ch);
@@ -608,7 +639,14 @@ document.addEventListener("click", async ev => {
   if (a === "editar" && p){ $("#layer").insertAdjacentHTML("beforeend", modalContacto(p)); return; }
   if (a === "venta"){ $("#layer").insertAdjacentHTML("beforeend", modalVenta()); return; }
   if (a === "copy"){ copy($("#msg").value, "Mensaje copiado"); return; }
-  if (a === "copymail" && p){ copy(p.email, "Mail copiado"); return; }
+  if (a === "wa" && p){ window.open(`https://wa.me/${p.tel}?text=${encodeURIComponent($("#msg").value)}`, "_blank", "noopener"); return; }
+  if (a === "mail" && p){ window.open(outlookMail(p.email, $("#msg").value), "_blank", "noopener"); return; }
+  if (a === "plan"){ $("#layer").insertAdjacentHTML("beforeend", modalPlan()); return; }
+  if (a === "outlook" && p){
+    const day = $("#prox").value || iso(nextBiz(today)), hora = $("#hora").value || "10:00";
+    window.open(outlookEvent(`Seguimiento ${p.empresa} – ${p.contacto}`, day, hora, fichaTxt(p, (proxPaso(p) ? "Próximo paso: " + proxPaso(p) + "\n\n" : "") + $("#msg").value)), "_blank", "noopener");
+    await saveFields("c", p, { prox: fromIso(day) }); refresh(`Agendado para el ${fd(fromIso(day))}`); return;
+  }
   if (a === "saveprox" && p){ const d = fromIso($("#prox").value); await saveFields("c", p, { prox: d }); refresh(d ? `Próximo seguimiento: ${fd(d)}` : "Sin fecha de seguimiento"); return; }
   if (a === "addnota" && p){ const v = $("#nota").value.trim(); if (!v) return; await saveFields("c", p, { notas: logLine(p, v), ult: today }); refresh("Nota agregada"); return; }
 });
@@ -623,6 +661,16 @@ document.addEventListener("submit", async ev => {
     const data = { empresa: $("#v-emp").value.trim(), fecha: fromIso($("#v-fecha").value), creditos: num("#v-cred"), vendido: num("#v-vend"), cobro: $("#v-cobro").checked, fcobro: fromIso($("#v-fcobro").value), neto: num("#v-neto"), iibb: num("#v-iibb"), notas: $("#v-not").value.trim() };
     if (f.dataset.id) await saveFields("v", S.V.find(v => v.id === +f.dataset.id), data); else await appendRow("v", data);
     closeModal(); refresh("Venta guardada");
+  }
+  if (f.id === "freunion"){
+    const p = get(+f.dataset.id), day = $("#r-dia").value, hora = $("#r-hora").value || "10:00", d = fromIso(day);
+    window.open(outlookEvent(`Reunión PotenciaIA – ${p.empresa}`, day, hora, fichaTxt(p, "")), "_blank", "noopener");
+    await saveFields("c", p, { etapa: "Reunión", prox: d, ult: today, veces: (p.veces || 0) + 1, notas: logLine(p, `Agendamos reunión para el ${fd(d)} a las ${hora}. Próximo paso: Reunión el ${fd(d)} ${hora}`) });
+    closeModal(); refresh(`Reunión guardada para el ${fd(d)}`);
+  }
+  if (f.id === "fplan"){
+    const items = [...f.querySelectorAll("input[data-pid]")].filter(i => i.value).map(i => { const p = get(+i.dataset.pid); return [p, { prox: fromIso(i.value), notas: logLine(p, "Próximo paso: " + i.dataset.acc) }]; });
+    await saveMany("c", items); closeModal(); refresh(`Listo: ${items.length} próximos pasos con fecha`);
   }
   if (f.id === "fcontacto"){
     const data = { empresa: $("#n-emp").value.trim(), contacto: $("#n-con").value.trim(), cargo: $("#n-car").value.trim(), tel: toTel($("#n-tel").value), email: $("#n-mail").value.trim(), li: $("#n-li").value.trim(), origen: $("#n-ori").value, canal: $("#n-can").value };

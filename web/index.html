@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
 <style>
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
 body{margin:0;font-family:Manrope,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:17px;line-height:1.6;color:#1b1730;background:#ffffff;-webkit-font-smoothing:antialiased}
 h1,h2,h3,p{margin:0}
 a{color:#6d28d9}
@@ -227,15 +227,17 @@ td b{font-weight:700}
 .plan{background:#ffffff;border:1px solid #e6e3ef;border-radius:20px;padding:32px;display:flex;flex-direction:column}
 .plan .tier{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6d28d9}
 .plan h3{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.25;margin-top:10px}
-.plan .inc{list-style:none;padding:0;margin:12px 0 0}
-.plan .inc li{font-size:15px;font-weight:700;line-height:1.4;padding:4px 0 4px 26px;position:relative}
-.plan .inc li:before{content:"";position:absolute;left:2px;top:9px;width:12px;height:7px;border-left:2.5px solid #7c3aed;border-bottom:2.5px solid #7c3aed;transform:rotate(-45deg)}
+.plan .inc{list-style:none;padding:0;margin:4px 0 0}
+.plan .inc li{font-size:15px;font-weight:600;line-height:1.4;padding:6px 0 6px 26px;position:relative}
+.plan .inc li:before{content:"";position:absolute;left:2px;top:11px;width:12px;height:7px;border-left:2.5px solid #7c3aed;border-bottom:2.5px solid #7c3aed;transform:rotate(-45deg)}
 .plan p.d{font-size:15px;color:#5f5975;line-height:1.55;margin-top:14px}
-.plan .price{margin-top:auto;padding-top:22px;border-top:1px solid #e6e3ef;min-height:150px}
-.plan .d{margin-bottom:24px}
+.plan .price{margin-top:auto;padding-top:0;border-top:1px solid #e6e3ef;min-height:130px}
+.plan .inc{margin-bottom:24px}
+.plan .d{margin-bottom:12px}
 .plan .price b{display:block;font-size:40px;font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-top:22px}
 .plan .price span{display:block;font-size:14px;color:#5f5975;margin-top:8px;line-height:1.45}
-.plan.hot{background:#120d24;color:#ffffff;border-color:#120d24;position:relative}
+.plan{position:relative}
+.plan.hot{background:#120d24;color:#ffffff;border-color:#120d24}
 .plan.hot .tier{color:#a78bfa}
 .plan.hot .inc li:before{border-color:#a78bfa}
 .plan.hot p.d{color:#cfc8e6}
@@ -625,25 +627,43 @@ footer a:hover{color:#ffffff}
 <div class="wrap">
 <div class="eyebrow">Servicios</div>
 <h2 class="h2">Qué podés contratar</h2>
-<span class="credits">Precios por 10 créditos</span>
+<span class="credits">Precios por 10 créditos = 10 perfiles</span>
 <div class="plans">
 <div class="plan">
 <div class="tier">Essential</div>
 <h3>Informe de Potencial</h3>
-<p class="d">Análisis del discurso, CPA, CPF, curva de maduración y evidencia citada.</p>
+<p class="d">Para saber de qué es capaz cada persona hoy y si alcanza para el rol.</p>
+<ul class="inc">
+<li>Evaluación por análisis del discurso</li>
+<li>Capacidad potencial actual y futura (CPA y CPF)</li>
+<li>Curva de maduración y ajuste al rol</li>
+<li>Evidencia citada del propio discurso</li>
+</ul>
 <div class="price"><b>USD 190</b><span>+ Entrenamiento de 4 hs. por única vez: <span style="display:inline;white-space:nowrap;margin:0">USD 1.100</span></span></div>
 </div>
 <div class="plan hot">
 <span class="badge">Más elegido</span>
 <div class="tier">Professional</div>
-<ul class="inc"><li>Entrevista tercerizada</li><li>Informe de Potencial</li><li>Informe Integrado</li></ul>
-<p class="d">Suma la entrevista por competencias y el CV, consolidados en un único documento.</p>
+<h3>Informe Integrado</h3>
+<p class="d">Para tener la lectura completa de cada persona, sin sumarle trabajo a tu equipo.</p>
+<ul class="inc">
+<li>Informe de Potencial</li>
+<li>Entrevista por competencias tercerizada</li>
+<li>Informe Integrado: potencial, entrevista y CV en un único documento</li>
+<li>Devolución para el candidato</li>
+</ul>
 <div class="price"><b>USD 1.290</b></div>
 </div>
 <div class="plan">
 <div class="tier">Professional plus</div>
 <h3>Lectura de Cohorte</h3>
-<p class="d">Sesión de 90 minutos con RRHH sobre 10 evaluados o más: mapa de estratos contra puestos, huecos de sucesión y riesgos.</p>
+<p class="d">Para mirar al equipo completo, no solo a cada persona por separado.</p>
+<ul class="inc">
+<li>Todo lo de Professional</li>
+<li>Sesión de 90 minutos con RRHH, sobre 10 evaluados o más</li>
+<li>Mapa de estratos contra puestos</li>
+<li>Huecos de sucesión y riesgos</li>
+</ul>
 <div class="price"><b>USD 1.590</b></div>
 </div>
 </div>
@@ -693,6 +713,15 @@ footer a:hover{color:#ffffff}
 
 <script>
 (function(){
+document.addEventListener('click',function(e){
+  var a=e.target.closest?e.target.closest('a[href^="#"]'):null;
+  if(!a)return;
+  var t=document.getElementById(a.getAttribute('href').slice(1));
+  if(!t)return;
+  e.preventDefault();
+  t.scrollIntoView({behavior:'smooth',block:'start'});
+});
+if(location.hash&&history.replaceState){history.replaceState(null,'',location.pathname+location.search);}
 var data=[
 {roman:'I',mode:'Declarativo',topic:'Legalización de la droga',horizon:'1 día a 3 meses',pattern:'Razones sueltas',
 quote:'Yo digo que la legalicen. Total, el que quiere consumir consume igual. Si legalizaran no habría tanto delincuente, eso seguro. Legalicen y se terminó.',

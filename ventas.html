@@ -222,7 +222,7 @@ input[type=checkbox]{accent-color:var(--brand)}
   <nav class="tabs" role="tablist" id="tabs" hidden>
     <button role="tab" data-view="hoy" aria-selected="true">Hoy</button>
     <button role="tab" data-view="agenda" aria-selected="false">Agenda</button>
-    <button role="tab" data-view="embudo" aria-selected="false">Embudo</button>
+    <button role="tab" data-view="potenciales" aria-selected="false">Potenciales</button>
     <button role="tab" data-view="ventas" aria-selected="false">Ventas</button>
     <button role="tab" data-view="metricas" aria-selected="false">Métricas</button>
   </nav>
@@ -465,7 +465,7 @@ function startDemo(msg){
 function estado(p){
   const activa = ACTIVAS.includes(p.etapa) || !p.etapa;
   if (!activa && p.etapa !== "Compró") return null;
-  if (!p.prox) return activa ? { c:"", t:"Sin próximo paso" } : null;
+  if (!p.prox) return esPotencial(p) ? { c:"", t:"Potencial" } : activa ? { c:"", t:"Sin próximo paso" } : null;
   const n = diff(p.prox);
   if (n < 0) return { c:"late", t:`Atrasado ${-n} día${n === -1 ? "" : "s"}` };
   if (n === 0) return { c:"today", t:"Hoy" };
@@ -482,7 +482,7 @@ const ACCION = { "Reunión": "Confirmar día y hora de la reunión", "Prueba gra
 const PRIO = ["Reunión", "Prueba gratis", "Presentado", "Contactado", "Por contactar", "Compró"];
 const nextBiz = d => { const x = new Date(d); do { x.setDate(x.getDate() + 1); } while (x.getDay() === 0 || x.getDay() === 6); return x; };
 function planPasos(){
-  const L = S.P.filter(p => !p.prox && (ACTIVAS.includes(p.etapa) || !p.etapa || p.etapa === "Compró"))
+  const L = S.P.filter(p => !p.prox && ((ACTIVAS.includes(p.etapa) && !esPotencial(p)) || p.etapa === "Compró"))
     .sort((a, b) => PRIO.indexOf(a.etapa || "Por contactar") - PRIO.indexOf(b.etapa || "Por contactar"));
   let day = nextBiz(today), n = 0;
   return L.map(p => {
@@ -491,6 +491,9 @@ function planPasos(){
     return { p, fecha: new Date(day), acc: ACCION[p.etapa || "Por contactar"] || "Hacer seguimiento" };
   });
 }
+const POT = "Por contactar";
+const esPotencial = p => !p.etapa || p.etapa === POT;
+const sinPaso = () => S.P.filter(p => ACTIVAS.includes(p.etapa) && !esPotencial(p) && !p.prox);
 const enSeguimiento = () => S.P.filter(p => ACTIVAS.includes(p.etapa) || p.etapa === "Compró" || !p.etapa);
 
 /* ===================== VISTAS ===================== */
@@ -516,7 +519,7 @@ function vHoy(){
   const late = act.filter(p => p.prox && diff(p.prox) < 0).sort((a,b) => a.prox - b.prox);
   const hoy = act.filter(p => p.prox && diff(p.prox) === 0);
   const semana = act.filter(p => p.prox && diff(p.prox) > 0 && diff(p.prox) <= 7).length;
-  const sin = S.P.filter(p => (ACTIVAS.includes(p.etapa) || !p.etapa) && !p.prox);
+  const sin = sinPaso();
   const rev = S.P.filter(p => p.revisar);
   const aCobrar = aCobrarL(), deuda = aCobrar.reduce((s,v) => s + (v.vendido || 0), 0);
   const prueba = S.P.filter(p => p.etapa === "Prueba gratis").length;
@@ -566,6 +569,29 @@ function vAgenda(){
   <div class="legend" style="margin:0 0 10px"><span><i style="background:var(--brand)"></i>Reunión</span><span><i style="background:var(--brand-soft);outline:1px solid var(--brand-line)"></i>Seguimiento</span><span><i style="background:var(--late-soft);outline:1px solid var(--late)"></i>Atrasado</span></div>
   <div class="cal">${["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].map(x => `<div class="h">${x}</div>`).join("")}${cells}</div>
   <div class="callist">${list || `<p class="empty">No hay nada agendado este mes.</p>`}</div>`;
+}
+function vPotenciales(){
+  const q = norm(S.qpot || ""), all = S.P.filter(esPotencial);
+  const L = all.filter(p => !q || norm([p.empresa, p.contacto, p.cargo, p.origen, p.notas].join(" ")).includes(q))
+    .sort((a, b) => (a.prox ? 0 : 1) - (b.prox ? 0 : 1) || String(a.empresa).localeCompare(String(b.empresa)));
+  const ultNota = p => { const l = String(p.notas || "").split(/\n+/).find(x => x && !/Contacto creado|Próximo paso:/i.test(x)); return l ? l.replace(/^\d{2}\/\d{2}:\s*/, "") : ""; };
+  const ori = ["LinkedIn","Recomendación","Evento","Base propia","Otro"];
+  return `<h1>Potenciales clientes</h1><p class="sub">Personas y empresas para contactar más adelante. No aparecen en tu agenda hasta que les pongas fecha.</p>
+  <form class="panel" id="fpot" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px"><h2>Agregar a la lista</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+      <label>Empresa<input id="pt-emp" required placeholder="Ej: Mercado Libre"></label>
+      <label>Persona<input id="pt-con" placeholder="Nombre y apellido"></label>
+      <label>Cargo<input id="pt-car" placeholder="Ej: Directora de RRHH"></label>
+      <label>LinkedIn (link)<input id="pt-li" placeholder="https://www.linkedin.com/in/..."></label>
+      <label>¿De dónde viene?<select id="pt-ori">${ori.map(o => `<option ${o === (S.lastOri || "LinkedIn") ? "selected" : ""}>${o}</option>`).join("")}</select></label>
+      <label>Nota<input id="pt-not" placeholder="Ej: la conocí en un evento"></label>
+    </div>
+    <div class="btns"><button class="btn primary" type="submit">Agregar</button><button class="btn" type="button" data-act="linkedin">Cargar desde una captura de LinkedIn</button></div>
+  </form>
+  <div class="bar"><label class="grow" style="max-width:320px">Buscar<input id="qpot" value="${esc(S.qpot || "")}" placeholder="Nombre, empresa, cargo…"></label><span class="count" style="align-self:center">${all.length} potencial${all.length === 1 ? "" : "es"}</span></div>
+  <div class="panel tablewrap"><table><thead><tr><th>Persona</th><th>Empresa</th><th>Cargo</th><th>Origen</th><th>Nota</th><th></th></tr></thead><tbody>
+  ${L.map(p => { const e = estado(p); return `<tr><td><button class="btn ghost sm" style="padding:0;font-weight:600;color:var(--fg)" data-open="${p.id}">${esc(p.contacto || "—")}</button></td><td>${esc(p.empresa)}</td><td style="white-space:normal;min-width:140px">${esc(p.cargo)}</td><td>${p.origen ? `<span class="chip">${esc(p.origen)}</span>` : "—"}</td><td style="white-space:normal;min-width:180px;color:var(--muted)">${esc(ultNota(p))}</td><td style="text-align:right">${p.prox ? `<span class="chip ${e ? e.c : "acc"}">${e ? e.t : fd(p.prox)}</span>` : `<button class="btn sm" data-act="pot-hoy" data-pid="${p.id}">Escribirle hoy</button>`} <button class="btn sm ghost" data-open="${p.id}">Abrir</button></td></tr>`; }).join("") || `<tr><td colspan="6" class="empty">${all.length ? "Nadie coincide con la búsqueda." : "Todavía no hay potenciales. Agregalos arriba o desde una captura de LinkedIn."}</td></tr>`}
+  </tbody></table></div>`;
 }
 function vEmbudo(){
   const extra = [...new Set(S.P.map(p => p.etapa).filter(e => e && !ETAPAS.includes(e)))];
@@ -673,31 +699,41 @@ const OUT = [
   ["prueba","Le di la prueba gratis","Pasa a Prueba gratis", "Prueba gratis", 7],
   ["compro","Compró","Pasa a Compró y cargás la venta", "Compró", 30],
   ["nointeresa","No le interesa","Pasa a Perdido", "Perdido", null],
+  ["otro","Otra cosa","Escribís qué pasó y cuándo retomar", null, null],
 ];
 function drawer(p){
   const e = estado(p), msg = (MSG[p.etapa] || MSG["Contactado"])(p), pp = proxPaso(p);
   const hist = String(p.notas || "").split(/\n+/).filter(Boolean);
+  const etapas = ETAPAS.includes(p.etapa) ? ETAPAS : [p.etapa || "", ...ETAPAS];
   return `<div class="scrim" data-act="close"></div><aside class="drawer" role="dialog" aria-label="Ficha de ${esc(p.empresa)}">
-    <div class="dh"><div><h2>${esc(p.empresa)}</h2><div class="rs">${esc(p.contacto)}${p.cargo ? " · " + esc(p.cargo) : ""}</div></div><button class="btn sm x" data-act="close">Cerrar</button></div>
+    <div class="dh"><div><h2>${esc(p.empresa)}</h2><div class="rs">${esc(p.contacto)}${p.cargo ? " · " + esc(p.cargo) : ""}</div><div class="btns" style="margin-top:6px"><span class="chip acc">${esc(esPotencial(p) ? "Potencial" : p.etapa || "Sin etapa")}</span>${e && !esPotencial(p) ? `<span class="chip ${e.c}">${e.t}</span>` : e && p.prox ? `<span class="chip ${e.c}">${e.t}</span>` : ""}</div></div><button class="btn sm x" data-act="close">Cerrar</button></div>
     ${pp || p.prox ? `<div class="sec" style="background:var(--brand-soft);border-color:var(--brand-line)"><h4 style="color:var(--brand)">Próximo paso${p.prox ? " · " + fd(p.prox) : ""}</h4><div>${esc(pp) || "Hacer seguimiento"}</div></div>` : ""}
     ${p.revisar ? `<div class="sec warn"><h4>Para revisar</h4><div>${esc(p.revisar)}</div></div>` : ""}
-    <div class="btns"><label style="flex:1;min-width:180px">Etapa<select id="etapa">${(ETAPAS.includes(p.etapa) ? ETAPAS : [p.etapa || "", ...ETAPAS]).map(x => `<option ${x === p.etapa ? "selected" : ""} value="${esc(x)}">${esc(x || "Sin etapa")}</option>`).join("")}</select></label>${e ? `<span class="chip ${e.c}" style="margin-bottom:9px">${e.t}</span>` : ""}</div>
     <dl class="facts"><dt>Teléfono</dt><dd>${p.tel ? "+" + esc(p.tel) : "—"}</dd><dt>Mail</dt><dd>${esc(p.email) || "—"}</dd><dt>Canal</dt><dd>${esc(p.canal) || "—"}</dd><dt>Origen</dt><dd>${esc(p.origen) || "—"}</dd><dt>Contactos</dt><dd>${p.veces || 0} · ${ultTxt(p)}</dd></dl>
     <div><button class="btn sm" data-act="editar">Editar datos</button></div>
     <div class="sec"><h4>Mensaje sugerido</h4><textarea id="msg">${esc(msg)}</textarea>
       <div class="btns"><button class="btn" data-act="wa" ${p.tel ? "" : 'aria-disabled="true" title="Falta el teléfono"'}>WhatsApp</button><button class="btn" data-act="mail" ${p.email ? "" : 'aria-disabled="true" title="Falta el mail"'}>Mail</button>${p.li ? `<a class="btn" href="${esc(p.li)}" target="_blank" rel="noopener">LinkedIn</a>` : ""}<button class="btn ghost" data-act="copy">Copiar texto</button></div></div>
-    <div class="sec"><h4>¿Qué pasó?</h4><div class="outcomes">${OUT.map(o => `<button class="btn" data-out="${o[0]}">${o[1]}<small>${o[2]}</small></button>`).join("")}</div></div>
-    <div class="sec"><h4>Próximo seguimiento y agenda</h4><div class="nextline"><label>Fecha<input type="date" id="prox" value="${iso(p.prox)}"></label><label style="flex:0 0 110px;min-width:0">Hora<input type="time" id="hora" value="10:00"></label></div>
-      <div class="btns"><button class="btn" data-act="saveprox">Guardar fecha</button><button class="btn primary" data-act="outlook">Guardar y agendar en Outlook</button></div></div>
-    <div class="sec"><h4>Historial y notas</h4><div class="nextline"><label>Agregar nota<input id="nota" placeholder="Ej: la llamé, me pidió que vuelva el lunes"></label><button class="btn" data-act="addnota">Agregar</button></div>
-      <ul class="hist">${hist.length ? hist.map(h => `<li>${esc(h)}</li>`).join("") : `<li class="rs">Sin notas todavía.</li>`}</ul></div>
+    <div class="sec"><h4>¿Qué pasó? <span style="text-transform:none;letter-spacing:0;font-weight:500">(un toque y se guarda)</span></h4><div class="outcomes">${OUT.map(o => `<button class="btn" data-out="${o[0]}">${o[1]}<small>${o[2]}</small></button>`).join("")}</div></div>
+    <div class="sec"><h4>Actualizar a mano</h4>
+      <div class="grid2"><label>Etapa<select id="etapa">${etapas.map(x => `<option ${x === p.etapa ? "selected" : ""} value="${esc(x)}">${esc(x === POT ? "Por contactar (potencial)" : x || "Sin etapa")}</option>`).join("")}</select></label><label>Próximo seguimiento<input type="date" id="prox" value="${iso(p.prox)}"></label></div>
+      <div class="grid2"><label>Hora (opcional)<input type="time" id="hora"></label><label>Nota (opcional)<input id="nota" placeholder="Ej: me pidió que vuelva el lunes"></label></div>
+      <div class="btns"><button class="btn primary" data-act="guardar">Guardar cambios</button><button class="btn" data-act="outlook">Agendar en Outlook</button></div>
+      <p class="hint" style="margin:0">“Guardar cambios” solo guarda en el tablero. No abre ningún calendario.</p></div>
+    <div class="sec"><h4>Historial</h4><ul class="hist">${hist.length ? hist.map(h => `<li>${esc(h)}</li>`).join("") : `<li class="rs">Sin notas todavía.</li>`}</ul></div>
   </aside>`;
 }
 function modalReunion(p){
   return `<div class="scrim" data-act="closemodal" style="z-index:30"></div><form class="modal" id="freunion" data-id="${p.id}"><h2>¿Cuándo es la reunión con ${esc(p.empresa)}?</h2>
   <div class="grid2"><label>Día<input type="date" id="r-dia" required value="${iso(nextBiz(today))}"></label><label>Hora<input type="time" id="r-hora" required value="10:00"></label></div>
-  <p class="hint" style="margin:0">Se guarda en el tablero y se abre Outlook con el evento listo para guardar.</p>
-  <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn primary" type="submit">Guardar y abrir Outlook</button></div></form>`;
+  <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn" type="submit" data-cal="1">Guardar y agendar en Outlook</button><button class="btn primary" type="submit">Guardar</button></div></form>`;
+}
+function modalOtro(p){
+  const q = [["","Sin fecha"],[1,"Mañana"],[3,"En 3 días"],[7,"En una semana"],[14,"En 2 semanas"],[30,"En un mes"]];
+  return `<div class="scrim" data-act="closemodal" style="z-index:30"></div><form class="modal" id="fotro" data-id="${p.id}"><h2>¿Qué pasó con ${esc(p.empresa)}?</h2>
+  <label>Contalo con tus palabras<textarea id="o-txt" required style="min-height:90px" placeholder="Ej: me dijo que están en presupuesto, que la llame en diciembre"></textarea></label>
+  <div class="grid2"><label>¿Cuándo lo retomo?<select id="o-cuando">${q.map(([v, t]) => `<option value="${v}" ${v === 7 ? "selected" : ""}>${t}</option>`).join("")}<option value="fecha">Elegir fecha…</option></select></label><label id="o-flab" hidden>Fecha<input type="date" id="o-fecha"></label></div>
+  <label>Etapa<select id="o-etapa">${ETAPAS.map(x => `<option ${x === p.etapa ? "selected" : ""}>${x}</option>`).join("")}</select></label>
+  <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn primary" type="submit">Guardar</button></div></form>`;
 }
 function modalPlan(){
   const L = planPasos();
@@ -756,11 +792,11 @@ async function agregarLI(){
   const recs = sel.map(r => {
     if (n === 4){ day = nextBiz(day); n = 0; } n++;
     const verbo = r.tipo === "vio tu perfil" ? "Vio tu perfil" : `${capWord(r.tipo || "interactuó")} ${LI.post ? `tu publicación sobre ${LI.post}` : "tu publicación"}`;
-    return { empresa: r.empresa || "(completar)", contacto: r.nombre, cargo: r.cargo || "", tel: "", email: "", li: "", etapa: "Por contactar", origen: "LinkedIn", canal: "LinkedIn", veces: 0, ult: null, prox: new Date(day),
-      notas: `${fd(today)}: Próximo paso: Escribirle por LinkedIn agradeciendo y presentando PotenciaIA\n${fd(today)}: ${verbo}${r.comentario ? `: “${r.comentario}”` : ""}`, revisar: r.empresa ? "" : "Completar la empresa." };
+    return { empresa: r.empresa || "(completar)", contacto: r.nombre, cargo: r.cargo || "", tel: "", email: "", li: "", etapa: POT, origen: "LinkedIn", canal: "LinkedIn", veces: 0, ult: null, prox: null,
+      notas: `${fd(today)}: ${verbo}${r.comentario ? `: “${r.comentario}”` : ""}`, revisar: r.empresa ? "" : "Completar la empresa." };
   });
   const btn = document.querySelector('[data-act="li-add"]'); if (btn) btn.setAttribute("aria-disabled", "true");
-  if (await appendRows(recs)){ LI.imgs = []; LI.res = null; LI.post = ""; closeModal(); S.view = "hoy"; render(); toast(`Agregué ${recs.length} contacto${recs.length === 1 ? "" : "s"} de LinkedIn`); }
+  if (await appendRows(recs)){ LI.imgs = []; LI.res = null; LI.post = ""; closeModal(); S.view = "potenciales"; render(); toast(`Agregué ${recs.length} a Potenciales`); }
 }
 function modalContacto(p){
   const n = !p; p = p || {};
@@ -770,7 +806,7 @@ function modalContacto(p){
   <div class="grid2"><label>WhatsApp (con 549…)<input id="n-tel" inputmode="tel" placeholder="5491155551234" value="${esc(p.tel)}"></label><label>Mail<input id="n-mail" type="email" value="${esc(p.email)}"></label></div>
   <label>LinkedIn (link del perfil)<input id="n-li" placeholder="https://www.linkedin.com/in/..." value="${esc(p.li)}"></label>
   <div class="grid2"><label>¿De dónde viene?<select id="n-ori">${["","LinkedIn","Recomendación","Evento","Base propia","Otro"].map(o => `<option ${o === (p.origen || (n ? "LinkedIn" : "")) ? "selected" : ""} value="${o}">${o || "—"}</option>`).join("")}</select></label><label>Canal<select id="n-can">${["","Mail","WhatsApp","LinkedIn","Mail + WhatsApp","Teléfono"].map(o => `<option ${o === (p.canal || "") ? "selected" : ""} value="${o}">${o || "—"}</option>`).join("")}</select></label></div>
-  ${n ? `<label>Nota inicial<input id="n-not" placeholder="Ej: comentó mi publicación sobre liderazgo"></label>` : p.revisar ? `<div class="sec warn"><h4>Para revisar</h4><div>${esc(p.revisar)}</div><label style="flex-direction:row;align-items:center;gap:8px;color:var(--fg)"><input type="checkbox" id="n-ok" style="width:auto" checked> Ya está corregido (sale de “Datos para completar”)</label></div>` : ""}
+  ${n ? `<div class="grid2"><label>Nota inicial<input id="n-not" placeholder="Ej: comentó mi publicación sobre liderazgo"></label><label>¿Cuándo le escribís? (opcional)<input type="date" id="n-prox"></label></div><p class="hint" style="margin:0">Sin fecha, queda en Potenciales.</p>` : p.revisar ? `<div class="sec warn"><h4>Para revisar</h4><div>${esc(p.revisar)}</div><label style="flex-direction:row;align-items:center;gap:8px;color:var(--fg)"><input type="checkbox" id="n-ok" style="width:auto" checked> Ya está corregido (sale de “Datos para completar”)</label></div>` : ""}
   <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn primary" type="submit">${n ? "Crear y abrir ficha" : "Guardar"}</button></div></form>`;
 }
 function modalVenta(v, tipo){
@@ -793,9 +829,10 @@ function bindVenta(){ const t = $("#v-tipo"); if (t) t.onchange = () => { const 
 /* ===================== RENDER Y EVENTOS ===================== */
 function render(){
   const v = S.view;
-  $("#view").innerHTML = v === "hoy" ? vHoy() : v === "agenda" ? vAgenda() : v === "embudo" ? vEmbudo() : v === "ventas" ? vVentas() : vMetricas();
+  $("#view").innerHTML = v === "hoy" ? vHoy() : v === "agenda" ? vAgenda() : v === "potenciales" ? vPotenciales() : v === "ventas" ? vVentas() : vMetricas();
   document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.view === v));
   const m = $("#mes"); if (m) m.onchange = () => { S.mes = m.value; render(); };
+  const qp = $("#qpot"); if (qp) qp.oninput = () => { S.qpot = qp.value; const pos = qp.selectionStart; render(); const n = $("#qpot"); n.focus(); n.setSelectionRange(pos, pos); };
   drawCharts();
 }
 function drawCharts(){ const c = $("#chartMeses"); if (c) c.innerHTML = chartMeses(c.clientWidth); }
@@ -804,7 +841,6 @@ function openP(id){
   S.openId = id; const p = get(id); if (!p) return;
   const keepModal = [...document.querySelectorAll("#layer .modal, #layer .scrim[style]")];
   $("#layer").innerHTML = drawer(p); keepModal.forEach(el => $("#layer").appendChild(el));
-  $("#etapa").onchange = async ev => { const v = ev.target.value; await saveFields("c", p, { etapa: v, notas: logLine(p, `Pasó a ${v}`) }); refresh(`Movido a ${v}`); };
 }
 const logLine = (p, t) => `${fd(today)}: ${t}` + (p.notas ? "\n" + p.notas : "");
 function refresh(msg){ render(); if (S.openId && get(S.openId)) openP(S.openId); if (msg) toast(msg); }
@@ -822,6 +858,7 @@ document.addEventListener("click", async ev => {
   if (a === "reload"){ loadLive(true).then(() => toast("Datos actualizados")); return; }
   if (t.dataset.out && p){
     const o = OUT.find(x => x[0] === t.dataset.out); if (!o) return;
+    if (o[0] === "otro"){ $("#layer").insertAdjacentHTML("beforeend", modalOtro(p)); const c = $("#o-cuando"); c.onchange = () => { $("#o-flab").hidden = c.value !== "fecha"; }; $("#o-txt").focus(); return; }
     if (o[0] === "reunion"){ $("#layer").insertAdjacentHTML("beforeend", modalReunion(p)); return; }
     const ch = { ult: today, veces: (p.veces || 0) + 1, prox: o[4] == null ? null : addDays(o[4]), notas: logLine(p, o[1]) };
     if (o[3]) ch.etapa = o[3];
@@ -840,11 +877,23 @@ document.addEventListener("click", async ev => {
   if (a === "copy"){ copy($("#msg").value, "Mensaje copiado"); return; }
   if (a === "wa" && p){ window.open(`https://wa.me/${p.tel}?text=${encodeURIComponent($("#msg").value)}`, "_blank", "noopener"); return; }
   if (a === "mail" && p){ window.open(outlookMail(p.email, $("#msg").value), "_blank", "noopener"); return; }
+  if (a === "guardar" && p){
+    const et = $("#etapa").value, d = fromIso($("#prox").value), hora = $("#hora").value, nota = $("#nota").value.trim();
+    const ch = {}, logs = [];
+    if (et !== (p.etapa || "")){ ch.etapa = et; logs.push(`Pasó a ${et}`); }
+    if (iso(d) !== iso(p.prox)){ ch.prox = d; if (d) logs.push(`Próximo paso: ${et === "Reunión" && hora ? `Reunión el ${fd(d)} ${hora}` : (ACCION[et] || "Hacer seguimiento") + (hora ? ` (${hora})` : "")}`); }
+    else if (hora && d){ logs.push(`Próximo paso: ${et === "Reunión" ? `Reunión el ${fd(d)} ${hora}` : (ACCION[et] || "Hacer seguimiento") + ` (${hora})`}`); }
+    if (nota){ logs.push(nota); ch.ult = today; }
+    if (!Object.keys(ch).length && !logs.length){ toast("No hay cambios para guardar"); return; }
+    if (logs.length) ch.notas = logs.reverse().map(l => `${fd(today)}: ${l}`).join("\n") + (p.notas ? "\n" + p.notas : "");
+    await saveFields("c", p, ch); refresh("Cambios guardados"); return;
+  }
+  if (a === "pot-hoy"){ const q = get(+t.dataset.pid); if (q){ await saveFields("c", q, { prox: today, notas: logLine(q, "Próximo paso: Primer contacto") }); refresh(`${q.empresa} pasó a tu lista de hoy`); } return; }
   if (a === "linkedin"){ LI.err = ""; showLI(); return; }
   if (a === "li-read"){ leerCapturas(); return; }
   if (a === "li-reset"){ LI.res = null; LI.imgs = []; showLI(); return; }
   if (a === "li-add"){ agregarLI(); return; }
-  if (a === "lista-sin"){ closeModal(); const sin = S.P.filter(p => (ACTIVAS.includes(p.etapa) || !p.etapa) && !p.prox); $("#layer").insertAdjacentHTML("beforeend", modalLista("Sin próximo paso", sin, sin.length ? `<p class="hint" style="margin:0">Empresas activas sin fecha. Con un clic les armo fecha y qué hacer a todas.</p><p style="margin:0"><button class="btn primary sm" data-act="plan">Armar próximos pasos</button></p>` : "")); return; }
+  if (a === "lista-sin"){ closeModal(); const sin = sinPaso(); $("#layer").insertAdjacentHTML("beforeend", modalLista("Sin próximo paso", sin, sin.length ? `<p class="hint" style="margin:0">Empresas activas sin fecha. Con un clic les armo fecha y qué hacer a todas.</p><p style="margin:0"><button class="btn primary sm" data-act="plan">Armar próximos pasos</button></p>` : "")); return; }
   if (a === "lista-rev"){ $("#layer").insertAdjacentHTML("beforeend", modalLista("Datos para completar", S.P.filter(p => p.revisar), `<p class="hint" style="margin:0">Abrí cada una, tocá “Editar datos” y corregí lo que falta.</p>`)); return; }
   if (a === "lista-hoy"){ const act = enSeguimiento(); const L = [...act.filter(p => p.prox && diff(p.prox) < 0).sort((a,b) => a.prox - b.prox), ...act.filter(p => p.prox && diff(p.prox) === 0)]; $("#layer").insertAdjacentHTML("beforeend", modalLista("Para hacer hoy", L, L.length ? `<p class="hint" style="margin:0">Primero los atrasados (en rojo). Tocá cada empresa para ver el mensaje y los botones.</p>` : "")); return; }
   if (a === "lista-prueba"){ $("#layer").insertAdjacentHTML("beforeend", modalLista("Probando gratis", S.P.filter(p => p.etapa === "Prueba gratis"))); return; }
@@ -879,22 +928,37 @@ document.addEventListener("submit", async ev => {
   }
   if (f.id === "freunion"){
     const p = get(+f.dataset.id), day = $("#r-dia").value, hora = $("#r-hora").value || "10:00", d = fromIso(day);
-    window.open(outlookEvent(`Reunión PotenciaIA – ${p.empresa}`, day, hora, fichaTxt(p, "")), "_blank", "noopener");
+    if (ev.submitter && ev.submitter.dataset.cal) window.open(outlookEvent(`Reunión PotenciaIA – ${p.empresa}`, day, hora, fichaTxt(p, "")), "_blank", "noopener");
     await saveFields("c", p, { etapa: "Reunión", prox: d, ult: today, veces: (p.veces || 0) + 1, notas: logLine(p, `Agendamos reunión para el ${fd(d)} a las ${hora}. Próximo paso: Reunión el ${fd(d)} ${hora}`) });
     closeModal(); refresh(`Reunión guardada para el ${fd(d)}`);
+  }
+  if (f.id === "fotro"){
+    const p = get(+f.dataset.id), txt = $("#o-txt").value.trim(), c = $("#o-cuando").value, et = $("#o-etapa").value;
+    const d = c === "fecha" ? fromIso($("#o-fecha").value) : c ? addDays(+c) : null;
+    const logs = [txt]; if (et !== p.etapa) logs.push(`Pasó a ${et}`); if (d) logs.push(`Próximo paso: Retomar: ${txt.length > 60 ? txt.slice(0, 57) + "…" : txt}`);
+    await saveFields("c", p, { ult: today, veces: (p.veces || 0) + 1, prox: d, etapa: et, notas: logs.reverse().map(l => `${fd(today)}: ${l}`).join("\n") + (p.notas ? "\n" + p.notas : "") });
+    closeModal(); refresh(d ? `Guardado. Te lo recuerdo el ${fd(d)}` : "Guardado");
+    return;
   }
   if (f.id === "fplan"){
     const items = [...f.querySelectorAll("input[data-pid]")].filter(i => i.value).map(i => { const p = get(+i.dataset.pid); return [p, { prox: fromIso(i.value), notas: logLine(p, "Próximo paso: " + i.dataset.acc) }]; });
     await saveMany("c", items); closeModal(); refresh(`Listo: ${items.length} próximos pasos con fecha`);
+  }
+  if (f.id === "fpot"){
+    const nota = $("#pt-not").value.trim(); S.lastOri = $("#pt-ori").value;
+    const rec = { empresa: $("#pt-emp").value.trim(), contacto: $("#pt-con").value.trim(), cargo: $("#pt-car").value.trim(), tel: "", email: "", li: $("#pt-li").value.trim(), etapa: POT, origen: S.lastOri, canal: "", veces: 0, ult: null, prox: null, notas: `${fd(today)}: Agregado a potenciales` + (nota ? `\n${fd(today)}: ${nota}` : ""), revisar: "" };
+    if (await appendRows([rec])){ render(); toast(`${rec.empresa} agregada a potenciales`); const e = $("#pt-emp"); if (e) e.focus(); }
+    return;
   }
   if (f.id === "fcontacto"){
     const data = { empresa: $("#n-emp").value.trim(), contacto: $("#n-con").value.trim(), cargo: $("#n-car").value.trim(), tel: toTel($("#n-tel").value), email: $("#n-mail").value.trim(), li: $("#n-li").value.trim(), origen: $("#n-ori").value, canal: $("#n-can").value };
     if (f.dataset.id){ const ok = $("#n-ok"); if (ok && ok.checked) data.revisar = ""; await saveFields("c", get(+f.dataset.id), data); closeModal(); refresh("Datos guardados"); }
     else {
       const nota = $("#n-not").value.trim();
-      Object.assign(data, { etapa: "Por contactar", veces: 0, ult: null, prox: today, notas: `${fd(today)}: Contacto creado` + (nota ? `\n${fd(today)}: ${nota}` : ""), revisar: "" });
-      const rec = await appendRow("c", data); $("#layer").innerHTML = ""; render();
-      if (rec){ openP(rec.id); toast("Contacto creado. Te lo dejé para hoy"); }
+      const px = fromIso($("#n-prox").value);
+      Object.assign(data, { etapa: POT, veces: 0, ult: null, prox: px, notas: (px ? `${fd(today)}: Próximo paso: Primer contacto\n` : "") + `${fd(today)}: Contacto creado` + (nota ? `\n${fd(today)}: ${nota}` : ""), revisar: "" });
+      const ok = await appendRows([data]); $("#layer").innerHTML = ""; render();
+      if (ok){ const rec = S.P.find(x => x.contacto === data.contacto && x.empresa === data.empresa); if (rec) openP(rec.id); toast(px ? `Contacto creado. Te lo agendé para el ${fd(px)}` : "Contacto creado en Potenciales"); }
     }
   }
 });

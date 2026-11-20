@@ -46,7 +46,9 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .main{padding:28px 32px;max-width:1100px;margin:0 auto;}
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
 .page-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:600;}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.stats-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-bottom:24px;}
+@media(max-width:960px){.stats-row{grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media(max-width:600px){.stats-row{grid-template-columns:repeat(2,minmax(0,1fr));}}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;}
 .stat-label{font-size:11px;color:var(--text-muted);font-weight:500;margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase;}
 .stat-value{font-family:'Syne',sans-serif;font-size:26px;font-weight:600;color:var(--verde);}
@@ -240,6 +242,90 @@ body.cuenta-bloqueada #bloqueadoScreen{display:flex;}
 body:not(.idiomas-activos) .lang-select{display:none!important;}
 .bloqueado-icon{width:48px;height:48px;border-radius:50%;background:var(--rojo-light);color:var(--rojo);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 20px;}
 </style>
+<style id="nbEstilos">
+/* ── 9-BOX y filtro por puesto (estilos nuevos, prefijo nb-/stat-) ── */
+.stat-select{font-family:'Inter',sans-serif;font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text-dim);max-width:100%;width:100%;cursor:pointer;outline:none;}
+.stat-select:focus{border-color:var(--verde);}
+.stat-card-click{cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.stat-card-click:hover{border-color:var(--verde-soft);box-shadow:0 2px 10px rgba(124,58,237,0.08);}
+.stat-card-click .stat-value{font-size:18px;}
+.stat-mini{font-size:11px;color:var(--text-muted);}
+.nb-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.nb-toolbar .form-select{width:auto;min-width:200px;padding:8px 12px;font-size:13px;}
+.nb-count{font-size:12px;color:var(--text-muted);}
+.nb-list{display:flex;flex-direction:column;}
+.nb-row{display:grid;grid-template-columns:28px minmax(140px,1.6fr) 120px 120px 110px;gap:12px;align-items:center;padding:12px 24px;border-top:1px solid var(--border);}
+.nb-row-head{background:#f9fafb;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);border-top:none;padding-top:10px;padding-bottom:10px;}
+.nb-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--verde);cursor:pointer;}
+.nb-nombre{font-weight:600;color:var(--text);font-size:14px;cursor:pointer;}
+.nb-nombre:hover{color:var(--verde);}
+.nb-puesto{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.nb-meta{font-size:11px;color:var(--text-muted);margin-top:3px;}
+.nb-err{font-size:11px;color:var(--rojo);margin-top:3px;}
+.nb-ok{font-size:11px;color:var(--text-muted);margin-top:3px;}
+.nb-row select,.nb-row input[type=text]{font-family:'Inter',sans-serif;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);width:100%;outline:none;}
+.nb-row select:focus,.nb-row input[type=text]:focus{border-color:var(--verde);}
+.nb-pot{display:inline-flex;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+.nb-pot-alto{background:#e9f7ef;color:#166534;border:1px solid #b7e4c7;}
+.nb-pot-medio{background:#fef6e7;color:#92400e;border:1px solid #f6d58b;}
+.nb-pot-bajo{background:#f3f4f6;color:#4b5563;border:1px solid #d1d5db;}
+.nb-mlbl{display:none;font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+@media(max-width:760px){
+  .nb-row{grid-template-columns:28px 1fr 1fr;padding:12px 16px;}
+  .nb-row-head{display:none;}
+  .nb-row .nb-c-persona{grid-column:2 / span 2;}
+  .nb-row .nb-c-pot{grid-column:2 / span 2;}
+  .nb-row .nb-c-des{grid-column:2;}
+  .nb-row .nb-c-per{grid-column:3;}
+  .nb-mlbl{display:block;}
+}
+.nb-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-top:20px;}
+.nb-card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;margin-bottom:4px;}
+.nb-card-sub{font-size:12px;color:var(--text-muted);margin-bottom:14px;}
+.nb-grid-wrap{display:flex;gap:8px;align-items:stretch;}
+.nb-yaxis{writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);text-align:center;padding-bottom:58px;}
+.nb-grid{flex:1;display:grid;grid-template-columns:54px repeat(3,minmax(0,1fr));gap:8px;min-width:0;}
+.nb-rowlab{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text-dim);text-align:center;}
+.nb-cell{border-radius:10px;padding:10px 12px;border:1px solid var(--border);min-height:120px;display:flex;flex-direction:column;gap:6px;min-width:0;}
+.nb-t-green{background:#eef8f2;border-color:#bfe3cc;}
+.nb-t-amber{background:#fef8ea;border-color:#f3d9a0;}
+.nb-t-red{background:#fdf0f0;border-color:#f3c4c4;}
+.nb-cell-head{display:flex;justify-content:space-between;align-items:baseline;gap:6px;}
+.nb-cell-name{font-size:13px;font-weight:700;color:var(--text);}
+.nb-cell-count{font-size:12px;font-weight:700;color:var(--text-dim);background:rgba(255,255,255,.7);border-radius:10px;padding:1px 8px;}
+.nb-cell-act{font-size:11px;color:var(--text-dim);line-height:1.4;}
+.nb-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;}
+.nb-chip{font-family:'Inter',sans-serif;font-size:11px;font-weight:500;padding:3px 9px;border-radius:14px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+button.nb-chip:hover{border-color:var(--verde);color:var(--verde);}
+.nb-chip-warn{color:var(--yellow);font-weight:700;margin-right:3px;}
+.nb-collab{text-align:center;font-size:12px;font-weight:600;color:var(--text-dim);padding-top:4px;}
+.nb-collab small{display:block;font-weight:400;font-size:11px;color:var(--text-muted);margin-top:2px;}
+.nb-xaxis{text-align:center;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);margin-top:8px;padding-left:62px;}
+.nb-leyenda{font-size:12px;color:var(--text-dim);background:var(--verde-light);border-left:3px solid var(--verde);border-radius:6px;padding:10px 14px;margin-top:16px;line-height:1.6;}
+.nb-empty{padding:36px 24px;text-align:center;color:var(--text-muted);font-size:13px;line-height:1.6;}
+.nb-pend{display:flex;flex-wrap:wrap;gap:8px;}
+.nb-pend-item{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:12px;}
+.nb-ficha{padding:24px 28px;}
+.nb-ficha-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px;}
+.nb-ficha-nombre{font-family:'Syne',sans-serif;font-size:20px;font-weight:600;}
+.nb-ficha-caja{display:flex;gap:14px;align-items:center;border-radius:10px;padding:12px 14px;margin-bottom:16px;}
+.nb-ficha-caja-n{font-size:15px;font-weight:700;color:var(--text);}
+.nb-ficha-caja-a{font-size:12px;color:var(--text-dim);margin-top:2px;}
+.nb-mini{display:grid;grid-template-columns:repeat(3,14px);gap:3px;flex-shrink:0;}
+.nb-mini span{width:14px;height:14px;border-radius:3px;background:var(--border);}
+.nb-mini span.on{background:var(--verde);}
+.nb-sec{margin-bottom:16px;}
+.nb-sec-t{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.nb-kv{display:grid;grid-template-columns:150px 1fr;gap:4px 12px;font-size:13px;}
+.nb-kv dt{color:var(--text-muted);}
+.nb-kv dd{color:var(--text);font-weight:500;}
+.nb-alerta{background:var(--yellow-light);border:1px solid #f6d58b;border-radius:8px;padding:9px 12px;margin-bottom:8px;font-size:12px;color:var(--text-dim);line-height:1.5;}
+.nb-alerta strong{color:#92400e;display:block;font-size:12px;margin-bottom:1px;}
+.nb-nota{font-size:11.5px;color:var(--text-muted);font-style:italic;line-height:1.5;margin-top:8px;padding:8px 12px;border:1px dashed var(--border);border-radius:8px;}
+.nb-ficha-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+.nb-conf{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--rojo);border:2px solid var(--rojo);border-radius:4px;padding:3px 10px;}
+@media(max-width:600px){.nb-grid{grid-template-columns:30px repeat(3,minmax(0,1fr));gap:5px;}.nb-rowlab{font-size:10px;}.nb-yaxis{font-size:9px;padding-bottom:70px;}.nb-cell{padding:7px;min-height:90px;gap:4px;}.nb-cell-head{flex-direction:column;align-items:flex-start;gap:2px;}.nb-cell-name{font-size:11px;line-height:1.25;overflow-wrap:anywhere;}.nb-cell-count{font-size:10px;padding:0 6px;}.nb-cell-act{display:none;}.nb-chip{white-space:normal;font-size:10px;padding:2px 6px;text-align:left;}.nb-collab{font-size:11px;}.nb-collab small{font-size:10px;}.nb-kv{grid-template-columns:1fr;}.nb-kv dd{margin-bottom:6px;}.nb-xaxis{padding-left:36px;font-size:10px;}.nb-ficha{padding:18px 16px;}}
+</style>
 </head>
 <body class="cargando-sesion">
 
@@ -338,9 +424,10 @@ body:not(.idiomas-activos) .lang-select{display:none!important;}
     <div class="insight-banner" id="insightBanner"></div>
     <div class="stats-row">
       <div class="stat-card stat-card-v2"><div class="stat-card-icon">☰</div><div class="stat-label" data-i18n="stat.total">Total evaluaciones</div><div class="stat-value" id="statTotal">3</div></div>
-      <div class="stat-card stat-card-v2"><div class="stat-card-icon">↑</div><div class="stat-label" data-i18n="stat.prom">Estrato promedio</div><div class="stat-value" id="statProm">2.7</div></div>
+      <div class="stat-card stat-card-v2"><div class="stat-card-icon">↑</div><div class="stat-label" data-i18n="stat.prom" id="statPromLabel">Estrato promedio</div><div class="stat-value" id="statProm">2.7</div><select class="stat-select" id="statPromPuesto" onchange="setPromPuesto(this.value)" style="display:none;" title="Filtrar por puesto" aria-label="Filtrar por puesto"><option value="" data-i18n="puesto.todos">Todos los puestos</option></select></div>
       <div class="stat-card stat-card-v2"><div class="stat-card-icon">◎</div><div class="stat-label" data-i18n="stat.conf">Confianza promedio</div><div class="stat-value" id="statConf">81%</div></div>
       <div class="stat-card stat-card-v2"><div class="stat-card-icon">⏱</div><div class="stat-label" data-i18n="stat.pend">Pendientes</div><div class="stat-value" id="statPend">1</div></div>
+      <div class="stat-card stat-card-v2 stat-card-click" id="statNineBox" onclick="abrirNineBox()" role="button" tabindex="0" onkeydown="if(event.key==='Enter')abrirNineBox()"><div class="stat-card-icon">▦</div><div class="stat-label" data-i18n="stat.ninebox">9-box</div><div class="stat-value" data-i18n="stat.nineboxVer">Abrir →</div><div class="stat-mini" data-i18n="stat.nineboxSub">Potencial × desempeño</div></div>
     </div>
     <div class="table-card">
       <div class="table-head">
@@ -370,6 +457,30 @@ body:not(.idiomas-activos) .lang-select{display:none!important;}
 <!-- VISTA INFORME -->
 <div class="view" id="viewInforme">
   <div class="informe-wrap" id="informeContent"></div>
+</div>
+
+<!-- VISTA 9-BOX -->
+<div class="view" id="viewNineBox">
+  <div class="main">
+    <div class="inf-back" onclick="go('dashboard')" data-i18n="top.volverPanel">← Volver al panel</div>
+    <div class="page-header">
+      <div>
+        <div class="page-title" data-i18n="nb.titulo">9-box: potencial × desempeño</div>
+        <div class="table-sub" data-i18n="nb.sub">Elegí a quiénes incluir y cargá su desempeño. El potencial sale de la evaluación de PotenciaIA.</div>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-primary" id="nbBtnExportar" onclick="exportarNineBoxPDF()" data-i18n="nb.exportar">↓ Exportar PDF</button>
+      </div>
+    </div>
+    <div id="nbContenido"></div>
+  </div>
+</div>
+
+<!-- FICHA 9-BOX (modal) -->
+<div class="wizard-overlay" id="nbFichaOverlay" onclick="cerrarNbFichaClick(event)">
+  <div class="wizard-box" style="max-width:640px;">
+    <div id="nbFichaContenido"></div>
+  </div>
 </div>
 
 <!-- VISTA PANEL ADMIN -->
@@ -697,6 +808,24 @@ window.eliminarCliente = async function(uid) {
 
 window.getCurrentUid = function() {
   return auth.currentUser ? auth.currentUser.uid : null;
+};
+
+// Email del usuario logueado (si no tiene email, devuelve el uid)
+window.getCurrentEmail = function() {
+  const u = auth.currentUser;
+  return u ? (u.email || u.uid) : null;
+};
+
+// 9-box: guarda el desempeño cargado por el cliente en la evaluación
+window.guardarDesempeno = async function(id, datos) {
+  try {
+    if (!id) return false;
+    await updateDoc(doc(db, 'evaluaciones', id), datos);
+    return true;
+  } catch (e) {
+    console.error('Error guardando desempeño:', e);
+    return false;
+  }
 };
 
 window.eliminarDeFirebase = async function(id) {
@@ -1061,7 +1190,101 @@ Al terminar vas a ver un mensaje de confirmación en pantalla — ahí ya está,
     'rec.transcribiendo': 'Transcribiendo…',
     'rec.sinVoz': 'No se detectó voz en la grabación. Probá de nuevo o pegá el texto a mano.',
     'rec.lista': '✓ Transcripción lista ({tiempo})',
-    'rec.error': 'Error al transcribir. Revisá la consola o pegá el texto a mano.'
+    'rec.error': 'Error al transcribir. Revisá la consola o pegá el texto a mano.',
+    // 9-box y estrato por puesto
+    'stat.ninebox': "9-box",
+    'stat.nineboxVer': "Abrir →",
+    'stat.nineboxSub': "Potencial × desempeño",
+    'stat.promPuesto': "Estrato promedio · {p}",
+    'stat.filtrarPuesto': "Filtrar por puesto",
+    'puesto.todos': "Todos los puestos",
+    'puesto.sin': "Sin puesto",
+    'nb.titulo': "9-box: potencial × desempeño",
+    'nb.sub': "Elegí a quiénes incluir y cargá su desempeño. El potencial sale de la evaluación de PotenciaIA.",
+    'nb.exportar': "↓ Exportar PDF",
+    'nb.filtro': "Puesto",
+    'nb.personas': "Personas evaluadas",
+    'nb.personasSub': "Solo aparecen quienes tienen el análisis terminado. Marcá \"Incluir\" para sumarlos a la grilla.",
+    'nb.contador': "Incluidos: {n} · Con desempeño: {m}",
+    'nb.th.incluir': "Incluir",
+    'nb.th.persona': "Persona",
+    'nb.th.potencial': "Potencial",
+    'nb.th.desempeno': "Desempeño",
+    'nb.th.periodo': "Período",
+    'nb.periodoPh': "Ej: 2025",
+    'nb.des.ninguno': "—",
+    'nb.potBadge': "Potencial {nivel}",
+    'nb.cargadoPor': "Cargado por {quien} · {fecha}",
+    'nb.guardando': "Guardando…",
+    'nb.errorGuardar': "No se pudo guardar. Probá de nuevo.",
+    'nb.grillaTitulo': "Grilla 9-box",
+    'nb.grillaSub': "Hacé clic en un nombre para ver su ficha. ⚠ = tiene alertas activas.",
+    'nb.chipAlerta': "Tiene alertas activas",
+    'nb.ejeY': "Potencial (PotenciaIA)",
+    'nb.ejeX': "Desempeño (lo carga el cliente)",
+    'nb.col.bajo': "Debajo de sus objetivos",
+    'nb.col.medio': "Cumplió sus objetivos",
+    'nb.col.alto': "Superó sus objetivos",
+    'nb.caja.alto_bajo.n': "Enigma",
+    'nb.caja.alto_bajo.a': "Revisar rol, gestión o motivación antes de concluir",
+    'nb.caja.alto_medio.n': "Talento en crecimiento",
+    'nb.caja.alto_medio.a': "Acelerar desarrollo y exposición a mayor complejidad",
+    'nb.caja.alto_alto.n': "Estrella",
+    'nb.caja.alto_alto.a': "Sucesión prioritaria al nivel siguiente",
+    'nb.caja.medio_bajo.n': "Dilema",
+    'nb.caja.medio_bajo.a': "Revisar ajuste al rol y condiciones de trabajo",
+    'nb.caja.medio_medio.n': "Pilar",
+    'nb.caja.medio_medio.a': "Consolidar en el rol, ampliar alcance gradualmente",
+    'nb.caja.medio_alto.n': "Profesional clave",
+    'nb.caja.medio_alto.a': "Retener; ampliar alcance dentro del mismo estrato",
+    'nb.caja.bajo_bajo.n': "Riesgo",
+    'nb.caja.bajo_bajo.a': "Plan de mejora con plazo y seguimiento",
+    'nb.caja.bajo_medio.n': "Contribuidor efectivo",
+    'nb.caja.bajo_medio.a': "Sostener en el rol actual",
+    'nb.caja.bajo_alto.n': "Experto confiable",
+    'nb.caja.bajo_alto.a': "Referente técnico; reconocer sin promover de estrato",
+    'nb.pendientes': "Pendiente de desempeño",
+    'nb.pendientesSub': "Personas incluidas sin desempeño cargado. No se ubican en la grilla hasta cargarlo.",
+    'nb.pendientesVacio': "Nadie pendiente: todas las personas incluidas tienen desempeño cargado.",
+    'nb.leyenda': "El eje de potencial estima el crecimiento en los próximos 5 años y no debe usarse como único criterio de decisión.",
+    'nb.vacio.sinEval': "Todavía no hay evaluaciones con el análisis terminado. Cuando las haya, vas a poder armar el 9-box acá.",
+    'nb.vacio.sinSel': "No hay nadie seleccionado. Marcá \"Incluir\" en las personas que quieras ver en la grilla.",
+    'nb.alerta.capacidad.t': "Capacidad no aplicada",
+    'nb.alerta.capacidad.d': "Tiene capacidad que no está aplicando. Revisar el rol, la gestión o la motivación antes de concluir.",
+    'nb.alerta.riesgoPromo.t': "Riesgo de promoción por desempeño",
+    'nb.alerta.riesgoPromo.d': "Rinde en su rol actual. Una promoción de estrato puede exceder su capacidad.",
+    'nb.alerta.subutilizado.t': "Subutilizado",
+    'nb.alerta.subutilizado.d': "Su capacidad supera la complejidad del rol: hay riesgo de retención.",
+    'nb.alerta.debajoRol.t': "Por debajo del rol",
+    'nb.alerta.debajoRol.d': "El rol exige más complejidad de la que hoy maneja.",
+    'nb.alerta.desfasado.t': "Desempeño desfasado",
+    'nb.alerta.desfasado.d': "Las dos coordenadas no son del mismo momento.",
+    'nb.alerta.antigua.t': "Evaluación de potencial antigua",
+    'nb.alerta.antigua.d': "Se sugiere reevaluar.",
+    'nb.notaTecnica': "Nota técnica: la proyección a 5 años supera el rango de la curva de Jaques (70 años); tomarla con cautela.",
+    'nb.ficha.desempeno': "Desempeño",
+    'nb.ficha.potencial': "Potencial",
+    'nb.ficha.alertas': "Alertas",
+    'nb.ficha.sinAlertas': "Sin alertas activas.",
+    'nb.ficha.nivel': "Nivel",
+    'nb.ficha.cargadoPor': "Cargado por",
+    'nb.ficha.fecha': "Fecha de carga",
+    'nb.ficha.cpa': "Hoy (CPA)",
+    'nb.ficha.cpf5': "CPF a 5 años",
+    'nb.ficha.evaluado': "Evaluación de potencial",
+    'nb.ficha.sinDes': "Sin desempeño cargado",
+    'nb.ficha.sinDesAccion': "Cargá el desempeño para ubicarlo en la grilla.",
+    'nb.export.barra': "PotenciaIA — Documento confidencial",
+    'nb.export.confidencial': "CONFIDENCIAL",
+    'nb.export.titulo': "9-box · Potencial × desempeño",
+    'nb.export.tituloDoc': "PotenciaIA — 9-box",
+    'nb.export.tituloFicha': "Ficha 9-box — {n}",
+    'nb.export.fecha': "Fecha: {fecha}",
+    'nb.export.filtro': "Puesto: {p}",
+    'nb.export.alertasPersona': "Alertas por persona",
+    'nb.export.sinAlertas': "Ninguna persona incluida tiene alertas activas.",
+    'nb.archivo': "9box_PotenciaIA_",
+    'nb.archivoFicha': "Ficha_9box_"
   },
   en: {
     'doc.titulo': 'PotenciaIA · HR Dashboard',
@@ -1360,7 +1583,101 @@ When you finish, you'll see a confirmation message on screen — that's it, ther
     'rec.transcribiendo': 'Transcribing…',
     'rec.sinVoz': 'No voice was detected in the recording. Try again or paste the text manually.',
     'rec.lista': '✓ Transcript ready ({tiempo})',
-    'rec.error': 'Transcription error. Check the console or paste the text manually.'
+    'rec.error': 'Transcription error. Check the console or paste the text manually.',
+    // 9-box y estrato por puesto
+    'stat.ninebox': "9-box",
+    'stat.nineboxVer': "Open →",
+    'stat.nineboxSub': "Potential × performance",
+    'stat.promPuesto': "Average stratum · {p}",
+    'stat.filtrarPuesto': "Filter by position",
+    'puesto.todos': "All positions",
+    'puesto.sin': "No position",
+    'nb.titulo': "9-box: potential × performance",
+    'nb.sub': "Choose who to include and enter their performance. Potential comes from the PotenciaIA assessment.",
+    'nb.exportar': "↓ Export PDF",
+    'nb.filtro': "Position",
+    'nb.personas': "Assessed people",
+    'nb.personasSub': "Only people with a finished analysis are listed. Check \"Include\" to add them to the grid.",
+    'nb.contador': "Included: {n} · With performance: {m}",
+    'nb.th.incluir': "Include",
+    'nb.th.persona': "Person",
+    'nb.th.potencial': "Potential",
+    'nb.th.desempeno': "Performance",
+    'nb.th.periodo': "Period",
+    'nb.periodoPh': "E.g. 2025",
+    'nb.des.ninguno': "—",
+    'nb.potBadge': "{nivel} potential",
+    'nb.cargadoPor': "Entered by {quien} · {fecha}",
+    'nb.guardando': "Saving…",
+    'nb.errorGuardar': "Could not save. Please try again.",
+    'nb.grillaTitulo': "9-box grid",
+    'nb.grillaSub': "Click a name to see their card. ⚠ = has active alerts.",
+    'nb.chipAlerta': "Has active alerts",
+    'nb.ejeY': "Potential (PotenciaIA)",
+    'nb.ejeX': "Performance (entered by the client)",
+    'nb.col.bajo': "Below their goals",
+    'nb.col.medio': "Met their goals",
+    'nb.col.alto': "Exceeded their goals",
+    'nb.caja.alto_bajo.n': "Enigma",
+    'nb.caja.alto_bajo.a': "Review role, management or motivation before concluding",
+    'nb.caja.alto_medio.n': "Growing talent",
+    'nb.caja.alto_medio.a': "Accelerate development and exposure to greater complexity",
+    'nb.caja.alto_alto.n': "Star",
+    'nb.caja.alto_alto.a': "Priority succession to the next level",
+    'nb.caja.medio_bajo.n': "Dilemma",
+    'nb.caja.medio_bajo.a': "Review role fit and working conditions",
+    'nb.caja.medio_medio.n': "Core player",
+    'nb.caja.medio_medio.a': "Consolidate in the role, gradually expand scope",
+    'nb.caja.medio_alto.n': "Key professional",
+    'nb.caja.medio_alto.a': "Retain; expand scope within the same stratum",
+    'nb.caja.bajo_bajo.n': "Risk",
+    'nb.caja.bajo_bajo.a': "Improvement plan with deadline and follow-up",
+    'nb.caja.bajo_medio.n': "Effective contributor",
+    'nb.caja.bajo_medio.a': "Sustain in the current role",
+    'nb.caja.bajo_alto.n': "Trusted expert",
+    'nb.caja.bajo_alto.a': "Technical reference; recognize without promoting to a higher stratum",
+    'nb.pendientes': "Performance pending",
+    'nb.pendientesSub': "Included people with no performance entered. They are not placed on the grid until it is entered.",
+    'nb.pendientesVacio': "Nobody pending: all included people have performance entered.",
+    'nb.leyenda': "The potential axis estimates growth over the next 5 years and should not be used as the sole decision criterion.",
+    'nb.vacio.sinEval': "There are no assessments with a finished analysis yet. Once there are, you can build the 9-box here.",
+    'nb.vacio.sinSel': "Nobody is selected. Check \"Include\" for the people you want to see on the grid.",
+    'nb.alerta.capacidad.t': "Unapplied capability",
+    'nb.alerta.capacidad.d': "Has capability they are not applying. Review the role, management or motivation before concluding.",
+    'nb.alerta.riesgoPromo.t': "Risk of promotion based on performance",
+    'nb.alerta.riesgoPromo.d': "Performs well in the current role. A promotion to a higher stratum may exceed their capability.",
+    'nb.alerta.subutilizado.t': "Underutilized",
+    'nb.alerta.subutilizado.d': "Their capability exceeds the complexity of the role: there is a retention risk.",
+    'nb.alerta.debajoRol.t': "Below the role",
+    'nb.alerta.debajoRol.d': "The role demands more complexity than they handle today.",
+    'nb.alerta.desfasado.t': "Outdated performance",
+    'nb.alerta.desfasado.d': "The two coordinates are not from the same point in time.",
+    'nb.alerta.antigua.t': "Old potential assessment",
+    'nb.alerta.antigua.d': "A reassessment is suggested.",
+    'nb.notaTecnica': "Technical note: the 5-year projection goes beyond the range of the Jaques curve (70 years); interpret it with caution.",
+    'nb.ficha.desempeno': "Performance",
+    'nb.ficha.potencial': "Potential",
+    'nb.ficha.alertas': "Alerts",
+    'nb.ficha.sinAlertas': "No active alerts.",
+    'nb.ficha.nivel': "Level",
+    'nb.ficha.cargadoPor': "Entered by",
+    'nb.ficha.fecha': "Date entered",
+    'nb.ficha.cpa': "Today (CPA)",
+    'nb.ficha.cpf5': "CPF in 5 years",
+    'nb.ficha.evaluado': "Potential assessment",
+    'nb.ficha.sinDes': "No performance entered",
+    'nb.ficha.sinDesAccion': "Enter performance to place them on the grid.",
+    'nb.export.barra': "PotenciaIA — Confidential document",
+    'nb.export.confidencial': "CONFIDENTIAL",
+    'nb.export.titulo': "9-box · Potential × performance",
+    'nb.export.tituloDoc': "PotenciaIA — 9-box",
+    'nb.export.tituloFicha': "9-box card — {n}",
+    'nb.export.fecha': "Date: {fecha}",
+    'nb.export.filtro': "Position: {p}",
+    'nb.export.alertasPersona': "Alerts by person",
+    'nb.export.sinAlertas': "No included person has active alerts.",
+    'nb.archivo': "9box_PotenciaIA_",
+    'nb.archivoFicha': "9box_Card_"
   },
   pt: {
     'doc.titulo': 'PotenciaIA · Painel RH',
@@ -1659,7 +1976,101 @@ Ao terminar, você verá uma mensagem de confirmação na tela — pronto, não 
     'rec.transcribiendo': 'Transcrevendo…',
     'rec.sinVoz': 'Nenhuma voz foi detectada na gravação. Tente novamente ou cole o texto manualmente.',
     'rec.lista': '✓ Transcrição pronta ({tiempo})',
-    'rec.error': 'Erro ao transcrever. Verifique o console ou cole o texto manualmente.'
+    'rec.error': 'Erro ao transcrever. Verifique o console ou cole o texto manualmente.',
+    // 9-box y estrato por puesto
+    'stat.ninebox': "9-box",
+    'stat.nineboxVer': "Abrir →",
+    'stat.nineboxSub': "Potencial × desempenho",
+    'stat.promPuesto': "Estrato médio · {p}",
+    'stat.filtrarPuesto': "Filtrar por cargo",
+    'puesto.todos': "Todos os cargos",
+    'puesto.sin': "Sem cargo",
+    'nb.titulo': "9-box: potencial × desempenho",
+    'nb.sub': "Escolha quem incluir e registre o desempenho. O potencial vem da avaliação da PotenciaIA.",
+    'nb.exportar': "↓ Exportar PDF",
+    'nb.filtro': "Cargo",
+    'nb.personas': "Pessoas avaliadas",
+    'nb.personasSub': "Aparecem apenas pessoas com a análise concluída. Marque \"Incluir\" para adicioná-las à grade.",
+    'nb.contador': "Incluídos: {n} · Com desempenho: {m}",
+    'nb.th.incluir': "Incluir",
+    'nb.th.persona': "Pessoa",
+    'nb.th.potencial': "Potencial",
+    'nb.th.desempeno': "Desempenho",
+    'nb.th.periodo': "Período",
+    'nb.periodoPh': "Ex.: 2025",
+    'nb.des.ninguno': "—",
+    'nb.potBadge': "Potencial {nivel}",
+    'nb.cargadoPor': "Registrado por {quien} · {fecha}",
+    'nb.guardando': "Salvando…",
+    'nb.errorGuardar': "Não foi possível salvar. Tente novamente.",
+    'nb.grillaTitulo': "Grade 9-box",
+    'nb.grillaSub': "Clique em um nome para ver a ficha. ⚠ = tem alertas ativos.",
+    'nb.chipAlerta': "Tem alertas ativos",
+    'nb.ejeY': "Potencial (PotenciaIA)",
+    'nb.ejeX': "Desempenho (registrado pelo cliente)",
+    'nb.col.bajo': "Abaixo das metas",
+    'nb.col.medio': "Cumpriu as metas",
+    'nb.col.alto': "Superou as metas",
+    'nb.caja.alto_bajo.n': "Enigma",
+    'nb.caja.alto_bajo.a': "Revisar função, gestão ou motivação antes de concluir",
+    'nb.caja.alto_medio.n': "Talento em crescimento",
+    'nb.caja.alto_medio.a': "Acelerar o desenvolvimento e a exposição a maior complexidade",
+    'nb.caja.alto_alto.n': "Estrela",
+    'nb.caja.alto_alto.a': "Sucessão prioritária para o próximo nível",
+    'nb.caja.medio_bajo.n': "Dilema",
+    'nb.caja.medio_bajo.a': "Revisar o ajuste à função e as condições de trabalho",
+    'nb.caja.medio_medio.n': "Pilar",
+    'nb.caja.medio_medio.a': "Consolidar na função, ampliar o escopo gradualmente",
+    'nb.caja.medio_alto.n': "Profissional-chave",
+    'nb.caja.medio_alto.a': "Reter; ampliar o escopo dentro do mesmo estrato",
+    'nb.caja.bajo_bajo.n': "Risco",
+    'nb.caja.bajo_bajo.a': "Plano de melhoria com prazo e acompanhamento",
+    'nb.caja.bajo_medio.n': "Contribuidor efetivo",
+    'nb.caja.bajo_medio.a': "Manter na função atual",
+    'nb.caja.bajo_alto.n': "Especialista confiável",
+    'nb.caja.bajo_alto.a': "Referência técnica; reconhecer sem promover de estrato",
+    'nb.pendientes': "Desempenho pendente",
+    'nb.pendientesSub': "Pessoas incluídas sem desempenho registrado. Não entram na grade até que seja registrado.",
+    'nb.pendientesVacio': "Ninguém pendente: todas as pessoas incluídas têm desempenho registrado.",
+    'nb.leyenda': "O eixo de potencial estima o crescimento nos próximos 5 anos e não deve ser usado como único critério de decisão.",
+    'nb.vacio.sinEval': "Ainda não há avaliações com a análise concluída. Quando houver, você poderá montar o 9-box aqui.",
+    'nb.vacio.sinSel': "Ninguém selecionado. Marque \"Incluir\" nas pessoas que deseja ver na grade.",
+    'nb.alerta.capacidad.t': "Capacidade não aplicada",
+    'nb.alerta.capacidad.d': "Tem capacidade que não está aplicando. Revisar a função, a gestão ou a motivação antes de concluir.",
+    'nb.alerta.riesgoPromo.t': "Risco de promoção por desempenho",
+    'nb.alerta.riesgoPromo.d': "Rende na função atual. Uma promoção de estrato pode exceder sua capacidade.",
+    'nb.alerta.subutilizado.t': "Subutilizado",
+    'nb.alerta.subutilizado.d': "Sua capacidade supera a complexidade da função: há risco de retenção.",
+    'nb.alerta.debajoRol.t': "Abaixo da função",
+    'nb.alerta.debajoRol.d': "A função exige mais complexidade do que a pessoa maneja hoje.",
+    'nb.alerta.desfasado.t': "Desempenho defasado",
+    'nb.alerta.desfasado.d': "As duas coordenadas não são do mesmo momento.",
+    'nb.alerta.antigua.t': "Avaliação de potencial antiga",
+    'nb.alerta.antigua.d': "Sugere-se reavaliar.",
+    'nb.notaTecnica': "Nota técnica: a projeção de 5 anos ultrapassa o alcance da curva de Jaques (70 anos); interpretá-la com cautela.",
+    'nb.ficha.desempeno': "Desempenho",
+    'nb.ficha.potencial': "Potencial",
+    'nb.ficha.alertas': "Alertas",
+    'nb.ficha.sinAlertas': "Sem alertas ativos.",
+    'nb.ficha.nivel': "Nível",
+    'nb.ficha.cargadoPor': "Registrado por",
+    'nb.ficha.fecha': "Data do registro",
+    'nb.ficha.cpa': "Hoje (CPA)",
+    'nb.ficha.cpf5': "CPF em 5 anos",
+    'nb.ficha.evaluado': "Avaliação de potencial",
+    'nb.ficha.sinDes': "Sem desempenho registrado",
+    'nb.ficha.sinDesAccion': "Registre o desempenho para posicioná-la na grade.",
+    'nb.export.barra': "PotenciaIA — Documento confidencial",
+    'nb.export.confidencial': "CONFIDENCIAL",
+    'nb.export.titulo': "9-box · Potencial × desempenho",
+    'nb.export.tituloDoc': "PotenciaIA — 9-box",
+    'nb.export.tituloFicha': "Ficha 9-box — {n}",
+    'nb.export.fecha': "Data: {fecha}",
+    'nb.export.filtro': "Cargo: {p}",
+    'nb.export.alertasPersona': "Alertas por pessoa",
+    'nb.export.sinAlertas': "Nenhuma pessoa incluída tem alertas ativos.",
+    'nb.archivo': "9box_PotenciaIA_",
+    'nb.archivoFicha': "Ficha_9box_"
   }
 };
 
@@ -1732,6 +2143,11 @@ function aplicarIdioma() {
     _safe(() => { const y = window.scrollY; verInforme(_informeIdx); window.scrollTo(0, y); });
   }
   if (_adminCache) _safe(() => _renderAdminTabla(_adminCache));
+  if (_vistaActual === 'ninebox') _safe(renderNineBox);
+  _safe(() => {
+    const ov = document.getElementById('nbFichaOverlay');
+    if (ov && ov.classList.contains('active') && _nbFichaIdx !== null) nbAbrirFicha(_nbFichaIdx);
+  });
   _safe(() => {
     const ov = document.getElementById('wizardOverlay');
     if (ov && ov.classList.contains('active')) { actualizarWizard(); actualizarEstrato(); }
@@ -1830,6 +2246,7 @@ function renderStats() {
   const confs = candidatos.map(c => c.confianza).filter(Boolean);
   document.getElementById('statConf').textContent = confs.length ? Math.round(confs.reduce((a,b)=>a+b,0)/confs.length)+'%' : '—';
   document.getElementById('statPend').textContent = candidatos.filter(c => !c.estrato).length || '0';
+  try { _renderPromPorPuesto(); } catch(e) { console.warn('Estrato promedio por puesto:', e); }
   actualizarInsightBanner();
 }
 
@@ -2299,9 +2716,9 @@ function verInforme(i) {
 // ── NAVEGACIÓN ──
 function go(vista) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  const vistaId = vista==='informe' ? 'viewInforme' : (vista==='admin' ? 'viewAdmin' : 'viewDashboard');
+  const vistaId = vista==='informe' ? 'viewInforme' : (vista==='admin' ? 'viewAdmin' : (vista==='ninebox' ? 'viewNineBox' : 'viewDashboard'));
   document.getElementById(vistaId).classList.add('active');
-  _vistaActual = vista==='informe' ? 'informe' : (vista==='admin' ? 'admin' : 'dashboard');
+  _vistaActual = vista==='informe' ? 'informe' : (vista==='admin' ? 'admin' : (vista==='ninebox' ? 'ninebox' : 'dashboard'));
   if(vista==='dashboard'){
     _renderTopbar('dashboard');
     actualizarBadgeCreditos();
@@ -2309,6 +2726,10 @@ function go(vista) {
   if(vista==='admin'){
     _renderTopbar('admin');
     cargarPanelAdmin();
+  }
+  if(vista==='ninebox'){
+    _renderTopbar('ninebox');
+    renderNineBox();
   }
   window.scrollTo(0,0);
 }
@@ -2328,6 +2749,13 @@ function _renderTopbar(vista){
     document.getElementById('topbarRight').innerHTML=`
       <span class="hr-badge">${t('top.panelAdminBadge')}</span>
       <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="go('dashboard')">${t('top.volver')}</button>
+      <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="hacerLogout()">${t('top.cerrarSesion')}</button>`;
+  }
+  if(vista==='ninebox'){
+    _topbarDinamico = true;
+    document.getElementById('topbarRight').innerHTML=`
+      <span class="hr-badge">${t('top.panelHR')}</span>
+      <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="go('dashboard')">${t('top.volverPanel')}</button>
       <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="hacerLogout()">${t('top.cerrarSesion')}</button>`;
   }
 }
@@ -3932,7 +4360,510 @@ function renderInformeCompleto(c, CURVA_IMG) {
   `;
 }
 
-  
+
+// ══════════════════════════════════════════════════════════════
+// ── ESTRATO PROMEDIO POR PUESTO + 9-BOX (potencial × desempeño) ──
+// ══════════════════════════════════════════════════════════════
+
+// Escapa texto para meterlo en HTML (nombres, puestos, emails)
+function _esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
+}
+
+// Clave de agrupación de puestos: ignora mayúsculas, acentos y espacios de más.
+// "gerente" = "Gerente " = "GERENTE", pero "Gerente de marca" es otro grupo.
+function _puestoClave(str) {
+  return String(str == null ? '' : str).normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+// Grupos de puesto entre las evaluaciones terminadas (estrato > 0)
+function _gruposPuesto() {
+  const mapa = {};
+  candidatos.forEach(c => {
+    if (!(c.estrato > 0)) return;
+    const clave = _puestoClave(c.puesto);
+    const orig = String(c.puesto == null ? '' : c.puesto).replace(/\s+/g, ' ').trim();
+    if (!mapa[clave]) mapa[clave] = { clave, n: 0, suma: 0, variantes: {} };
+    const g = mapa[clave];
+    g.n++; g.suma += c.estrato;
+    g.variantes[orig] = (g.variantes[orig] || 0) + 1;
+  });
+  return Object.values(mapa).map(g => {
+    let mejor = '', max = -1;
+    Object.keys(g.variantes).forEach(v => { if (g.variantes[v] > max) { max = g.variantes[v]; mejor = v; } });
+    const sinPuesto = !g.clave || g.clave === '—' || g.clave === '-';
+    g.label = sinPuesto ? t('puesto.sin') : (mejor.charAt(0).toUpperCase() + mejor.slice(1));
+    return g;
+  }).sort((a, b) => a.label.localeCompare(b.label, _locale()));
+}
+
+function _opcionesPuestoHtml(grupos, sel) {
+  return `<option value="">${_esc(t('puesto.todos'))}</option>` +
+    grupos.map(g => `<option value="${_esc(g.clave)}"${g.clave === sel ? ' selected' : ''}>${_esc(g.label)} (${g.n})</option>`).join('');
+}
+
+// ── Feature 1: "Estrato promedio" filtrable por puesto ──
+let _promPuestoSel = '';
+function setPromPuesto(v) { _promPuestoSel = v || ''; renderStats(); }
+function _renderPromPorPuesto() {
+  const sel = document.getElementById('statPromPuesto');
+  const lbl = document.getElementById('statPromLabel');
+  const num = document.getElementById('statProm');
+  if (!sel || !lbl || !num) return;
+  const grupos = _gruposPuesto();
+  const g = grupos.find(x => x.clave === _promPuestoSel);
+  if (!g) _promPuestoSel = '';
+  sel.innerHTML = _opcionesPuestoHtml(grupos, _promPuestoSel);
+  sel.value = _promPuestoSel;
+  sel.title = t('stat.filtrarPuesto'); sel.setAttribute('aria-label', t('stat.filtrarPuesto'));
+  sel.style.display = grupos.length ? '' : 'none';
+  if (g) {
+    lbl.textContent = t('stat.promPuesto', { p: g.label });
+    num.textContent = (g.suma / g.n).toFixed(1);
+  } else {
+    lbl.textContent = t('stat.prom');   // "Todos los puestos": el número es el que ya calculó renderStats()
+  }
+}
+
+// ── Feature 2: 9-box ──
+const NB_NIVELES = ['bajo', 'medio', 'alto'];
+const NB_TONO = {
+  'alto_bajo':'amber', 'alto_medio':'green', 'alto_alto':'green',
+  'medio_bajo':'red',  'medio_medio':'amber', 'medio_alto':'green',
+  'bajo_bajo':'red',   'bajo_medio':'red',   'bajo_alto':'amber'
+};
+let _nbPuestoSel = '';
+let _nbIncluidos = {};      // id de evaluación → true/false (solo en memoria)
+let _nbEstadoFila = {};     // id → { tipo:'err'|'ok'|'saving', msg }
+var _nbFichaIdx = null;
+
+function _nbId(c, i) { return (c && c._raw && c._raw.id) ? c._raw.id : ('idx-' + i); }
+function _nbDatos(c) { return (c && c._raw) ? c._raw : (c || {}); }
+function _nbDes(c) { const d = _nbDatos(c).desempeno; return NB_NIVELES.includes(d) ? d : null; }
+function _nbEstratoRol(c) {
+  const v = c && c._raw ? parseInt(c._raw.estrato_puesto) : parseInt(c && c.estrato_puesto);
+  return v > 0 ? v : null;
+}
+function _nbAFecha(v) {
+  if (!v) return null;
+  try { const d = v.toDate ? v.toDate() : new Date(v); return isNaN(d.getTime()) ? null : d; } catch(e) { return null; }
+}
+function _nbFechaEval(c) { return _nbAFecha(c && c._raw && c._raw.timestamp) || (c && c._fechaObj) || null; }
+function _nbFechaTxt(v) { const d = _nbAFecha(v); try { return d ? d.toLocaleDateString(_locale()) : ''; } catch(e) { return ''; } }
+function _nbEtiquetaEstrato(est, sub) { return 'E ' + (estratosNombres[est] || '?') + ' ' + _nivelTxt(sub); }
+
+// ╔═══════════════════════════════════════════════════════════════╗
+// ║ POTENCIAL DEL 9-BOX — ÚNICO lugar a cambiar si cambia la        ║
+// ║ metodología. Usa la MISMA proyección que el gráfico del informe ║
+// ║ (calcularPuntosCurva → cpf1 = punto "CPF a 5 años").            ║
+// ║  Alto  : a 5 años sube de estrato.                              ║
+// ║  Medio : mismo estrato, pero sube de subnivel (bajo<medio<alto).║
+// ║  Bajo  : cualquier otro caso.                                   ║
+// ╚═══════════════════════════════════════════════════════════════╝
+function nbPotencial(c) {
+  const est  = c.estrato || 2;
+  const sub  = _normSub(c.subestrato || 'medio');
+  const edad = c.edad || 35;
+  const cpf1 = calcularPuntosCurva(edad, est, sub, c.modo_curva).cpf1;
+  const ORD = { bajo: 0, medio: 1, alto: 2 };
+  let nivel = 'bajo';
+  if (cpf1.estrato > est) nivel = 'alto';
+  else if (cpf1.estrato === est && ORD[cpf1.subnivel] > ORD[sub]) nivel = 'medio';
+  return {
+    nivel,
+    cpa:  { estrato: est, subnivel: sub, edad: c.edad || null },
+    cpf5: { estrato: cpf1.estrato, subnivel: cpf1.subnivel, edad: cpf1.edad }
+  };
+}
+
+// Alertas: nunca mueven la caja, solo avisan.
+function nbAlertas(c, pot) {
+  pot = pot || nbPotencial(c);
+  const des = _nbDes(c);
+  const out = [];
+  if (pot.nivel === 'alto' && des === 'bajo') out.push('capacidad');
+  if (pot.nivel === 'bajo' && des === 'alto') out.push('riesgoPromo');
+  const rol = _nbEstratoRol(c);
+  if (rol && c.estrato > rol) out.push('subutilizado');
+  if (rol && c.estrato < rol) out.push('debajoRol');
+  const fEval = _nbFechaEval(c);
+  if (des && fEval) {
+    const anios = String(_nbDatos(c).desempeno_periodo || '').match(/\d{4}/g);
+    if (anios) {
+      const anio = Math.max.apply(null, anios.map(Number));
+      const lim = new Date(anio, 11, 31, 23, 59, 59);
+      lim.setMonth(lim.getMonth() + 12);
+      if (fEval > lim) out.push('desfasado');
+    }
+  }
+  if (fEval) {
+    const lim = new Date(fEval); lim.setMonth(lim.getMonth() + 24);
+    if (new Date() > lim) out.push('antigua');
+  }
+  return out;
+}
+// Nota técnica (no es alerta): la proyección a 5 años cae fuera del rango de la curva (70 años)
+function nbNotaTecnica(c, pot) {
+  pot = pot || nbPotencial(c);
+  return (c.edad && pot.cpf5.edad > 70) ? t('nb.notaTecnica') : '';
+}
+
+function _nbCaja(pot, des) {
+  if (!des) return null;
+  const k = pot + '_' + des;
+  return { k, tono: NB_TONO[k], nombre: t('nb.caja.' + k + '.n'), accion: t('nb.caja.' + k + '.a') };
+}
+
+// Personas terminadas y filtradas por puesto
+function _nbFiltradas() {
+  return candidatos.map((c, i) => ({ c, i }))
+    .filter(x => x.c.estrato > 0 && (!_nbPuestoSel || _puestoClave(x.c.puesto) === _nbPuestoSel));
+}
+function _nbIncluidasInfo() {
+  return _nbFiltradas().filter(x => _nbIncluidos[_nbId(x.c, x.i)]).map(x => {
+    const pot = nbPotencial(x.c);
+    const des = _nbDes(x.c);
+    return { ...x, pot, des, caja: _nbCaja(pot.nivel, des), alertas: nbAlertas(x.c, pot), nota: nbNotaTecnica(x.c, pot) };
+  });
+}
+
+function abrirNineBox() {
+  candidatos.forEach((c, i) => { if (c.estrato > 0 && _nbDes(c)) _nbIncluidos[_nbId(c, i)] = true; });
+  go('ninebox');
+}
+
+function nbSetPuesto(v) { _nbPuestoSel = v || ''; renderNineBox(); }
+function nbToggle(i, on) { const c = candidatos[i]; if (!c) return; _nbIncluidos[_nbId(c, i)] = !!on; renderNineBox(); }
+
+async function nbGuardar(i) {
+  const c = candidatos[i];
+  if (!c) return;
+  const id = _nbId(c, i);
+  const selEl = document.getElementById('nbDes-' + i);
+  const perEl = document.getElementById('nbPer-' + i);
+  const val = selEl ? selEl.value : '';
+  const datos = {
+    desempeno: NB_NIVELES.includes(val) ? val : null,
+    desempeno_periodo: perEl ? perEl.value.trim() : '',
+    desempeno_cargado_por: (typeof window.getCurrentEmail === 'function' ? window.getCurrentEmail() : null)
+                           || (typeof window.getCurrentUid === 'function' ? window.getCurrentUid() : null) || '',
+    desempeno_fecha: new Date().toISOString(),
+    ninebox_estrato_rol: _nbEstratoRol(c)
+  };
+  _nbEstadoFila[id] = { tipo: 'saving', msg: t('nb.guardando') };
+  _nbPintarEstadoFila(i, id);
+  let ok = false;
+  try {
+    ok = (c._raw && c._raw.id && typeof window.guardarDesempeno === 'function')
+      ? await window.guardarDesempeno(c._raw.id, datos) : false;
+  } catch(e) { console.error('nbGuardar:', e); ok = false; }
+  if (ok) {
+    if (c._raw) Object.assign(c._raw, datos);
+    Object.assign(c, datos);
+    if (datos.desempeno) _nbIncluidos[id] = true;
+    _nbEstadoFila[id] = { tipo: 'ok', msg: '' };
+  } else {
+    _nbEstadoFila[id] = { tipo: 'err', msg: t('nb.errorGuardar') };
+  }
+  try { renderNineBox(); } catch(e) { console.error('renderNineBox:', e); }
+}
+function _nbPintarEstadoFila(i, id) {
+  const el = document.getElementById('nbEst-' + i);
+  const st = _nbEstadoFila[id];
+  if (!el) return;
+  el.className = st && st.tipo === 'err' ? 'nb-err' : 'nb-ok';
+  el.textContent = st ? st.msg : '';
+}
+
+function _nbPotBadge(nivel) {
+  return `<span class="nb-pot nb-pot-${nivel}">${_esc(t('nb.potBadge', { nivel: _nivelTxt(nivel) }))}</span>`;
+}
+function _nbCargadoTxt(c) {
+  const d = _nbDatos(c);
+  if (!d.desempeno_cargado_por && !d.desempeno_fecha) return '';
+  return t('nb.cargadoPor', { quien: d.desempeno_cargado_por || '', fecha: _nbFechaTxt(d.desempeno_fecha) });
+}
+
+// Grilla 3×3. exportar=true → sin botones (para el PDF)
+function _nbGrillaHtml(incl, exportar) {
+  const filas = ['alto', 'medio', 'bajo'], cols = ['bajo', 'medio', 'alto'];
+  let celdas = '';
+  filas.forEach(p => {
+    celdas += `<div class="nb-rowlab">${_esc(_nivelTxt(p, true))}</div>`;
+    cols.forEach(d => {
+      const k = p + '_' + d;
+      const aqui = incl.filter(x => x.pot.nivel === p && x.des === d);
+      const chips = aqui.map(x => {
+        const warn = x.alertas.length ? `<span class="nb-chip-warn" title="${_esc(t('nb.chipAlerta'))}">⚠</span>` : '';
+        return exportar
+          ? `<span class="nb-chip">${warn}${_esc(x.c.nombre)}</span>`
+          : `<button class="nb-chip" onclick="nbAbrirFicha(${x.i})">${warn}${_esc(x.c.nombre)}</button>`;
+      }).join('');
+      celdas += `<div class="nb-cell nb-t-${NB_TONO[k]}">
+        <div class="nb-cell-head"><span class="nb-cell-name">${_esc(t('nb.caja.' + k + '.n'))}</span><span class="nb-cell-count">${aqui.length}</span></div>
+        <div class="nb-cell-act">${_esc(t('nb.caja.' + k + '.a'))}</div>
+        <div class="nb-chips">${chips}</div>
+      </div>`;
+    });
+  });
+  celdas += `<div></div>` + cols.map(d => `<div class="nb-collab">${_esc(_nivelTxt(d, true))}<small>${_esc(t('nb.col.' + d))}</small></div>`).join('');
+  return `<div class="nb-grid-wrap"><div class="nb-yaxis">${_esc(t('nb.ejeY'))}</div><div class="nb-grid">${celdas}</div></div>
+    <div class="nb-xaxis">${_esc(t('nb.ejeX'))}</div>`;
+}
+
+function _nbPendientesHtml(incl, exportar) {
+  const pend = incl.filter(x => !x.des);
+  if (!pend.length) return `<div class="nb-card-sub" style="margin:0;">${_esc(t('nb.pendientesVacio'))}</div>`;
+  return `<div class="nb-pend">${pend.map(x => `<div class="nb-pend-item">${exportar
+      ? `<span>${_esc(x.c.nombre)}</span>`
+      : `<button class="nb-chip" onclick="nbAbrirFicha(${x.i})">${x.alertas.length ? '<span class="nb-chip-warn">⚠</span>' : ''}${_esc(x.c.nombre)}</button>`}${_nbPotBadge(x.pot.nivel)}</div>`).join('')}</div>`;
+}
+
+function renderNineBox() {
+  const cont = document.getElementById('nbContenido');
+  if (!cont) return;
+  const btnExp = document.getElementById('nbBtnExportar');
+  const terminadas = candidatos.filter(c => c.estrato > 0);
+  if (!terminadas.length) {
+    if (btnExp) btnExp.style.display = 'none';
+    cont.innerHTML = `<div class="table-card"><div class="nb-empty">${_esc(t('nb.vacio.sinEval'))}</div></div>`;
+    return;
+  }
+  const grupos = _gruposPuesto();
+  if (!grupos.some(g => g.clave === _nbPuestoSel)) _nbPuestoSel = '';
+  const lista = _nbFiltradas();
+  const incl = _nbIncluidasInfo();
+  const conDes = incl.filter(x => x.des).length;
+  const anioPrev = String(new Date().getFullYear() - 1);
+  if (btnExp) btnExp.style.display = incl.length ? '' : 'none';
+
+  const opDes = (v) => `<option value=""${!v ? ' selected' : ''}>${_esc(t('nb.des.ninguno'))}</option>` +
+    NB_NIVELES.map(n => `<option value="${n}"${v === n ? ' selected' : ''}>${_esc(_nivelTxt(n, true))}</option>`).join('');
+
+  const filas = lista.map(({ c, i }) => {
+    const id = _nbId(c, i);
+    const d = _nbDatos(c);
+    const pot = nbPotencial(c);
+    const st = _nbEstadoFila[id];
+    const cargado = _nbCargadoTxt(c);
+    return `<div class="nb-row">
+      <div><input type="checkbox" ${_nbIncluidos[id] ? 'checked' : ''} onchange="nbToggle(${i}, this.checked)" title="${_esc(t('nb.th.incluir'))}" aria-label="${_esc(t('nb.th.incluir'))}"></div>
+      <div class="nb-c-persona">
+        <div class="nb-nombre" onclick="nbAbrirFicha(${i})">${_esc(c.nombre)}</div>
+        <div class="nb-puesto">${_esc(c.puesto)}</div>
+        ${cargado ? `<div class="nb-meta">${_esc(cargado)}</div>` : ''}
+        <div id="nbEst-${i}" class="${st && st.tipo === 'err' ? 'nb-err' : 'nb-ok'}">${st ? _esc(st.msg) : ''}</div>
+      </div>
+      <div class="nb-c-pot"><div class="nb-mlbl">${_esc(t('nb.th.potencial'))}</div>${_nbPotBadge(pot.nivel)}</div>
+      <div class="nb-c-des"><div class="nb-mlbl">${_esc(t('nb.th.desempeno'))}</div><select id="nbDes-${i}" onchange="nbGuardar(${i})" aria-label="${_esc(t('nb.th.desempeno'))}">${opDes(_nbDes(c))}</select></div>
+      <div class="nb-c-per"><div class="nb-mlbl">${_esc(t('nb.th.periodo'))}</div><input type="text" id="nbPer-${i}" value="${_esc(d.desempeno_periodo || anioPrev)}" placeholder="${_esc(t('nb.periodoPh'))}" onchange="nbGuardar(${i})" aria-label="${_esc(t('nb.th.periodo'))}"></div>
+    </div>`;
+  }).join('');
+
+  const grilla = incl.length
+    ? `${_nbGrillaHtml(incl, false)}<div class="nb-leyenda">${_esc(t('nb.leyenda'))}</div>`
+    : `<div class="nb-empty">${_esc(t('nb.vacio.sinSel'))}</div>`;
+
+  cont.innerHTML = `
+    <div class="table-card">
+      <div class="table-head" style="flex-wrap:wrap;gap:12px;">
+        <div>
+          <div class="table-title">${_esc(t('nb.personas'))}</div>
+          <div class="table-sub">${_esc(t('nb.personasSub'))}</div>
+        </div>
+        <div class="nb-toolbar">
+          <span class="nb-count">${_esc(t('nb.contador', { n: incl.length, m: conDes }))}</span>
+          <select class="form-select" onchange="nbSetPuesto(this.value)" aria-label="${_esc(t('nb.filtro'))}" title="${_esc(t('nb.filtro'))}">${_opcionesPuestoHtml(grupos, _nbPuestoSel)}</select>
+        </div>
+      </div>
+      <div class="nb-list">
+        <div class="nb-row nb-row-head"><div></div><div>${_esc(t('nb.th.persona'))}</div><div>${_esc(t('nb.th.potencial'))}</div><div>${_esc(t('nb.th.desempeno'))}</div><div>${_esc(t('nb.th.periodo'))}</div></div>
+        ${filas}
+      </div>
+    </div>
+    <div class="nb-card">
+      <div class="nb-card-title">${_esc(t('nb.grillaTitulo'))}</div>
+      <div class="nb-card-sub">${_esc(t('nb.grillaSub'))}</div>
+      ${grilla}
+    </div>
+    ${incl.length ? `<div class="nb-card">
+      <div class="nb-card-title">${_esc(t('nb.pendientes'))}</div>
+      <div class="nb-card-sub">${_esc(t('nb.pendientesSub'))}</div>
+      ${_nbPendientesHtml(incl, false)}
+    </div>` : ''}`;
+}
+
+// ── Ficha de la persona ──
+function _nbMiniHtml(caja) {
+  let h = '';
+  ['alto', 'medio', 'bajo'].forEach(p => ['bajo', 'medio', 'alto'].forEach(d => {
+    h += `<span class="${caja && caja.k === p + '_' + d ? 'on' : ''}"></span>`;
+  }));
+  return `<div class="nb-mini">${h}</div>`;
+}
+function _nbFichaCuerpoHtml(c) {
+  const pot = nbPotencial(c);
+  const des = _nbDes(c);
+  const d = _nbDatos(c);
+  const caja = _nbCaja(pot.nivel, des);
+  const alertas = nbAlertas(c, pot);
+  const nota = nbNotaTecnica(c, pot);
+  const fEval = _nbFechaEval(c);
+  const cpf5 = _nbEtiquetaEstrato(pot.cpf5.estrato, pot.cpf5.subnivel) + (c.edad ? ' · ' + t('comun.anios', { n: pot.cpf5.edad }) : '');
+  return `
+    <div class="nb-ficha-caja ${caja ? 'nb-t-' + caja.tono : ''}" style="${caja ? '' : 'background:var(--bg);border:1px dashed var(--border);'}">
+      ${_nbMiniHtml(caja)}
+      <div>
+        <div class="nb-ficha-caja-n">${_esc(caja ? caja.nombre : t('nb.pendientes'))}</div>
+        <div class="nb-ficha-caja-a">${_esc(caja ? caja.accion : t('nb.ficha.sinDesAccion'))}</div>
+      </div>
+    </div>
+    <div class="nb-sec">
+      <div class="nb-sec-t">${_esc(t('nb.ficha.desempeno'))}</div>
+      <dl class="nb-kv">
+        <dt>${_esc(t('nb.ficha.nivel'))}</dt><dd>${des ? _esc(_nivelTxt(des, true) + ' — ' + t('nb.col.' + des)) : _esc(t('nb.ficha.sinDes'))}</dd>
+        <dt>${_esc(t('nb.th.periodo'))}</dt><dd>${_esc(des && d.desempeno_periodo ? d.desempeno_periodo : '—')}</dd>
+        <dt>${_esc(t('nb.ficha.cargadoPor'))}</dt><dd>${_esc(d.desempeno_cargado_por || '—')}</dd>
+        <dt>${_esc(t('nb.ficha.fecha'))}</dt><dd>${_esc(_nbFechaTxt(d.desempeno_fecha) || '—')}</dd>
+      </dl>
+    </div>
+    <div class="nb-sec">
+      <div class="nb-sec-t">${_esc(t('nb.ficha.potencial'))}</div>
+      <dl class="nb-kv">
+        <dt>${_esc(t('nb.ficha.nivel'))}</dt><dd>${_esc(_nivelTxt(pot.nivel, true))}</dd>
+        <dt>${_esc(t('nb.ficha.cpa'))}</dt><dd>${_esc(_nbEtiquetaEstrato(pot.cpa.estrato, pot.cpa.subnivel))}</dd>
+        <dt>${_esc(t('nb.ficha.cpf5'))}</dt><dd>${_esc(cpf5)}</dd>
+        <dt>${_esc(t('nb.ficha.evaluado'))}</dt><dd>${_esc(fEval ? fEval.toLocaleDateString(_locale()) : '—')}</dd>
+      </dl>
+    </div>
+    <div class="nb-sec">
+      <div class="nb-sec-t">${_esc(t('nb.ficha.alertas'))}</div>
+      ${alertas.length ? alertas.map(a => `<div class="nb-alerta"><strong>⚠ ${_esc(t('nb.alerta.' + a + '.t'))}</strong>${_esc(t('nb.alerta.' + a + '.d'))}</div>`).join('')
+                       : `<div class="nb-card-sub" style="margin:0;">${_esc(t('nb.ficha.sinAlertas'))}</div>`}
+      ${nota ? `<div class="nb-nota">${_esc(nota)}</div>` : ''}
+    </div>
+    <div class="nb-leyenda">${_esc(t('nb.leyenda'))}</div>`;
+}
+function nbAbrirFicha(i) {
+  const c = candidatos[i];
+  if (!c) return;
+  _nbFichaIdx = i;
+  document.getElementById('nbFichaContenido').innerHTML = `
+    <div class="nb-ficha">
+      <div class="nb-ficha-top">
+        <div><div class="nb-ficha-nombre">${_esc(c.nombre)}</div><div class="nb-puesto">${_esc(c.puesto)}</div></div>
+        <button class="btn-ghost" onclick="cerrarNbFicha()" aria-label="${_esc(t('modal.cerrar'))}">${_esc(t('modal.cerrar'))}</button>
+      </div>
+      ${_nbFichaCuerpoHtml(c)}
+      <div class="nb-ficha-actions">
+        <button class="btn btn-outline" onclick="cerrarNbFicha()">${_esc(t('modal.cerrar'))}</button>
+        <button class="btn btn-primary" onclick="exportarFichaNineBoxPDF(${i})">${_esc(t('nb.exportar'))}</button>
+      </div>
+    </div>`;
+  document.getElementById('nbFichaOverlay').classList.add('active');
+}
+function cerrarNbFicha() { _nbFichaIdx = null; document.getElementById('nbFichaOverlay').classList.remove('active'); }
+function cerrarNbFichaClick(e) { if (e.target === document.getElementById('nbFichaOverlay')) cerrarNbFicha(); }
+
+// ── Exportar PDF (documento HTML aparte con botón "Guardar como PDF") ──
+function _nbDocHtml(tituloPestana, cuerpo) {
+  const estilos = (document.getElementById('nbEstilos') || {}).textContent || '';
+  let fecha = '';
+  try { fecha = new Date().toLocaleDateString(_locale()); } catch(e) {}
+  const filtro = _gruposPuesto().find(g => g.clave === _nbPuestoSel);
+  return `<!DOCTYPE html><html lang="${IDIOMA}"><head>
+<meta charset="UTF-8">
+<title>${_esc(tituloPestana)}</title>
+<style>
+  :root{--verde:#7c3aed;--verde-light:#f1ecfe;--verde-soft:#e4d9fb;--bg:#f4f5f3;--surface:#ffffff;--border:#e3e5e2;--text:#1c1d22;--text-dim:#5b6066;--text-muted:#9aa0a6;--yellow:#b45309;--yellow-light:#fef6e7;--rojo:#dc2626;--rojo-light:#fee2e2;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:white;color:#1c1d22;font-family:'Inter',Arial,sans-serif;padding:32px;max-width:960px;margin:0 auto;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  h1{font-size:20px;margin-bottom:6px;}
+  h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #e3e5e2;}
+  .meta{font-size:12px;color:#5b6066;margin-bottom:4px;}
+  .persona{border:1px solid #e3e5e2;border-radius:10px;padding:12px 16px;margin-bottom:10px;page-break-inside:avoid;}
+  .persona-n{font-weight:700;font-size:14px;}
+  .nb-cell,.nb-ficha-caja{page-break-inside:avoid;}
+  ${estilos}
+  @media print{.no-print{display:none!important;} body{padding:8px;}}
+</style>
+</head><body>
+  <div class="no-print" style="text-align:right;padding:12px 0 24px;border-bottom:1px solid #e8edf3;margin-bottom:24px;">
+    <span style="font-size:13px;color:#9ca3af;margin-right:16px;">${_esc(t('nb.export.barra'))}</span>
+    <button onclick="window.print()" style="background:#7c3aed;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">${_esc(t('rep.guardarPdf'))}</button>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px;">
+    <div>
+      <div class="meta">${_esc(t('nb.export.fecha', { fecha }))}</div>
+      <div class="meta">${_esc(t('nb.export.filtro', { p: filtro ? filtro.label : t('puesto.todos') }))}</div>
+    </div>
+    <span class="nb-conf">${_esc(t('nb.export.confidencial'))}</span>
+  </div>
+  ${cuerpo}
+  <div class="nb-leyenda">${_esc(t('nb.leyenda'))}</div>
+</body></html>`;
+}
+function _nbDescargar(html, nombreArchivo) {
+  try {
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nombreArchivo;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+  } catch(e) {
+    _abrirInformeVentana(html, nombreArchivo);
+  }
+}
+function _nbAlertasPersonaHtml(x) {
+  const items = x.alertas.map(a => `<div class="nb-alerta"><strong>⚠ ${_esc(t('nb.alerta.' + a + '.t'))}</strong>${_esc(t('nb.alerta.' + a + '.d'))}</div>`).join('');
+  return items + (x.nota ? `<div class="nb-nota">${_esc(x.nota)}</div>` : '');
+}
+function nbExportHtmlGrilla() {
+  const incl = _nbIncluidasInfo();
+  const detalle = incl.filter(x => x.alertas.length || x.nota);
+  const cuerpo = `
+    <h1>${_esc(t('nb.export.titulo'))}</h1>
+    <div class="meta">${_esc(t('nb.contador', { n: incl.length, m: incl.filter(x => x.des).length }))}</div>
+    <h2>${_esc(t('nb.grillaTitulo'))}</h2>
+    ${_nbGrillaHtml(incl, true)}
+    <h2>${_esc(t('nb.pendientes'))}</h2>
+    ${_nbPendientesHtml(incl, true)}
+    <h2>${_esc(t('nb.export.alertasPersona'))}</h2>
+    ${detalle.length ? detalle.map(x => `<div class="persona">
+        <div class="persona-n">${_esc(x.c.nombre)} <span class="meta">· ${_esc(x.c.puesto)} · ${_esc(x.caja ? x.caja.nombre : t('nb.pendientes'))}</span></div>
+        <div style="margin-top:8px;">${_nbAlertasPersonaHtml(x)}</div>
+      </div>`).join('') : `<div class="meta">${_esc(t('nb.export.sinAlertas'))}</div>`}`;
+  return _nbDocHtml(t('nb.export.tituloDoc'), cuerpo);
+}
+function nbExportHtmlFicha(i) {
+  const c = candidatos[i];
+  if (!c) return '';
+  const cuerpo = `
+    <h1>${_esc(c.nombre)}</h1>
+    <div class="meta" style="margin-bottom:16px;">${_esc(c.puesto)} · ${_esc(t('nb.export.titulo'))}</div>
+    ${_nbFichaCuerpoHtml(c)}`;
+  return _nbDocHtml(t('nb.export.tituloFicha', { n: c.nombre }), cuerpo);
+}
+function _nbFechaArchivo() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function exportarNineBoxPDF() {
+  try {
+    if (!_nbIncluidasInfo().length) { alert(t('nb.vacio.sinSel')); return; }
+    _nbDescargar(nbExportHtmlGrilla(), t('nb.archivo') + _nbFechaArchivo() + '.html');
+  } catch(e) { console.error('exportarNineBoxPDF:', e); }
+}
+function exportarFichaNineBoxPDF(i) {
+  try {
+    const c = candidatos[i];
+    if (!c) return;
+    _nbDescargar(nbExportHtmlFicha(i), t('nb.archivoFicha') + String(c.nombre || t('rep.candidatoArchivo')).replace(/\s+/g, '_') + '.html');
+  } catch(e) { console.error('exportarFichaNineBoxPDF:', e); }
+}
+
+
 // LOGIN
 async function manejarLogin(event) {
   event.preventDefault();

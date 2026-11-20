@@ -36,7 +36,7 @@ a:hover{color:#4c1d95}
 .brand-mark{width:36px;height:36px;border-radius:10px;background:#7c3aed;color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;margin-right:11px}
 .brand em{font-style:normal;color:#a78bfa}
 .nav{display:flex;align-items:center}
-.nav a.link{color:#d9d3ec;text-decoration:none;font-size:15px;font-weight:600;margin-right:28px;padding:10px 0}
+.nav a.link{color:#d9d3ec;text-decoration:none;font-size:15px;font-weight:600;margin-right:24px;padding:10px 0}
 .nav a.link:hover{color:#ffffff}
 .nav .btn{padding:13px 20px;font-size:15px}
 
@@ -246,6 +246,25 @@ td b{font-weight:700}
 .badge{position:absolute;top:28px;right:28px;background:#7c3aed;color:#ffffff;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:7px 14px}
 .credits{display:inline-block;margin-top:18px;font-size:15px;font-weight:700;color:#5b21b6;background:#f1ecfe;border-radius:999px;padding:8px 16px}
 
+/* 9-BOX */
+.nb{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;align-items:center;margin-top:52px}
+.nb-chart{display:grid;grid-template-columns:28px minmax(0,1fr);grid-template-rows:minmax(0,1fr) 28px;gap:10px}
+.nb-y{grid-row:1;grid-column:1;display:flex;flex-direction:column;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5f5975}
+.nb-y b{writing-mode:vertical-rl;-webkit-writing-mode:vertical-rl;transform:rotate(180deg);font-size:12px;letter-spacing:.12em;color:#1b1730}
+.nb-x{grid-row:2;grid-column:2;display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5f5975}
+.nb-x b{font-size:12px;letter-spacing:.12em;color:#1b1730}
+.nb-grid{grid-row:1;grid-column:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:8px;aspect-ratio:1/1}
+.cell{border-radius:12px;background:#f1ecfe;position:relative;padding:12px;display:flex;flex-wrap:wrap;align-content:flex-end;gap:6px}
+.cell.l1{background:#f6f4fb}.cell.l2{background:#ede7fd}.cell.l3{background:#ddd0fb}.cell.l4{background:#c4b0f7}.cell.l5{background:#7c3aed}
+.cell span.t{position:absolute;top:12px;left:12px;right:12px;font-size:14px;font-weight:700;line-height:1.3;color:#2a2146}
+.cell.l5 span.t{color:#ffffff}
+.dot{width:30px;height:30px;border-radius:50%;background:#120d24;color:#ffffff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #ffffff}
+@supports not (aspect-ratio:1/1){.nb-grid{grid-template-rows:repeat(3,150px)}}
+@media (max-width:600px){@supports not (aspect-ratio:1/1){.nb-grid{grid-template-rows:repeat(3,96px)}}}
+.nb-side .not{margin-top:14px}
+.nb-side .not:first-child{margin-top:0}
+.nb-side .tagp{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6d28d9;background:#f1ecfe;border-radius:999px;padding:4px 10px;margin-top:8px}
+
 /* CONTACTO */
 .contact{background:#120d24;color:#ffffff}
 .contact .wrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);grid-gap:64px;gap:64px;align-items:center;padding-top:104px;padding-bottom:104px}
@@ -284,7 +303,8 @@ footer a:hover{color:#ffffff}
   .contact h2{font-size:42px}
   .h2{font-size:36px}
   .steps,.steps.six,.feats,.perks .wrap,.logos{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .prob,.evi,.trio,.scenes,.plans{grid-template-columns:minmax(0,1fr)}
+  .prob,.evi,.trio,.scenes,.plans,.nb{grid-template-columns:minmax(0,1fr)}
+  .nb{gap:36px}
   .plan .price{min-height:0}
   .plan .d{margin-bottom:20px}
   .ask p{font-size:28px}
@@ -312,6 +332,11 @@ footer a:hover{color:#ffffff}
   .vs-row small{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6d28d9}
   .vs-row .a small{color:#5f5975}
   .ask,.evi-a,.evi-b,.scene,.plan{padding:24px}
+  .cell{padding:8px}
+  .cell span.t{top:8px;left:8px;right:8px;font-size:10.5px}
+  .dot{width:24px;height:24px;font-size:11px}
+  .nb-chart{grid-template-columns:32px minmax(0,1fr)}
+  .nb-y,.nb-x{font-size:10px}
   .badge{top:22px;right:22px}
   .plan .price b{font-size:34px;margin-top:18px}
   .perks .wrap{padding-top:20px;padding-bottom:20px}
@@ -341,6 +366,7 @@ footer a:hover{color:#ffffff}
 <a class="link" href="#demo">Demo</a>
 <a class="link" href="#informe">El informe</a>
 <a class="link" href="#diferencial">Informe Integrado</a>
+<a class="link" href="#nine-box">9-box</a>
 <a class="link" href="#usos">Dónde se usa</a>
 <a class="link" href="#precios">Paquetes</a>
 <a class="btn btn-primary" href="#contacto">Pedir una demo</a>
@@ -461,7 +487,7 @@ footer a:hover{color:#ffffff}
 <div class="step"><div class="n">3</div><h3>Grabar el discurso</h3><p>El candidato habla desde su navegador, cuando puede. El análisis mira cómo estructura el pensamiento.</p></div>
 <div class="step"><div class="n">4</div><h3>Informe de Potencial</h3><p>Estrato actual, ajuste al rol y curva de madurez, con la evidencia citada.</p></div>
 <div class="step"><span class="opt">Opcional</span><div class="n">5</div><h3>Sumar insumos</h3><p>Entrevista, informe conductual y CV, en el mismo lugar.</p></div>
-<div class="step"><span class="opt">Opcional</span><div class="n">6</div><h3>Informe Integrado</h3><p>Una sola lectura consolidada de todas las fuentes.</p></div>
+<div class="step"><span class="opt">Opcional</span><div class="n">6</div><h3>Informe Integrado</h3><p>Una sola lectura consolidada de todas las fuentes, más la devolución para el candidato.</p></div>
 </div>
 <p class="strap">El paso 4 ya es accionable por sí solo. Los pasos 5 y 6 se suman según la profundidad que necesites.</p>
 </div>
@@ -590,8 +616,40 @@ footer a:hover{color:#ffffff}
 <div class="plus-out">
 <div class="label">Lo que recibís</div>
 <div class="item"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg></div><div><h3>Una única conclusión</h3><p>Potencial, competencias, perfil conductual y trayectoria leídos en conjunto. No cuatro reportes sueltos para interpretar por tu cuenta.</p></div></div>
-<div class="item"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg></div><div><h3>Feedback para el candidato</h3><p>Una devolución apoyada en evidencia, lista para conversar con la persona.</p></div></div>
+<div class="item"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg></div><div><h3>Devolución para el candidato</h3><p>Una devolución apoyada en evidencia, lista para conversar con la persona.</p></div></div>
 <div class="item"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg></div><div><h3>Todo en un lugar</h3><p>En la misma plataforma, sin exportar nada a otro sistema.</p></div></div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="section" id="nine-box">
+<div class="wrap">
+<div class="eyebrow">Nuevo · 9-box</div>
+<h2 class="h2">Desempeño y potencial, en una sola grilla.</h2>
+<p class="lead">La 9-box cruza cómo rinde hoy cada persona con lo que puede llegar a manejar. potencIA aporta el eje de potencial, con evidencia; tu empresa suma la evaluación de desempeño que ya usa.</p>
+<div class="nb">
+<div>
+<div class="nb-chart" role="img" aria-label="Grilla 9-box de ejemplo. Potencial alto: Enigma, Talento en crecimiento, Estrella. Potencial medio: Dilema, Pilar, Profesional clave. Potencial bajo: Riesgo, Contribuidor efectivo, Experto confiable. Cuatro personas de ejemplo ubicadas en la grilla.">
+<div class="nb-y" aria-hidden="true"><span>Alto</span><b>Potencial</b><span>Bajo</span></div>
+<div class="nb-grid" aria-hidden="true"><div class="cell l3"><span class="t">Enigma</span><span class="dot">C</span></div><div class="cell l4"><span class="t">Talento en crecimiento</span></div><div class="cell l5"><span class="t">Estrella</span><span class="dot">A</span></div><div class="cell l2"><span class="t">Dilema</span></div><div class="cell l3"><span class="t">Pilar</span><span class="dot">D</span></div><div class="cell l4"><span class="t">Profesional clave</span><span class="dot">B</span></div><div class="cell l1"><span class="t">Riesgo</span></div><div class="cell l2"><span class="t">Contribuidor efectivo</span></div><div class="cell l3"><span class="t">Experto confiable</span></div></div>
+<div class="nb-x" aria-hidden="true"><span>Bajo</span><b>Desempeño</b><span>Alto</span></div>
+</div>
+<div class="caption" style="color:#5f5975">Ejemplo ilustrativo</div>
+</div>
+<div class="nb-side">
+<div class="not">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg>
+<div><h3>Potencial con fundamento</h3><p>El eje vertical no sale de una opinión: sale del estrato y la curva de maduración de cada persona.</p></div>
+</div>
+<div class="not">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
+<div><h3>Dónde queda cada persona</h3><p>Su casillero en la grilla, junto con su informe.</p><span class="tagp">Professional</span></div>
+</div>
+<div class="not">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
+<div><h3>El mapa de todo el equipo</h3><p>Todo el grupo evaluado en una sola 9-box, para ver de un vistazo a quién desarrollar y dónde hay huecos de sucesión.</p><span class="tagp">Professional plus</span></div>
+</div>
 </div>
 </div>
 </div>
@@ -651,6 +709,7 @@ footer a:hover{color:#ffffff}
 <li>Entrevista por competencias tercerizada</li>
 <li>Informe Integrado: potencial, entrevista y CV en un único documento</li>
 <li>Devolución para el candidato</li>
+<li>9-box: dónde queda cada persona</li>
 </ul>
 <div class="price"><b>USD 1.290</b></div>
 </div>
@@ -662,6 +721,7 @@ footer a:hover{color:#ffffff}
 <li>Todo lo de Professional</li>
 <li>Sesión de 90 minutos con RRHH, sobre 10 evaluados o más</li>
 <li>Mapa de estratos contra puestos</li>
+<li>9-box del grupo completo</li>
 <li>Huecos de sucesión y riesgos</li>
 </ul>
 <div class="price"><b>USD 1.590</b></div>

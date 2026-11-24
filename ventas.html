@@ -53,6 +53,9 @@ nav.tabs button[aria-selected="true"]{background:var(--surface);color:var(--bran
 .btn.primary:hover{background:var(--brand-deep);border-color:var(--brand-deep)}
 .btn.sm{padding:5px 10px;font-size:13px}
 .btn.ghost{border-color:transparent;background:none;color:var(--muted)}
+.btn.danger{color:var(--late);border-color:transparent;background:none}
+.btn.danger:hover{border-color:var(--late)}
+.btn.danger.solid{background:var(--late);border-color:var(--late);color:#fff}
 .btn[aria-disabled="true"]{opacity:.45;pointer-events:none}
 button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,.card:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 h1{font:700 27px/1.2 var(--f-display);letter-spacing:-.01em;margin:30px 0 4px;text-wrap:balance}
@@ -372,6 +375,26 @@ async function saveMany(kind, list){
   if (!data.length) return;
   try{ await api(`/values:batchUpdate`, { method: "POST", body: JSON.stringify({ valueInputOption: "USER_ENTERED", data }) }); }
   catch(e){ handleErr(e); }
+}
+async function sheetIdOf(name){
+  if (!S.sheetIds){ const m = await api(`?fields=sheets.properties(sheetId,title)`); S.sheetIds = {}; (m.sheets || []).forEach(x => S.sheetIds[x.properties.title] = x.properties.sheetId); }
+  return S.sheetIds[name];
+}
+async function deleteRec(kind, rec){
+  const list = kind === "c" ? S.P : S.V;
+  if (S.mode !== "live"){ list.splice(list.indexOf(rec), 1); return true; }
+  try{
+    const hoja = kind === "c" ? CONFIG.HOJA_CONTACTOS : CONFIG.HOJA_VENTAS, sid = await sheetIdOf(hoja);
+    if (sid == null || !rec._row) throw new Error("No encontré la fila en la planilla");
+    await api(`:batchUpdate`, { method: "POST", body: JSON.stringify({ requests: [{ deleteDimension: { range: { sheetId: sid, dimension: "ROWS", startIndex: rec._row - 1, endIndex: rec._row } } }] }) });
+    await loadLive(true); return true;
+  }catch(e){ handleErr(e); return false; }
+}
+function modalBorrar(kind, rec){
+  const nombre = kind === "c" ? `${rec.contacto || "este contacto"}${rec.empresa ? " (" + rec.empresa + ")" : ""}` : `la ${isPrueba(rec) ? "prueba" : "venta"} de ${rec.empresa}${rec.fecha ? " del " + fd(rec.fecha) : ""}`;
+  return `<div class="scrim" data-act="borrar-no" data-confirm="1" style="z-index:31"></div><div class="modal" role="dialog" aria-label="Confirmar borrado" data-confirm="1" style="z-index:32"><h2>¿Borrar ${esc(nombre)}?</h2>
+  <p class="hint" style="margin:0">Se borra del tablero y de la planilla, con todo su historial. No se puede deshacer.</p>
+  <div class="btns" style="justify-content:flex-end"><button class="btn" data-act="borrar-no">Cancelar</button><button class="btn danger solid" data-act="borrar-ok" data-kind="${kind}" data-bid="${rec.id}">Sí, borrar</button></div></div>`;
 }
 async function appendRows(recs){
   let id = Math.max(0, ...S.P.map(x => x.id < 100000 ? x.id : 0));
@@ -720,7 +743,7 @@ function drawer(p){
     ${pp || p.prox ? `<div class="sec" style="background:var(--brand-soft);border-color:var(--brand-line)"><h4 style="color:var(--brand)">Próximo paso${p.prox ? " · " + fd(p.prox) : ""}</h4><div>${esc(pp) || "Hacer seguimiento"}</div></div>` : ""}
     ${p.revisar ? `<div class="sec warn"><h4>Para revisar</h4><div>${esc(p.revisar)}</div></div>` : ""}
     <dl class="facts"><dt>Teléfono</dt><dd>${p.tel ? "+" + esc(p.tel) : "—"}</dd><dt>Mail</dt><dd>${esc(p.email) || "—"}</dd><dt>Canal</dt><dd>${esc(p.canal) || "—"}</dd><dt>Origen</dt><dd>${esc(p.origen) || "—"}</dd><dt>Contactos</dt><dd>${p.veces || 0} · ${ultTxt(p)}</dd></dl>
-    <div><button class="btn sm" data-act="editar">Editar datos</button></div>
+    <div class="btns"><button class="btn sm" data-act="editar">Editar datos</button><button class="btn sm danger" data-act="borrar" data-kind="c" data-bid="${p.id}" style="margin-left:auto">Borrar contacto</button></div>
     <div class="sec"><h4>Mensaje sugerido</h4><textarea id="msg">${esc(msg)}</textarea>
       <div class="btns"><button class="btn" data-act="wa" ${p.tel ? "" : 'aria-disabled="true" title="Falta el teléfono"'}>WhatsApp</button><button class="btn" data-act="mail" ${p.email ? "" : 'aria-disabled="true" title="Falta el mail"'}>Mail</button><button class="btn" data-act="li-chat" title="${p.li ? "Abre su perfil" : "Busca su perfil en LinkedIn"}">Escribir por LinkedIn</button><button class="btn ghost" data-act="copy">Copiar texto</button></div></div>
     <div class="sec"><h4>¿Qué pasó? <span style="text-transform:none;letter-spacing:0;font-weight:500">(un toque y se guarda)</span></h4><div class="outcomes">${OUT.map(o => `<button class="btn" data-out="${o[0]}">${o[1]}<small>${o[2]}</small></button>`).join("")}</div></div>
@@ -821,7 +844,7 @@ function modalContacto(p){
   ${n ? "" : `<label>Etapa<select id="n-et">${ETAPAS.map(x => `<option value="${x}" ${x === (p.etapa || POT) ? "selected" : ""}>${x === POT ? "Por contactar (outbound)" : x}</option>`).join("")}</select></label>`}
   <div class="grid2"><label>¿De dónde viene?<select id="n-ori">${["","LinkedIn","Recomendación","Evento","Base propia","Otro"].map(o => `<option ${o === (p.origen || (n ? "LinkedIn" : "")) ? "selected" : ""} value="${o}">${o || "—"}</option>`).join("")}</select></label><label>Canal<select id="n-can">${["","Mail","WhatsApp","LinkedIn","Mail + WhatsApp","Teléfono"].map(o => `<option ${o === (p.canal || "") ? "selected" : ""} value="${o}">${o || "—"}</option>`).join("")}</select></label></div>
   ${n ? `<div class="grid2"><label>Nota inicial<input id="n-not" placeholder="Ej: comentó mi publicación sobre liderazgo"></label><label>¿Cuándo le escribís? (opcional)<input type="date" id="n-prox"></label></div><p class="hint" style="margin:0">Sin fecha, queda en Outbound.</p>` : p.revisar ? `<div class="sec warn"><h4>Para revisar</h4><div>${esc(p.revisar)}</div><label style="flex-direction:row;align-items:center;gap:8px;color:var(--fg)"><input type="checkbox" id="n-ok" style="width:auto" checked> Ya está corregido (sale de “Datos para completar”)</label></div>` : ""}
-  <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn primary" type="submit">${n ? "Crear y abrir ficha" : "Guardar"}</button></div></form>`;
+  <div class="btns" style="justify-content:flex-end">${n ? "" : `<button type="button" class="btn danger" data-act="borrar" data-kind="c" data-bid="${p.id}" style="margin-right:auto">Borrar contacto</button>`}<button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn primary" type="submit">${n ? "Crear y abrir ficha" : "Guardar"}</button></div></form>`;
 }
 function modalVenta(v, tipo){
   v = v || { empresa:"", fecha:today, creditos:"", vendido:"", cobro:false, fcobro:null, neto:"", iibb:"", notas:"", tipo: tipo || "Venta" };
@@ -836,7 +859,7 @@ function modalVenta(v, tipo){
   <div class="grid2"><label>Fecha de cobro<input type="date" id="v-fcobro" value="${iso(v.fcobro)}"></label><label>Neto cobrado ($)<input type="number" min="0" id="v-neto" value="${v.neto ?? ""}"></label></div>
   <label>Post IIBB ($)<input type="number" min="0" id="v-iibb" value="${v.iibb ?? ""}"></label></div>
   <label>Notas<input id="v-not" value="${esc(v.notas)}" placeholder="${pr ? "Ej: para 3 mandos medios" : ""}"></label>
-  <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn primary" type="submit">Guardar</button></div></form>`;
+  <div class="btns" style="justify-content:flex-end">${v.id ? `<button type="button" class="btn danger" data-act="borrar" data-kind="v" data-bid="${v.id}" style="margin-right:auto">Borrar</button>` : ""}<button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn primary" type="submit">Guardar</button></div></form>`;
 }
 function bindVenta(){ const t = $("#v-tipo"); if (t) t.onchange = () => { const pr = t.value === "Prueba"; $("#v-money").hidden = pr; $("#v-flab").textContent = pr ? "Fecha en que le diste la prueba" : "Fecha de venta"; }; }
 
@@ -909,6 +932,15 @@ document.addEventListener("click", async ev => {
     if (!Object.keys(ch).length && !logs.length){ toast("No hay cambios para guardar"); return; }
     if (logs.length) ch.notas = logs.reverse().map(l => `${fd(today)}: ${l}`).join("\n") + (p.notas ? "\n" + p.notas : "");
     await saveFields("c", p, ch); refresh("Cambios guardados"); return;
+  }
+  if (a === "borrar"){ const k = t.dataset.kind, rec = (k === "c" ? S.P : S.V).find(x => x.id === +t.dataset.bid); if (rec) $("#layer").insertAdjacentHTML("beforeend", modalBorrar(k, rec)); return; }
+  if (a === "borrar-no"){ document.querySelectorAll('#layer [data-confirm="1"]').forEach(e => e.remove()); return; }
+  if (a === "borrar-ok"){
+    const k = t.dataset.kind, rec = (k === "c" ? S.P : S.V).find(x => x.id === +t.dataset.bid); if (!rec) return;
+    t.setAttribute("aria-disabled", "true"); t.textContent = "Borrando…";
+    const nombre = k === "c" ? (rec.contacto || rec.empresa) : rec.empresa;
+    if (await deleteRec(k, rec)){ if (k === "c"){ S.openId = null; $("#layer").innerHTML = ""; } else closeModal(); render(); toast(`Borré ${k === "c" ? "a " + nombre : "el registro de " + nombre}`); }
+    return;
   }
   if (a === "li-chat"){
     const q = t.dataset.pid ? get(+t.dataset.pid) : p; if (!q) return;

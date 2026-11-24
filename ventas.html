@@ -574,7 +574,7 @@ function vPotenciales(){
   const q = norm(S.qpot || ""), all = S.P.filter(esPotencial);
   const L = all.filter(p => !q || norm([p.empresa, p.contacto, p.cargo, p.origen, p.notas].join(" ")).includes(q))
     .sort((a, b) => (a.prox ? 0 : 1) - (b.prox ? 0 : 1) || String(a.empresa).localeCompare(String(b.empresa)));
-  const ultNota = p => { const l = String(p.notas || "").split(/\n+/).find(x => x && !/Contacto creado|Próximo paso:/i.test(x)); return l ? l.replace(/^\d{2}\/\d{2}:\s*/, "") : ""; };
+  const ultNota = p => { const l = String(p.notas || "").split(/\n+/).find(x => x && !/Contacto creado|Próximo paso:|Para escribirle:/i.test(x)); return l ? l.replace(/^\d{2}\/\d{2}:\s*/, "") : ""; };
   const ori = ["LinkedIn","Recomendación","Evento","Base propia","Otro"];
   return `<h1>Outbound</h1><p class="sub">Personas y empresas para salir a buscar. No aparecen en tu agenda hasta que les pongas fecha o les cambies la etapa.</p>
   <form class="panel" id="fpot" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px"><h2>Agregar a la lista</h2>
@@ -590,7 +590,7 @@ function vPotenciales(){
   </form>
   <div class="bar"><label class="grow" style="max-width:320px">Buscar<input id="qpot" value="${esc(S.qpot || "")}" placeholder="Nombre, empresa, cargo…"></label><span class="count" style="align-self:center">${all.length} en outbound</span></div>
   <div class="panel tablewrap"><table><thead><tr><th>Persona</th><th>Empresa</th><th>Cargo</th><th>Origen</th><th>Nota</th><th>Etapa</th><th></th></tr></thead><tbody>
-  ${L.map(p => { const e = estado(p); return `<tr><td><button class="btn ghost sm" style="padding:0;font-weight:600;color:var(--fg)" data-open="${p.id}">${esc(p.contacto || "—")}</button></td><td>${esc(p.empresa)}</td><td style="white-space:normal;min-width:140px">${esc(p.cargo)}</td><td>${p.origen ? `<span class="chip">${esc(p.origen)}</span>` : "—"}</td><td style="white-space:normal;min-width:180px;color:var(--muted)">${esc(ultNota(p))}</td><td><select class="pot-et" data-pid="${p.id}" aria-label="Etapa de ${esc(p.contacto || p.empresa)}" style="width:auto;padding:5px 8px;font-size:13px">${ETAPAS.map(x => `<option value="${x}" ${x === (p.etapa || POT) ? "selected" : ""}>${x === POT ? "Outbound" : x}</option>`).join("")}</select></td><td style="text-align:right;white-space:nowrap">${p.prox ? `<span class="chip ${e ? e.c : "acc"}">${e ? e.t : fd(p.prox)}</span>` : `<button class="btn sm" data-act="pot-hoy" data-pid="${p.id}">Escribirle hoy</button>`} <button class="btn sm" data-act="pot-edit" data-pid="${p.id}">Editar</button> <button class="btn sm ghost" data-open="${p.id}">Abrir</button></td></tr>`; }).join("") || `<tr><td colspan="7" class="empty">${all.length ? "Nadie coincide con la búsqueda." : "Todavía no hay nadie en outbound. Agregalos arriba o desde una captura de LinkedIn."}</td></tr>`}
+  ${L.map(p => { const e = estado(p); return `<tr><td><button class="btn ghost sm" style="padding:0;font-weight:600;color:var(--fg)" data-open="${p.id}">${esc(p.contacto || "—")}</button></td><td>${esc(p.empresa)}</td><td style="white-space:normal;min-width:140px">${esc(p.cargo)}</td><td>${p.origen ? `<span class="chip">${esc(p.origen)}</span>` : "—"}</td><td style="white-space:normal;min-width:180px;color:var(--muted)">${esc(ultNota(p))}</td><td><select class="pot-et" data-pid="${p.id}" aria-label="Etapa de ${esc(p.contacto || p.empresa)}" style="width:auto;padding:5px 8px;font-size:13px">${ETAPAS.map(x => `<option value="${x}" ${x === (p.etapa || POT) ? "selected" : ""}>${x === POT ? "Outbound" : x}</option>`).join("")}</select></td><td style="text-align:right;white-space:nowrap">${p.prox ? `<span class="chip ${e ? e.c : "acc"}">${e ? e.t : fd(p.prox)}</span>` : `<button class="btn sm" data-act="pot-hoy" data-pid="${p.id}">Escribirle hoy</button>`} <button class="btn sm" data-act="li-chat" data-pid="${p.id}" title="Copia el mensaje y abre LinkedIn">LinkedIn</button> <button class="btn sm" data-act="pot-edit" data-pid="${p.id}">Editar</button> <button class="btn sm ghost" data-open="${p.id}">Abrir</button></td></tr>`; }).join("") || `<tr><td colspan="7" class="empty">${all.length ? "Nadie coincide con la búsqueda." : "Todavía no hay nadie en outbound. Agregalos arriba o desde una captura de LinkedIn."}</td></tr>`}
   </tbody></table></div>`;
 }
 function vEmbudo(){
@@ -680,9 +680,19 @@ function vMetricas(){
 }
 
 /* ===================== FICHA ===================== */
+const notaLinea = (p, re) => { const l = String(p.notas || "").split(/\n+/).find(x => re.test(x)); return l ? l.replace(/^\d{1,2}\/\d{1,2}:\s*/, "") : ""; };
+function msgLinkedIn(p){
+  const n = first(p.contacto), gancho = notaLinea(p, /Para escribirle:/i).replace(/^Para escribirle:\s*/i, "");
+  const donde = p.empresa && p.empresa !== "(completar)" ? ` en ${p.empresa}` : "";
+  const cola = `Trabajo con PotenciaIA: evaluamos el potencial de las personas de un equipo con inteligencia artificial, para decidir mejor a quién promover o contratar. ¿Te cuento en 15 minutos?`;
+  if (gancho) return `Hola ${n}, ¿cómo estás? ${capWord(gancho)}. ${cola}`;
+  if (/vio tu perfil/i.test(p.notas || "")) return `Hola ${n}, ¿cómo estás? Vi que pasaste por mi perfil${donde ? ` y que estás${donde}` : ""}. Pensé que te podía interesar. ${cola}`;
+  const pub = (String(p.notas || "").match(/publicación sobre ([^:\n“]+)/) || [])[1];
+  return `Hola ${n}, ¡gracias por interactuar con mi publicación${pub ? " sobre " + pub.trim() : ""}! ${donde ? `Vi que estás${donde} y pensé` : "Pensé"} que te podía interesar. ${cola}`;
+}
+const liUrl = p => p.li && /^https?:\/\//.test(p.li) ? p.li : `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent([p.contacto, p.empresa !== "(completar)" ? p.empresa : ""].filter(Boolean).join(" "))}`;
 const MSG = {
-  "Por contactar": p => p.origen === "LinkedIn"
-    ? `Hola ${first(p.contacto)}, ¡gracias por interactuar con mi publicación${(String(p.notas || "").match(/publicación sobre ([^:\n“]+)/) || [])[1] ? " sobre " + String(p.notas).match(/publicación sobre ([^:\n“]+)/)[1].trim() : ""}! Vi que estás en ${p.empresa} y pensé que te podía interesar: con PotenciaIA evaluamos el potencial de las personas de tu equipo con inteligencia artificial. ¿Te cuento en 15 minutos?`
+  "Por contactar": p => p.origen === "LinkedIn" ? msgLinkedIn(p)
     : `Hola ${first(p.contacto)}, ¿cómo estás? Te escribo por PotenciaIA, una plataforma que evalúa el potencial de las personas de tu equipo con inteligencia artificial. ¿Te puedo contar en 15 minutos cómo funciona?`,
   "Contactado": p => `Hola ${first(p.contacto)}, te escribo para retomar lo que hablamos sobre PotenciaIA. ¿Tenés un rato esta semana para que te muestre cómo funciona?`,
   "Presentado": p => `Hola ${first(p.contacto)}, ¿cómo estás? Quería saber si pudiste ver la presentación de PotenciaIA. Si te sirve, te habilito créditos de prueba sin costo para que lo veas funcionando con tu equipo.`,
@@ -712,7 +722,7 @@ function drawer(p){
     <dl class="facts"><dt>Teléfono</dt><dd>${p.tel ? "+" + esc(p.tel) : "—"}</dd><dt>Mail</dt><dd>${esc(p.email) || "—"}</dd><dt>Canal</dt><dd>${esc(p.canal) || "—"}</dd><dt>Origen</dt><dd>${esc(p.origen) || "—"}</dd><dt>Contactos</dt><dd>${p.veces || 0} · ${ultTxt(p)}</dd></dl>
     <div><button class="btn sm" data-act="editar">Editar datos</button></div>
     <div class="sec"><h4>Mensaje sugerido</h4><textarea id="msg">${esc(msg)}</textarea>
-      <div class="btns"><button class="btn" data-act="wa" ${p.tel ? "" : 'aria-disabled="true" title="Falta el teléfono"'}>WhatsApp</button><button class="btn" data-act="mail" ${p.email ? "" : 'aria-disabled="true" title="Falta el mail"'}>Mail</button>${p.li ? `<a class="btn" href="${esc(p.li)}" target="_blank" rel="noopener">LinkedIn</a>` : ""}<button class="btn ghost" data-act="copy">Copiar texto</button></div></div>
+      <div class="btns"><button class="btn" data-act="wa" ${p.tel ? "" : 'aria-disabled="true" title="Falta el teléfono"'}>WhatsApp</button><button class="btn" data-act="mail" ${p.email ? "" : 'aria-disabled="true" title="Falta el mail"'}>Mail</button><button class="btn" data-act="li-chat" title="${p.li ? "Abre su perfil" : "Busca su perfil en LinkedIn"}">Escribir por LinkedIn</button><button class="btn ghost" data-act="copy">Copiar texto</button></div></div>
     <div class="sec"><h4>¿Qué pasó? <span style="text-transform:none;letter-spacing:0;font-weight:500">(un toque y se guarda)</span></h4><div class="outcomes">${OUT.map(o => `<button class="btn" data-out="${o[0]}">${o[1]}<small>${o[2]}</small></button>`).join("")}</div></div>
     <div class="sec"><h4>Actualizar a mano</h4>
       <div class="grid2"><label>Etapa<select id="etapa">${etapas.map(x => `<option ${x === p.etapa ? "selected" : ""} value="${esc(x)}">${esc(x === POT ? "Por contactar (outbound)" : x || "Sin etapa")}</option>`).join("")}</select></label><label>Próximo seguimiento<input type="date" id="prox" value="${iso(p.prox)}"></label></div>
@@ -745,7 +755,7 @@ function modalPlan(){
 const LI = { imgs: [], res: null, busy: false, err: "" };
 function modalLinkedIn(){
   const body = LI.res ? `<p class="hint" style="margin:0">Encontré ${LI.res.length} persona${LI.res.length === 1 ? "" : "s"}. Dejé tildadas las que parecen de RRHH, talento o dirección. Revisá y agregá.</p>
-    <div style="display:flex;flex-direction:column;gap:10px">${LI.res.map((r, i) => `<label class="lirow" style="color:var(--fg);font-weight:400"><input type="checkbox" data-li="${i}" ${r.objetivo && !r.dup ? "checked" : ""}><span style="min-width:0"><span class="rn">${esc(r.nombre)}</span> ${r.dup ? '<span class="chip">Ya está en el tablero</span>' : r.objetivo ? '<span class="chip acc">Le interesa a PotenciaIA</span>' : ""}<span class="rs" style="display:block;white-space:normal">${esc([r.cargo, r.empresa].filter(Boolean).join(" · ") || "Sin cargo visible")} · ${esc(r.tipo || "")}</span>${r.comentario ? `<span class="rs" style="display:block;white-space:normal">“${esc(r.comentario)}”</span>` : ""}${r.motivo ? `<span class="rs" style="display:block;white-space:normal;color:var(--faint)">${esc(r.motivo)}</span>` : ""}</span></label>`).join("")}</div>
+    <div style="display:flex;flex-direction:column;gap:10px">${LI.res.map((r, i) => `<label class="lirow" style="color:var(--fg);font-weight:400"><input type="checkbox" data-li="${i}" ${r.objetivo && !r.dup ? "checked" : ""}><span style="min-width:0"><span class="rn">${esc(r.nombre)}</span> ${r.dup ? '<span class="chip">Ya está en el tablero</span>' : r.objetivo ? '<span class="chip acc">Le interesa a PotenciaIA</span>' : ""}<span class="rs" style="display:block;white-space:normal">${esc([r.cargo, r.empresa].filter(Boolean).join(" · ") || "Sin cargo visible")} · ${esc(r.que_hizo || r.tipo || "")}</span>${r.comentario ? `<span class="rs" style="display:block;white-space:normal">“${esc(r.comentario)}”</span>` : ""}${r.motivo ? `<span class="rs" style="display:block;white-space:normal;color:var(--faint)">${esc(r.motivo)}</span>` : ""}</span></label>`).join("")}</div>
     <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="li-reset">Subir otra captura</button><button type="button" class="btn primary" data-act="li-add">Agregar al tablero</button></div>`
   : `<p class="hint" style="margin:0">Subí capturas de quienes <b>reaccionaron, comentaron o vieron tu perfil</b>. La IA lee nombres, cargos y empresas, y los cargás al tablero con un clic.</p>
     <label>¿De qué era la publicación? (opcional)<input id="li-post" value="${esc(LI.post || "")}" placeholder="Ej: cómo detectar líderes en tu equipo"></label>
@@ -769,13 +779,15 @@ async function leerCapturas(){
     let out;
     if (S.mode !== "live"){
       await new Promise(r => setTimeout(r, 900));
-      out = [{nombre:"Lucía Fernández",cargo:"Gerente de Recursos Humanos",empresa:"Grupo Andes",tipo:"comentó",comentario:"¡Muy interesante! ¿Lo usan en pymes?",objetivo:true,motivo:"Gerencia de RRHH"},{nombre:"Tomás Rivas",cargo:"HR Business Partner",empresa:"Fintech Plus",tipo:"reaccionó",comentario:"",objetivo:true,motivo:"Rol de RRHH"},{nombre:"Valeria Ortiz",cargo:"Head of People",empresa:"Consultora Nexo",tipo:"reaccionó",comentario:"",objetivo:true,motivo:"Dirección de personas"},{nombre:"Santiago Pérez",cargo:"Estudiante de Ingeniería",empresa:"",tipo:"reaccionó",comentario:"",objetivo:false,motivo:"No decide compras de RRHH"}];
+      out = [{nombre:"Lucía Fernández",cargo:"Gerente de Recursos Humanos",empresa:"Grupo Andes",tipo:"comentó tu publicación",que_hizo:"Comentó tu publicación",comentario:"¡Muy interesante! ¿Lo usan en pymes?",gancho:"",objetivo:true,motivo:"Gerencia de RRHH"},{nombre:"Natalia Graña",cargo:"",empresa:"CFOTech IT Global Services",tipo:"actividad en LinkedIn",que_hizo:"Publicó una búsqueda de Líder Técnico Backend",comentario:"",gancho:"vi que en CFOTech están buscando un Líder Técnico Backend",objetivo:true,motivo:"Su empresa está contratando"},{nombre:"Carolina Acuña",cargo:"Talent Acquisition · IT Recruiter",empresa:"",tipo:"vio tu perfil",que_hizo:"Vio tu perfil",comentario:"",gancho:"",objetivo:true,motivo:"Trabaja en talento"},{nombre:"Macarena Oksengendler",cargo:"",empresa:"",tipo:"actividad en LinkedIn",que_hizo:"Reaccionó a un video de otra persona",comentario:"",gancho:"",objetivo:false,motivo:"No se ve cargo ni empresa"}];
     } else {
       const content = LI.imgs.map(u => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: u.split(",")[1] } }));
-      content.push({ type: "text", text: `Estas son capturas de LinkedIn de una vendedora de PotenciaIA (plataforma de evaluación de potencial con IA para áreas de RRHH). Muestran personas que reaccionaron o comentaron una publicación${LI.post ? ` sobre "${LI.post}"` : ""}, o que vieron su perfil.
+      content.push({ type: "text", text: `Estas son capturas de LinkedIn de una vendedora de PotenciaIA (plataforma de evaluación de potencial con IA para áreas de RRHH).${LI.post ? ` Si muestran interacciones con una publicación de ella, es una publicación sobre "${LI.post}".` : ""}
+Pueden ser de distintas pantallas: reacciones o comentarios en una publicación de ELLA, la lista de quién vio SU perfil, o el feed/notificaciones con actividad de otras personas sobre contenido ajeno. Fijate bien cuál es: no supongas que interactuaron con ella si la captura no lo muestra.
 Extraé cada persona visible. Devolvé SOLO un array JSON, sin texto antes ni después, con objetos así:
-{"nombre":"", "cargo":"titular tal como aparece", "empresa":"empresa si se deduce del titular, si no vacío", "tipo":"reaccionó | comentó | vio tu perfil", "comentario":"texto del comentario si hay, si no vacío", "objetivo":true/false, "motivo":"frase corta"}
-"objetivo" es true si la persona probablemente decide o influye en compras de RRHH: RRHH, personas, talento, capacitación, selección, HRBP, dirección general, gerencia general, dueños o fundadores. No inventes datos que no se vean. No repitas personas.` });
+{"nombre":"", "cargo":"titular tal como aparece, o vacío si no se ve", "empresa":"empresa si se ve o se deduce del texto, si no vacío", "tipo":"comentó tu publicación | reaccionó a tu publicación | compartió tu publicación | vio tu perfil | actividad en LinkedIn", "que_hizo":"frase corta en español de lo que se ve, ej: Publicó una búsqueda de Líder Técnico Backend", "comentario":"texto del comentario a ella si hay, si no vacío", "gancho":"frase en primera persona para abrir un mensaje según lo que hizo, ej: vi que en CFOTech están buscando un Líder Técnico Backend. Vacío si interactuó con ella o vio su perfil", "objetivo":true/false, "motivo":"frase corta"}
+"objetivo" es true solo si hay señales de que la persona decide o influye en compras de RRHH (RRHH, personas, talento, capacitación, selección, HRBP, dirección general, gerencia general, dueños o fundadores) o de que su empresa está contratando. Si no se ve ni cargo ni empresa, "objetivo" es false.
+No inventes datos que no se vean. No repitas personas. Ignorá a la vendedora misma.` });
       const r = await fetch(CONFIG.PROXY_URL, { method: "POST", headers: { "Content-Type": "application/json", "X-App-Secret": CONFIG.PROXY_SECRET }, body: JSON.stringify({ model: CONFIG.MODELO, max_tokens: 4000, messages: [{ role: "user", content }] }) });
       if (!r.ok) throw new Error("La IA respondió con error " + r.status);
       const data = await r.json(), txt = (data.content || []).map(c => c.text || "").join("");
@@ -791,9 +803,10 @@ async function agregarLI(){
   let day = new Date(today), n = 0;
   const recs = sel.map(r => {
     if (n === 4){ day = nextBiz(day); n = 0; } n++;
-    const verbo = r.tipo === "vio tu perfil" ? "Vio tu perfil" : `${capWord(r.tipo || "interactuó")} ${LI.post ? `tu publicación sobre ${LI.post}` : "tu publicación"}`;
+    const t0 = String(r.tipo || ""), deElla = /tu publicación/i.test(t0);
+    const verbo = /vio tu perfil/i.test(t0) ? "Vio tu perfil" : deElla ? `${capWord(t0.replace(/tu publicación/i, "").trim())} tu publicación${LI.post ? " sobre " + LI.post : ""}` : (r.que_hizo || "Actividad en LinkedIn");
     return { empresa: r.empresa || "(completar)", contacto: r.nombre, cargo: r.cargo || "", tel: "", email: "", li: "", etapa: POT, origen: "LinkedIn", canal: "LinkedIn", veces: 0, ult: null, prox: null,
-      notas: `${fd(today)}: ${verbo}${r.comentario ? `: “${r.comentario}”` : ""}`, revisar: r.empresa ? "" : "Completar la empresa." };
+      notas: (r.gancho ? `${fd(today)}: Para escribirle: ${r.gancho}\n` : "") + `${fd(today)}: ${verbo}${r.comentario ? `: “${r.comentario}”` : ""}`, revisar: [!r.empresa && "Completar la empresa.", !r.cargo && "Completar el cargo."].filter(Boolean).join(" ") };
   });
   const btn = document.querySelector('[data-act="li-add"]'); if (btn) btn.setAttribute("aria-disabled", "true");
   if (await appendRows(recs)){ LI.imgs = []; LI.res = null; LI.post = ""; closeModal(); S.view = "potenciales"; render(); toast(`Agregué ${recs.length} a Outbound`); }
@@ -896,6 +909,14 @@ document.addEventListener("click", async ev => {
     if (!Object.keys(ch).length && !logs.length){ toast("No hay cambios para guardar"); return; }
     if (logs.length) ch.notas = logs.reverse().map(l => `${fd(today)}: ${l}`).join("\n") + (p.notas ? "\n" + p.notas : "");
     await saveFields("c", p, ch); refresh("Cambios guardados"); return;
+  }
+  if (a === "li-chat"){
+    const q = t.dataset.pid ? get(+t.dataset.pid) : p; if (!q) return;
+    const txt = !t.dataset.pid && $("#msg") ? $("#msg").value : (MSG[q.etapa] || MSG["Contactado"])(q);
+    try{ navigator.clipboard.writeText(txt).catch(() => {}); }catch(_){}
+    window.open(liUrl(q), "_blank", "noopener");
+    toast(q.li ? "Copié el mensaje. En su perfil tocá “Enviar mensaje” y pegalo" : "Copié el mensaje. Elegí a la persona en la búsqueda, tocá “Enviar mensaje” y pegalo");
+    return;
   }
   if (a === "pot-edit"){ const q = get(+t.dataset.pid); if (q){ $("#layer").insertAdjacentHTML("beforeend", modalContacto(q)); } return; }
   if (a === "pot-hoy"){ const q = get(+t.dataset.pid); if (q){ await saveFields("c", q, { prox: today, notas: logLine(q, "Próximo paso: Primer contacto") }); refresh(`${q.empresa} pasó a tu lista de hoy`); } return; }

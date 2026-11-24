@@ -499,7 +499,7 @@ function ultTxt(p){ if (!p.ult) return "Sin contacto registrado"; const n = -dif
 const proxPaso = p => { const l = String(p.notas || "").split(/\n+/).find(x => /Próximo paso:/i.test(x)); return l ? l.replace(/^.*Próximo paso:\s*/i, "") : ""; };
 const outlookEvent = (subject, dayIso, hora, body) => `https://outlook.office.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent&subject=${encodeURIComponent(subject)}&startdt=${dayIso}T${hora}:00&enddt=${dayIso}T${addMin(hora, 30)}:00&body=${encodeURIComponent(body.replace(/\n/g, "<br>"))}`;
 const addMin = (h, m) => { const [a, b] = h.split(":").map(Number), t = a * 60 + b + m; return `${String(Math.floor(t / 60) % 24).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`; };
-const outlookMail = (to, msg) => `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent("PotenciaIA")}&body=${encodeURIComponent(msg)}`;
+const outlookMail = (to, msg) => `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent("potencIA – evaluación de potencial con IA")}&body=${encodeURIComponent(msg)}`;
 const fichaTxt = (p, msg) => "Empresa: " + p.empresa + "\nContacto: " + p.contacto + "\nTel: " + (p.tel ? "+" + p.tel : "—") + "\nMail: " + (p.email || "—") + (msg ? "\n\nMensaje sugerido:\n" + msg : "");
 const ACCION = { "Reunión": "Confirmar día y hora de la reunión", "Prueba gratis": "Preguntar cómo les fue con la prueba y ofrecer la devolución de resultados", "Presentado": "Hacer seguimiento de la presentación y ofrecer la prueba gratis", "Contactado": "Volver a escribir y proponer una llamada corta", "Por contactar": "Primer contacto", "Compró": "Preguntar cómo vienen y ofrecer más créditos" };
 const PRIO = ["Reunión", "Prueba gratis", "Presentado", "Contactado", "Por contactar", "Compró"];
@@ -714,15 +714,62 @@ function msgLinkedIn(p){
   return `Hola ${n}, ¡gracias por interactuar con mi publicación${pub ? " sobre " + pub.trim() : ""}! ${donde ? `Vi que estás${donde} y pensé` : "Pensé"} que te podía interesar. ${cola}`;
 }
 const liUrl = p => p.li && /^https?:\/\//.test(p.li) ? p.li : `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent([p.contacto, p.empresa !== "(completar)" ? p.empresa : ""].filter(Boolean).join(" "))}`;
+function apertura(p){
+  const gancho = notaLinea(p, /Para escribirle:/i).replace(/^Para escribirle:\s*/i, "");
+  const emp = p.empresa && p.empresa !== "(completar)" ? p.empresa : "";
+  if (gancho) return capWord(gancho) + ".";
+  if (/vio tu perfil/i.test(p.notas || "")) return `Vi que pasaste por mi perfil${emp ? ` y que estás en ${emp}` : ""}, así que te escribo.`;
+  const pub = (String(p.notas || "").match(/publicación sobre ([^:\n“]+)/) || [])[1];
+  if (/(tu|mi) publicación/i.test(p.notas || "")) return `Gracias por interactuar con mi publicación${pub ? " sobre " + pub.trim() : ""}.`;
+  return emp ? `Te escribo porque estás en ${emp} y creo que esto te puede servir.` : "Te escribo porque creo que esto te puede servir.";
+}
+const SEQ = [
+  p => `Hola ${first(p.contacto)},
+
+${apertura(p)}
+
+Desarrollé potencIA, una evaluación de potencial con IA. La persona habla libremente unos minutos sobre un tema, y la IA analiza cómo organiza su pensamiento: en qué nivel de complejidad opera hoy, si alcanza para el rol y cuándo va a estar lista para el siguiente. Ya lo probaron Arca Continental, Grupo Cenoa, Provincia NET e IRSA.
+Te comparto la pagina web: https://potenciahrtech.com/web/
+
+¿Te sirve que te muestre en 20 minutos cómo se ve un informe?
+
+Mariela Skef
+potencIA`,
+  p => `Hola ${first(p.contacto)},
+
+Te sumo cómo funciona, porque contado así nomás puede sonar a magia.
+
+No importa lo que la persona opina del tema: importa cómo arma el razonamiento, hasta qué horizonte proyecta y cómo maneja la complejidad. Cada conclusión del informe viene con los fragmentos textuales que la sustentan, así que cualquier líder de RRHH puede revisarla.
+
+La decisión sigue siendo de ustedes. potencIA no reemplaza el criterio ni la calibración que ya tienen: les da evidencia para explicar esa decisión con algo más sólido que "lo conozco".
+
+Si preferís verlo sin reunión, te mando un informe de ejemplo anonimizado.
+
+Mariela`,
+  p => `Hola ${first(p.contacto)},
+
+Este es mi último mensaje, no quiero llenarte la bandeja.
+
+Te dejo una propuesta concreta por si en algún momento te sirve: un piloto con 5 a 10 personas de tu pool de sucesión, gente que ya conocés bien. Recibís los informes reales y los contrastás con lo que ya sabés de cada una. Es la forma más rápida de ver si el criterio te sirve.
+
+Y si hay otra persona en el equipo que vea estos temas, te agradezco si me decís quién es.
+
+Mariela`,
+];
+const habil = d => { let x = new Date(d); while (x.getDay() === 0 || x.getDay() === 6) x = new Date(x.getTime() + DAY); return x; };
+const seqProx = i => i === 0 ? habil(addDays(4)) : i === 1 ? habil(addDays(7)) : null;
+const SEQ_INFO = ["Mensaje 1 · primer contacto", "Mensaje 2 · día 4 o 5, en el mismo hilo", "Mensaje 3 · día 10 a 12, en el mismo hilo"];
+const enSecuencia = p => esPotencial(p) || p.etapa === "Contactado";
+const seqEnviados = p => (String(p.notas || "").match(/Mensaje [123] enviado/g) || []).length;
+const seqIdx = p => (S.seqSel && S.seqSel[p.id] != null) ? S.seqSel[p.id] : Math.min(seqEnviados(p), 2);
 const MSG = {
-  "Por contactar": p => p.origen === "LinkedIn" ? msgLinkedIn(p)
-    : `Hola ${first(p.contacto)}, ¿cómo estás? Te escribo por PotenciaIA, una plataforma que evalúa el potencial de las personas de tu equipo con inteligencia artificial. ¿Te puedo contar en 15 minutos cómo funciona?`,
-  "Contactado": p => `Hola ${first(p.contacto)}, te escribo para retomar lo que hablamos sobre PotenciaIA. ¿Tenés un rato esta semana para que te muestre cómo funciona?`,
-  "Presentado": p => `Hola ${first(p.contacto)}, ¿cómo estás? Quería saber si pudiste ver la presentación de PotenciaIA. Si te sirve, te habilito créditos de prueba sin costo para que lo veas funcionando con tu equipo.`,
+  "Por contactar": p => SEQ[seqIdx(p)](p),
+  "Contactado": p => SEQ[seqIdx(p)](p),
+  "Presentado": p => `Hola ${first(p.contacto)}, ¿cómo estás? Quería saber si pudiste ver la presentación de potencIA. Si te sirve, te habilito créditos de prueba sin costo para que lo veas funcionando con tu equipo.`,
   "Reunión": p => `Hola ${first(p.contacto)}, te confirmo nuestra reunión. Te llevo un informe de ejemplo para que veas el resultado. ¡Nos vemos!`,
-  "Prueba gratis": p => `Hola ${first(p.contacto)}, ¿cómo les fue con la prueba de PotenciaIA? Si querés, coordinamos una devolución de los resultados y te paso la propuesta para seguir.`,
+  "Prueba gratis": p => `Hola ${first(p.contacto)}, ¿cómo les fue con la prueba de potencIA? Si querés, coordinamos una devolución de los resultados y te paso la propuesta para seguir.`,
   "Compró": p => `Hola ${first(p.contacto)}, ¿cómo vienen con las evaluaciones? Si necesitás más créditos o una devolución de resultados, avisame.`,
-  "Perdido": p => `Hola ${first(p.contacto)}, ¿cómo estás? Hace un tiempo hablamos de PotenciaIA. Quería saber si este año lo podemos retomar.`,
+  "Perdido": p => `Hola ${first(p.contacto)}, ¿cómo estás? Hace un tiempo hablamos de potencIA. Quería saber si este año lo podemos retomar.`,
 };
 const OUT = [
   ["norespondio","No respondió","Te lo recuerdo en 3 días", null, 3],
@@ -744,8 +791,8 @@ function drawer(p){
     ${p.revisar ? `<div class="sec warn"><h4>Para revisar</h4><div>${esc(p.revisar)}</div></div>` : ""}
     <dl class="facts"><dt>Teléfono</dt><dd>${p.tel ? "+" + esc(p.tel) : "—"}</dd><dt>Mail</dt><dd>${esc(p.email) || "—"}</dd><dt>Canal</dt><dd>${esc(p.canal) || "—"}</dd><dt>Origen</dt><dd>${esc(p.origen) || "—"}</dd><dt>Contactos</dt><dd>${p.veces || 0} · ${ultTxt(p)}</dd></dl>
     <div class="btns"><button class="btn sm" data-act="editar">Editar datos</button><button class="btn sm danger" data-act="borrar" data-kind="c" data-bid="${p.id}" style="margin-left:auto">Borrar contacto</button></div>
-    <div class="sec"><h4>Mensaje sugerido</h4><textarea id="msg">${esc(msg)}</textarea>
-      <div class="btns"><button class="btn" data-act="wa" ${p.tel ? "" : 'aria-disabled="true" title="Falta el teléfono"'}>WhatsApp</button><button class="btn" data-act="mail" ${p.email ? "" : 'aria-disabled="true" title="Falta el mail"'}>Mail</button><button class="btn" data-act="li-chat" title="${p.li ? "Abre su perfil" : "Busca su perfil en LinkedIn"}">Escribir por LinkedIn</button><button class="btn ghost" data-act="copy">Copiar texto</button></div></div>
+    <div class="sec"><h4>Mensaje sugerido</h4>${enSecuencia(p) ? `<div class="btns">${[0,1,2].map(i => `<button class="btn sm ${i === seqIdx(p) ? "primary" : ""}" data-act="seq" data-i="${i}">Mensaje ${i + 1}${i < seqEnviados(p) ? " ✓" : ""}</button>`).join("")}</div><p class="hint" style="margin:0">${SEQ_INFO[seqIdx(p)]}${seqEnviados(p) ? ` · ya enviaste ${seqEnviados(p)} de 3` : ""}</p>` : ""}<textarea id="msg" style="min-height:${enSecuencia(p) ? 380 : 112}px">${esc(msg)}</textarea>
+      <div class="btns"><button class="btn" data-act="wa" ${p.tel ? "" : 'aria-disabled="true" title="Falta el teléfono"'}>WhatsApp</button><button class="btn" data-act="mail" ${p.email ? "" : 'aria-disabled="true" title="Falta el mail"'}>Mail</button><button class="btn" data-act="li-chat" title="${p.li ? "Abre su perfil" : "Busca su perfil en LinkedIn"}">Escribir por LinkedIn</button><button class="btn ghost" data-act="copy">Copiar texto</button></div>${enSecuencia(p) ? `<div class="btns"><button class="btn primary" data-act="seq-ok">Ya envié el mensaje ${seqIdx(p) + 1}</button><span class="hint" style="margin:0">${seqIdx(p) < 2 ? `Te agendo el mensaje ${seqIdx(p) + 2} para el ${fd(seqProx(seqIdx(p)))}` : "Es el último de la secuencia"}</span></div>` : ""}</div>
     <div class="sec"><h4>¿Qué pasó? <span style="text-transform:none;letter-spacing:0;font-weight:500">(un toque y se guarda)</span></h4><div class="outcomes">${OUT.map(o => `<button class="btn" data-out="${o[0]}">${o[1]}<small>${o[2]}</small></button>`).join("")}</div></div>
     <div class="sec"><h4>Actualizar a mano</h4>
       <div class="grid2"><label>Etapa<select id="etapa">${etapas.map(x => `<option ${x === p.etapa ? "selected" : ""} value="${esc(x)}">${esc(x === POT ? "Por contactar (outbound)" : x || "Sin etapa")}</option>`).join("")}</select></label><label>Próximo seguimiento<input type="date" id="prox" value="${iso(p.prox)}"></label></div>
@@ -913,7 +960,7 @@ document.addEventListener("click", async ev => {
     if (o[0] === "prueba"){ $("#layer").insertAdjacentHTML("beforeend", modalVenta({ empresa: p.empresa, fecha: today, creditos: "", vendido: null, cobro: false, tipo: "Prueba" })); bindVenta(); }
     return;
   }
-  if (a === "close"){ S.openId = null; $("#layer").innerHTML = ""; return; }
+  if (a === "close"){ if (S.seqSel && S.openId) delete S.seqSel[S.openId]; S.openId = null; $("#layer").innerHTML = ""; return; }
   if (a === "closemodal"){ closeModal(); if (S.view === "potenciales") render(); return; }
   if (a === "nuevo"){ $("#layer").insertAdjacentHTML("beforeend", modalContacto()); $("#n-emp").focus(); return; }
   if (a === "editar" && p){ $("#layer").insertAdjacentHTML("beforeend", modalContacto(p)); return; }
@@ -932,6 +979,16 @@ document.addEventListener("click", async ev => {
     if (!Object.keys(ch).length && !logs.length){ toast("No hay cambios para guardar"); return; }
     if (logs.length) ch.notas = logs.reverse().map(l => `${fd(today)}: ${l}`).join("\n") + (p.notas ? "\n" + p.notas : "");
     await saveFields("c", p, ch); refresh("Cambios guardados"); return;
+  }
+  if (a === "seq" && p){ S.seqSel = S.seqSel || {}; S.seqSel[p.id] = +t.dataset.i; openP(p.id); return; }
+  if (a === "seq-ok" && p){
+    const i = seqIdx(p), d = seqProx(i), logs = [`Mensaje ${i + 1} enviado`];
+    if (d) logs.push(`Próximo paso: Mandar el mensaje ${i + 2} (en el mismo hilo)`); else logs.push("Terminó la secuencia de 3 mensajes sin respuesta");
+    const ch = { ult: today, veces: (p.veces || 0) + 1, prox: d, notas: logs.map(l => `${fd(today)}: ${l}`).reverse().join("\n") + (p.notas ? "\n" + p.notas : "") };
+    if (esPotencial(p)) ch.etapa = "Contactado";
+    if (S.seqSel) delete S.seqSel[p.id];
+    await saveFields("c", p, ch); refresh(d ? `Listo. Te agendé el mensaje ${i + 2} para el ${fd(d)}` : "Listo. Terminó la secuencia");
+    return;
   }
   if (a === "borrar"){ const k = t.dataset.kind, rec = (k === "c" ? S.P : S.V).find(x => x.id === +t.dataset.bid); if (rec) $("#layer").insertAdjacentHTML("beforeend", modalBorrar(k, rec)); return; }
   if (a === "borrar-no"){ document.querySelectorAll('#layer [data-confirm="1"]').forEach(e => e.remove()); return; }

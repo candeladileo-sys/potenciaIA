@@ -1246,7 +1246,7 @@ Al terminar vas a ver un mensaje de confirmación en pantalla — ahí ya está,
     'nb.pendientes': "Pendiente de desempeño",
     'nb.pendientesSub': "Personas incluidas sin desempeño cargado. No se ubican en la grilla hasta cargarlo.",
     'nb.pendientesVacio': "Nadie pendiente: todas las personas incluidas tienen desempeño cargado.",
-    'nb.leyenda': "El eje de potencial estima el crecimiento en los próximos 5 años y no debe usarse como único criterio de decisión.",
+    'nb.leyenda': "El eje de potencial compara la capacidad potencial actual con el estrato que requiere el puesto y no debe usarse como único criterio de decisión.",
     'nb.vacio.sinEval': "Todavía no hay evaluaciones con el análisis terminado. Cuando las haya, vas a poder armar el 9-box acá.",
     'nb.vacio.sinSel': "No hay nadie seleccionado. Marcá \"Incluir\" en las personas que quieras ver en la grilla.",
     'nb.alerta.capacidad.t': "Capacidad no aplicada",
@@ -1271,6 +1271,9 @@ Al terminar vas a ver un mensaje de confirmación en pantalla — ahí ya está,
     'nb.ficha.fecha': "Fecha de carga",
     'nb.ficha.cpa': "Hoy (CPA)",
     'nb.ficha.cpf5': "CPF a 5 años",
+    'nb.ficha.rol': "Estrato requerido del puesto",
+    'nb.ficha.sinRolAccion': "Falta el estrato requerido del puesto: no se puede ubicar en la grilla.",
+    'nb.potSinRol': "Sin estrato del puesto",
     'nb.ficha.evaluado': "Evaluación de potencial",
     'nb.ficha.sinDes': "Sin desempeño cargado",
     'nb.ficha.sinDesAccion': "Cargá el desempeño para ubicarlo en la grilla.",
@@ -1639,7 +1642,7 @@ When you finish, you'll see a confirmation message on screen — that's it, ther
     'nb.pendientes': "Performance pending",
     'nb.pendientesSub': "Included people with no performance entered. They are not placed on the grid until it is entered.",
     'nb.pendientesVacio': "Nobody pending: all included people have performance entered.",
-    'nb.leyenda': "The potential axis estimates growth over the next 5 years and should not be used as the sole decision criterion.",
+    'nb.leyenda': "The potential axis compares current potential capability with the stratum the role requires and should not be used as the sole decision criterion.",
     'nb.vacio.sinEval': "There are no assessments with a finished analysis yet. Once there are, you can build the 9-box here.",
     'nb.vacio.sinSel': "Nobody is selected. Check \"Include\" for the people you want to see on the grid.",
     'nb.alerta.capacidad.t': "Unapplied capability",
@@ -1664,6 +1667,9 @@ When you finish, you'll see a confirmation message on screen — that's it, ther
     'nb.ficha.fecha': "Date entered",
     'nb.ficha.cpa': "Today (CPA)",
     'nb.ficha.cpf5': "CPF in 5 years",
+    'nb.ficha.rol': "Required role stratum",
+    'nb.ficha.sinRolAccion': "The role's required stratum is missing: they cannot be placed on the grid.",
+    'nb.potSinRol': "No role stratum",
     'nb.ficha.evaluado': "Potential assessment",
     'nb.ficha.sinDes': "No performance entered",
     'nb.ficha.sinDesAccion': "Enter performance to place them on the grid.",
@@ -2032,7 +2038,7 @@ Ao terminar, você verá uma mensagem de confirmação na tela — pronto, não 
     'nb.pendientes': "Desempenho pendente",
     'nb.pendientesSub': "Pessoas incluídas sem desempenho registrado. Não entram na grade até que seja registrado.",
     'nb.pendientesVacio': "Ninguém pendente: todas as pessoas incluídas têm desempenho registrado.",
-    'nb.leyenda': "O eixo de potencial estima o crescimento nos próximos 5 anos e não deve ser usado como único critério de decisão.",
+    'nb.leyenda': "O eixo de potencial compara a capacidade potencial atual com o estrato exigido pelo cargo e não deve ser usado como único critério de decisão.",
     'nb.vacio.sinEval': "Ainda não há avaliações com a análise concluída. Quando houver, você poderá montar o 9-box aqui.",
     'nb.vacio.sinSel': "Ninguém selecionado. Marque \"Incluir\" nas pessoas que deseja ver na grade.",
     'nb.alerta.capacidad.t': "Capacidade não aplicada",
@@ -2057,6 +2063,9 @@ Ao terminar, você verá uma mensagem de confirmação na tela — pronto, não 
     'nb.ficha.fecha': "Data do registro",
     'nb.ficha.cpa': "Hoje (CPA)",
     'nb.ficha.cpf5': "CPF em 5 anos",
+    'nb.ficha.rol': "Estrato exigido pelo cargo",
+    'nb.ficha.sinRolAccion': "Falta o estrato exigido pelo cargo: não é possível posicioná-la na grade.",
+    'nb.potSinRol': "Sem estrato do cargo",
     'nb.ficha.evaluado': "Avaliação de potencial",
     'nb.ficha.sinDes': "Sem desempenho registrado",
     'nb.ficha.sinDesAccion': "Registre o desempenho para posicioná-la na grade.",
@@ -4462,19 +4471,16 @@ function _nbEtiquetaEstrato(est, sub) { return 'E ' + (estratosNombres[est] || '
 // ║  Bajo  : cualquier otro caso.                                   ║
 // ╚═══════════════════════════════════════════════════════════════╝
 function nbPotencial(c) {
-  const est  = c.estrato || 2;
-  const sub  = _normSub(c.subestrato || 'medio');
-  const edad = c.edad || 35;
-  const cpf1 = calcularPuntosCurva(edad, est, sub, c.modo_curva).cpf1;
-  const ORD = { bajo: 0, medio: 1, alto: 2 };
-  let nivel = 'bajo';
-  if (cpf1.estrato > est) nivel = 'alto';
-  else if (cpf1.estrato === est && ORD[cpf1.subnivel] > ORD[sub]) nivel = 'medio';
-  return {
-    nivel,
-    cpa:  { estrato: est, subnivel: sub, edad: c.edad || null },
-    cpf5: { estrato: cpf1.estrato, subnivel: cpf1.subnivel, edad: cpf1.edad }
-  };
+  // Criterio (definido por la cliente): se compara la capacidad potencial actual (estrato de la evaluación)
+  // con el estrato que requiere el puesto.
+  //   supera el estrato requerido → alto · mismo estrato → medio · por debajo → bajo
+  // Si la evaluación no tiene estrato requerido del puesto, no se puede ubicar (nivel = null).
+  const est = parseInt(c.estrato) || 0;
+  const sub = _normSub(c.subestrato || 'medio');
+  const rol = _nbEstratoRol(c);
+  let nivel = null;
+  if (rol && est > 0) nivel = est > rol ? 'alto' : (est === rol ? 'medio' : 'bajo');
+  return { nivel, rol, cpa: { estrato: est, subnivel: sub, edad: c.edad || null } };
 }
 
 // Alertas: nunca mueven la caja, solo avisan.
@@ -4484,9 +4490,7 @@ function nbAlertas(c, pot) {
   const out = [];
   if (pot.nivel === 'alto' && des === 'bajo') out.push('capacidad');
   if (pot.nivel === 'bajo' && des === 'alto') out.push('riesgoPromo');
-  const rol = _nbEstratoRol(c);
-  if (rol && c.estrato > rol) out.push('subutilizado');
-  if (rol && c.estrato < rol) out.push('debajoRol');
+  // (Subutilizado / Por debajo del rol ya no se avisan: ahora son el propio eje de potencial)
   const fEval = _nbFechaEval(c);
   if (des && fEval) {
     const anios = String(_nbDatos(c).desempeno_periodo || '').match(/\d{4}/g);
@@ -4506,11 +4510,11 @@ function nbAlertas(c, pot) {
 // Nota técnica (no es alerta): la proyección a 5 años cae fuera del rango de la curva (70 años)
 function nbNotaTecnica(c, pot) {
   pot = pot || nbPotencial(c);
-  return (c.edad && pot.cpf5.edad > 70) ? t('nb.notaTecnica') : '';
+  return '';   // ya no aplica: el potencial no usa la proyección a 5 años
 }
 
 function _nbCaja(pot, des) {
-  if (!des) return null;
+  if (!des || !pot) return null;
   const k = pot + '_' + des;
   return { k, tono: NB_TONO[k], nombre: t('nb.caja.' + k + '.n'), accion: t('nb.caja.' + k + '.a') };
 }
@@ -4577,6 +4581,7 @@ function _nbPintarEstadoFila(i, id) {
 }
 
 function _nbPotBadge(nivel) {
+  if (!nivel) return `<span class="nb-pot nb-pot-bajo">${_esc(t('nb.potSinRol'))}</span>`;
   return `<span class="nb-pot nb-pot-${nivel}">${_esc(t('nb.potBadge', { nivel: _nivelTxt(nivel) }))}</span>`;
 }
 function _nbCargadoTxt(c) {
@@ -4613,7 +4618,7 @@ function _nbGrillaHtml(incl, exportar) {
 }
 
 function _nbPendientesHtml(incl, exportar) {
-  const pend = incl.filter(x => !x.des);
+  const pend = incl.filter(x => !x.des || !x.pot.nivel);
   if (!pend.length) return `<div class="nb-card-sub" style="margin:0;">${_esc(t('nb.pendientesVacio'))}</div>`;
   return `<div class="nb-pend">${pend.map(x => `<div class="nb-pend-item">${exportar
       ? `<span>${_esc(x.c.nombre)}</span>`
@@ -4710,13 +4715,13 @@ function _nbFichaCuerpoHtml(c) {
   const alertas = nbAlertas(c, pot);
   const nota = nbNotaTecnica(c, pot);
   const fEval = _nbFechaEval(c);
-  const cpf5 = _nbEtiquetaEstrato(pot.cpf5.estrato, pot.cpf5.subnivel) + (c.edad ? ' · ' + t('comun.anios', { n: pot.cpf5.edad }) : '');
+  const rolTxt = pot.rol ? 'E ' + (estratosNombres[pot.rol] || pot.rol) : '—';
   return `
     <div class="nb-ficha-caja ${caja ? 'nb-t-' + caja.tono : ''}" style="${caja ? '' : 'background:var(--bg);border:1px dashed var(--border);'}">
       ${_nbMiniHtml(caja)}
       <div>
-        <div class="nb-ficha-caja-n">${_esc(caja ? caja.nombre : t('nb.pendientes'))}</div>
-        <div class="nb-ficha-caja-a">${_esc(caja ? caja.accion : t('nb.ficha.sinDesAccion'))}</div>
+        <div class="nb-ficha-caja-n">${_esc(caja ? caja.nombre : (pot.nivel ? t('nb.pendientes') : t('nb.potSinRol')))}</div>
+        <div class="nb-ficha-caja-a">${_esc(caja ? caja.accion : (pot.nivel ? t('nb.ficha.sinDesAccion') : t('nb.ficha.sinRolAccion')))}</div>
       </div>
     </div>
     <div class="nb-sec">
@@ -4731,9 +4736,9 @@ function _nbFichaCuerpoHtml(c) {
     <div class="nb-sec">
       <div class="nb-sec-t">${_esc(t('nb.ficha.potencial'))}</div>
       <dl class="nb-kv">
-        <dt>${_esc(t('nb.ficha.nivel'))}</dt><dd>${_esc(_nivelTxt(pot.nivel, true))}</dd>
+        <dt>${_esc(t('nb.ficha.nivel'))}</dt><dd>${_esc(pot.nivel ? _nivelTxt(pot.nivel, true) : t('nb.potSinRol'))}</dd>
         <dt>${_esc(t('nb.ficha.cpa'))}</dt><dd>${_esc(_nbEtiquetaEstrato(pot.cpa.estrato, pot.cpa.subnivel))}</dd>
-        <dt>${_esc(t('nb.ficha.cpf5'))}</dt><dd>${_esc(cpf5)}</dd>
+        <dt>${_esc(t('nb.ficha.rol'))}</dt><dd>${_esc(rolTxt)}</dd>
         <dt>${_esc(t('nb.ficha.evaluado'))}</dt><dd>${_esc(fEval ? fEval.toLocaleDateString(_locale()) : '—')}</dd>
       </dl>
     </div>

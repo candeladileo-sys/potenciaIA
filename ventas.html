@@ -593,13 +593,15 @@ function vAgenda(){
   <div class="cal">${["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].map(x => `<div class="h">${x}</div>`).join("")}${cells}</div>
   <div class="callist">${list || `<p class="empty">No hay nada agendado este mes.</p>`}</div>`;
 }
+function ultEnvio(p){ const l = String(p.notas || "").split(/\n+/).find(x => /Mensaje [123] enviado/.test(x)); return l ? l.slice(0, l.indexOf(":")) : ""; }
 function vPotenciales(){
-  const q = norm(S.qpot || ""), all = S.P.filter(esPotencial);
+  const q = norm(S.qpot || ""), all = S.P.filter(enSecuencia), sel = S.potSel || (S.potSel = new Set());
   const L = all.filter(p => !q || norm([p.empresa, p.contacto, p.cargo, p.origen, p.notas].join(" ")).includes(q))
-    .sort((a, b) => (a.prox ? 0 : 1) - (b.prox ? 0 : 1) || String(a.empresa).localeCompare(String(b.empresa)));
-  const ultNota = p => { const l = String(p.notas || "").split(/\n+/).find(x => x && !/Contacto creado|Próximo paso:|Para escribirle:/i.test(x)); return l ? l.replace(/^\d{2}\/\d{2}:\s*/, "") : ""; };
+    .sort((a, b) => seqEnviados(a) - seqEnviados(b) || (a.prox ? 0 : 1) - (b.prox ? 0 : 1) || String(a.empresa).localeCompare(String(b.empresa)));
+  const ultNota = p => { const l = String(p.notas || "").split(/\n+/).find(x => x && !/Contacto creado|Próximo paso:|Para escribirle:|Mensaje [123] enviado|Pasó a /i.test(x)); return l ? l.replace(/^\d{1,2}\/\d{1,2}:\s*/, "") : ""; };
   const ori = ["LinkedIn","Recomendación","Evento","Base propia","Otro"];
-  return `<h1>Outbound</h1><p class="sub">Personas y empresas para salir a buscar. No aparecen en tu agenda hasta que les pongas fecha o les cambies la etapa.</p>
+  const nSel = L.filter(p => sel.has(p.id)).length, sinEscribir = all.filter(p => !seqEnviados(p)).length;
+  return `<h1>Outbound</h1><p class="sub">Personas para salir a buscar y en qué mensaje de la secuencia está cada una. ${sinEscribir} todavía sin escribir.</p>
   <form class="panel" id="fpot" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px"><h2>Agregar a la lista</h2>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
       <label>Empresa<input id="pt-emp" required placeholder="Ej: Mercado Libre"></label>
@@ -611,10 +613,27 @@ function vPotenciales(){
     </div>
     <div class="btns"><button class="btn primary" type="submit">Agregar</button><button class="btn" type="button" data-act="linkedin">Cargar desde una captura de LinkedIn</button></div>
   </form>
-  <div class="bar"><label class="grow" style="max-width:320px">Buscar<input id="qpot" value="${esc(S.qpot || "")}" placeholder="Nombre, empresa, cargo…"></label><span class="count" style="align-self:center">${all.length} en outbound</span></div>
-  <div class="panel tablewrap"><table><thead><tr><th>Persona</th><th>Empresa</th><th>Cargo</th><th>Origen</th><th>Nota</th><th>Etapa</th><th></th></tr></thead><tbody>
-  ${L.map(p => { const e = estado(p); return `<tr><td><button class="btn ghost sm" style="padding:0;font-weight:600;color:var(--fg)" data-open="${p.id}">${esc(p.contacto || "—")}</button></td><td>${esc(p.empresa)}</td><td style="white-space:normal;min-width:140px">${esc(p.cargo)}</td><td>${p.origen ? `<span class="chip">${esc(p.origen)}</span>` : "—"}</td><td style="white-space:normal;min-width:180px;color:var(--muted)">${esc(ultNota(p))}</td><td><select class="pot-et" data-pid="${p.id}" aria-label="Etapa de ${esc(p.contacto || p.empresa)}" style="width:auto;padding:5px 8px;font-size:13px">${ETAPAS.map(x => `<option value="${x}" ${x === (p.etapa || POT) ? "selected" : ""}>${x === POT ? "Outbound" : x}</option>`).join("")}</select></td><td style="text-align:right;white-space:nowrap">${p.prox ? `<span class="chip ${e ? e.c : "acc"}">${e ? e.t : fd(p.prox)}</span>` : `<button class="btn sm" data-act="pot-hoy" data-pid="${p.id}">Escribirle hoy</button>`} <button class="btn sm" data-act="li-chat" data-pid="${p.id}" title="Copia el mensaje y abre LinkedIn">LinkedIn</button> <button class="btn sm" data-act="pot-edit" data-pid="${p.id}">Editar</button> <button class="btn sm ghost" data-open="${p.id}">Abrir</button></td></tr>`; }).join("") || `<tr><td colspan="7" class="empty">${all.length ? "Nadie coincide con la búsqueda." : "Todavía no hay nadie en outbound. Agregalos arriba o desde una captura de LinkedIn."}</td></tr>`}
+  <div class="bar"><label class="grow" style="max-width:320px">Buscar<input id="qpot" value="${esc(S.qpot || "")}" placeholder="Nombre, empresa, cargo…"></label>
+    <button class="btn" data-act="pegar-nombres">Pegar lista de nombres</button>
+    <button class="btn primary" data-act="bulk-sent" ${nSel ? "" : 'aria-disabled="true"'}>Marcar como escritos hoy${nSel ? ` (${nSel})` : ""}</button></div>
+  <div class="panel tablewrap"><table><thead><tr><th><input type="checkbox" id="pot-all" aria-label="Elegir todos" ${L.length && nSel === L.length ? "checked" : ""}></th><th>Persona</th><th>Empresa</th><th>Mensajes</th><th>Próximo</th><th>Origen</th><th>Nota</th><th>Etapa</th><th></th></tr></thead><tbody>
+  ${L.map(p => { const e = estado(p), n = seqEnviados(p), u = ultEnvio(p); return `<tr><td><input type="checkbox" class="pot-sel" data-pid="${p.id}" ${sel.has(p.id) ? "checked" : ""} aria-label="Elegir a ${esc(p.contacto || p.empresa)}"></td><td><button class="btn ghost sm" style="padding:0;font-weight:600;color:var(--fg)" data-open="${p.id}">${esc(p.contacto || "—")}</button><div class="rs" style="white-space:normal">${esc(p.cargo)}</div></td><td>${esc(p.empresa)}</td><td>${n ? `<span class="chip ${n >= 3 ? "" : "ok"}">${n} de 3</span><div class="rs">último ${u}</div>` : `<span class="chip today">Sin escribir</span>`}</td><td>${p.prox ? `<span class="chip ${e ? e.c : "acc"}">${e && /Atrasado|Hoy|Mañana/.test(e.t) ? e.t : fd(p.prox)}</span>${n && n < 3 ? `<div class="rs">Mensaje ${n + 1}</div>` : ""}` : `<button class="btn sm" data-act="pot-hoy" data-pid="${p.id}">Escribirle hoy</button>`}</td><td>${p.origen ? `<span class="chip">${esc(p.origen)}</span>` : "—"}</td><td style="white-space:normal;min-width:160px;color:var(--muted)">${esc(ultNota(p))}</td><td><select class="pot-et" data-pid="${p.id}" aria-label="Etapa de ${esc(p.contacto || p.empresa)}" style="width:auto;padding:5px 8px;font-size:13px">${ETAPAS.map(x => `<option value="${x}" ${x === (p.etapa || POT) ? "selected" : ""}>${x === POT ? "Outbound" : x}</option>`).join("")}</select></td><td style="text-align:right;white-space:nowrap"><button class="btn sm" data-act="li-chat" data-pid="${p.id}" title="Copia el mensaje y abre LinkedIn">LinkedIn</button> <button class="btn sm" data-act="pot-edit" data-pid="${p.id}">Editar</button> <button class="btn sm ghost" data-open="${p.id}">Abrir</button></td></tr>`; }).join("") || `<tr><td colspan="9" class="empty">${all.length ? "Nadie coincide con la búsqueda." : "Todavía no hay nadie en outbound. Agregalos arriba o desde una captura de LinkedIn."}</td></tr>`}
   </tbody></table></div>`;
+}
+function modalPegar(){
+  return `<div class="scrim" data-act="closemodal" style="z-index:30"></div><form class="modal" id="fpegar"><h2>¿A quiénes les escribiste?</h2>
+  <p class="hint" style="margin:0">Pegá los nombres separados por coma o uno por renglón. Los busco en Outbound y los dejo tildados.</p>
+  <textarea id="pg-txt" required style="min-height:140px" placeholder="María Florencia Viola, Alejandro Daniel Drago, …"></textarea>
+  <div id="pg-res"></div>
+  <div class="btns" style="justify-content:flex-end"><button type="button" class="btn" data-act="closemodal">Cancelar</button><button class="btn primary" type="submit">Buscar y tildar</button></div></form>`;
+}
+function lev(a, b){ const m = a.length, n = b.length, d = Array.from({ length: m + 1 }, (_, i) => [i]); for (let j = 1; j <= n; j++) d[0][j] = j; for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1)); return d[m][n]; }
+const pareci = (a, b) => a === b || (a.length >= 5 && b.length >= 5 && lev(a, b) <= 1);
+function matchNombre(nombre, lista){
+  const toks = norm(nombre).split(" ").filter(w => w.length > 1); if (!toks.length) return null;
+  const parecido = () => lista.find(p => { const c = norm(p.contacto).split(" ").filter(w => w.length > 1); return c.length >= 2 && pareci(c[0], toks[0]) && pareci(c[c.length - 1], toks[toks.length - 1]); });
+  const full = norm(nombre);
+  return lista.find(p => norm(p.contacto) === full) || lista.find(p => { const c = norm(p.contacto).split(" "); return toks.every(t => c.includes(t)); }) || lista.find(p => { const c = norm(p.contacto).split(" ").filter(w => w.length > 1); return c.length >= 2 && c.every(t => toks.includes(t)); }) || parecido() || null;
 }
 function vEmbudo(){
   const extra = [...new Set(S.P.map(p => p.etapa).filter(e => e && !ETAPAS.includes(e)))];
@@ -916,6 +935,8 @@ function render(){
   $("#view").innerHTML = v === "hoy" ? vHoy() : v === "agenda" ? vAgenda() : v === "potenciales" ? vPotenciales() : v === "ventas" ? vVentas() : vMetricas();
   document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.view === v));
   const m = $("#mes"); if (m) m.onchange = () => { S.mes = m.value; render(); };
+  document.querySelectorAll("input.pot-sel").forEach(cb => cb.onchange = () => { const sel = S.potSel || (S.potSel = new Set()); cb.checked ? sel.add(+cb.dataset.pid) : sel.delete(+cb.dataset.pid); render(); });
+  const pa = $("#pot-all"); if (pa) pa.onchange = () => { const sel = S.potSel || (S.potSel = new Set()); document.querySelectorAll("input.pot-sel").forEach(cb => pa.checked ? sel.add(+cb.dataset.pid) : sel.delete(+cb.dataset.pid)); render(); };
   document.querySelectorAll("select.pot-et").forEach(sel => sel.onchange = async () => {
     const q = get(+sel.dataset.pid), et = sel.value; if (!q) return;
     if (et === "Reunión"){ $("#layer").insertAdjacentHTML("beforeend", modalReunion(q)); return; }
@@ -937,6 +958,31 @@ function openP(id){
 const logLine = (p, t) => `${fd(today)}: ${t}` + (p.notas ? "\n" + p.notas : "");
 function refresh(msg){ render(); if (S.openId && get(S.openId)) openP(S.openId); if (msg) toast(msg); }
 function closeModal(){ document.querySelectorAll("#layer .modal, #layer .scrim[style]").forEach(e => e.remove()); }
+function sentChanges(p){
+  const i = seqIdx(p), d = seqProx(i), logs = [`Mensaje ${i + 1} enviado`];
+  if (d) logs.push(`Próximo paso: Mandar el mensaje ${i + 2} (en el mismo hilo)`); else logs.push("Terminó la secuencia de 3 mensajes sin respuesta");
+  const ch = { ult: today, veces: (p.veces || 0) + 1, prox: d, notas: logs.map(l => `${fd(today)}: ${l}`).reverse().join("\n") + (p.notas ? "\n" + p.notas : "") };
+  if (esPotencial(p)) ch.etapa = "Contactado";
+  return { i, d, ch };
+}
+async function autoSent(p){
+  if (!enSecuencia(p)) return;
+  const { i, d } = sentChanges(p), undo = await markSent([p]); refresh();
+  toastAct(`Marqué el mensaje ${i + 1} como enviado${d ? ` · el ${i + 2} te lo recuerdo el ${fd(d)}` : ""}`, "Deshacer", undo);
+}
+async function markSent(list){
+  const undo = list.map(p => [p, { ult: p.ult, veces: p.veces, prox: p.prox, notas: p.notas, etapa: p.etapa }]);
+  const items = list.map(p => { if (S.seqSel) delete S.seqSel[p.id]; return [p, sentChanges(p).ch]; });
+  await saveMany("c", items);
+  return async () => { await saveMany("c", undo); refresh("Listo, lo dejé como estaba"); };
+}
+function toastAct(t, label, fn){
+  document.querySelectorAll(".toast").forEach(x => x.remove());
+  const el = document.createElement("div"); el.className = "toast"; el.style.display = "flex"; el.style.gap = "12px"; el.style.alignItems = "center";
+  el.innerHTML = `<span>${esc(t)}</span><button class="btn sm" style="background:var(--bg);color:var(--fg)">${esc(label)}</button>`;
+  el.querySelector("button").onclick = async () => { el.remove(); await fn(); };
+  document.body.appendChild(el); setTimeout(() => el.remove(), 8000);
+}
 function toast(t){ document.querySelectorAll(".toast").forEach(x => x.remove()); const el = document.createElement("div"); el.className = "toast"; el.textContent = t; document.body.appendChild(el); setTimeout(() => el.remove(), 2600); }
 async function copy(text, ok){ try{ await navigator.clipboard.writeText(text); toast(ok); }catch(e){ const m = $("#msg"); if (m){ m.focus(); m.select(); } toast("Seleccioné el texto: copialo con Ctrl+C"); } }
 
@@ -967,8 +1013,8 @@ document.addEventListener("click", async ev => {
   if (a === "venta" || a === "prueba"){ $("#layer").insertAdjacentHTML("beforeend", modalVenta(null, a === "prueba" ? "Prueba" : "Venta")); bindVenta(); return; }
   if (a === "vfiltro"){ S.vfiltro = t.dataset.f; S.mes = "todos"; render(); return; }
   if (a === "copy"){ copy($("#msg").value, "Mensaje copiado"); return; }
-  if (a === "wa" && p){ window.open(`https://wa.me/${p.tel}?text=${encodeURIComponent($("#msg").value)}`, "_blank", "noopener"); return; }
-  if (a === "mail" && p){ window.open(outlookMail(p.email, $("#msg").value), "_blank", "noopener"); return; }
+  if (a === "wa" && p){ window.open(`https://wa.me/${p.tel}?text=${encodeURIComponent($("#msg").value)}`, "_blank", "noopener"); await autoSent(p); return; }
+  if (a === "mail" && p){ window.open(outlookMail(p.email, $("#msg").value), "_blank", "noopener"); await autoSent(p); return; }
   if (a === "guardar" && p){
     const et = $("#etapa").value, d = fromIso($("#prox").value), hora = $("#hora").value, nota = $("#nota").value.trim();
     const ch = {}, logs = [];
@@ -980,14 +1026,18 @@ document.addEventListener("click", async ev => {
     if (logs.length) ch.notas = logs.reverse().map(l => `${fd(today)}: ${l}`).join("\n") + (p.notas ? "\n" + p.notas : "");
     await saveFields("c", p, ch); refresh("Cambios guardados"); return;
   }
+  if (a === "pegar-nombres"){ $("#layer").insertAdjacentHTML("beforeend", modalPegar()); $("#pg-txt").focus(); return; }
+  if (a === "bulk-sent"){
+    const sel = S.potSel || new Set(), list = S.P.filter(x => sel.has(x.id) && enSecuencia(x)); if (!list.length) return;
+    t.setAttribute("aria-disabled", "true"); t.textContent = "Guardando…";
+    const undo = await markSent(list); S.potSel = new Set(); refresh();
+    toastAct(`Marqué ${list.length} como escritos hoy. Te los recuerdo para el próximo mensaje.`, "Deshacer", undo);
+    return;
+  }
   if (a === "seq" && p){ S.seqSel = S.seqSel || {}; S.seqSel[p.id] = +t.dataset.i; openP(p.id); return; }
   if (a === "seq-ok" && p){
-    const i = seqIdx(p), d = seqProx(i), logs = [`Mensaje ${i + 1} enviado`];
-    if (d) logs.push(`Próximo paso: Mandar el mensaje ${i + 2} (en el mismo hilo)`); else logs.push("Terminó la secuencia de 3 mensajes sin respuesta");
-    const ch = { ult: today, veces: (p.veces || 0) + 1, prox: d, notas: logs.map(l => `${fd(today)}: ${l}`).reverse().join("\n") + (p.notas ? "\n" + p.notas : "") };
-    if (esPotencial(p)) ch.etapa = "Contactado";
-    if (S.seqSel) delete S.seqSel[p.id];
-    await saveFields("c", p, ch); refresh(d ? `Listo. Te agendé el mensaje ${i + 2} para el ${fd(d)}` : "Listo. Terminó la secuencia");
+    const { i, d } = sentChanges(p); await markSent([p]);
+    refresh(d ? `Listo. Te agendé el mensaje ${i + 2} para el ${fd(d)}` : "Listo. Terminó la secuencia");
     return;
   }
   if (a === "borrar"){ const k = t.dataset.kind, rec = (k === "c" ? S.P : S.V).find(x => x.id === +t.dataset.bid); if (rec) $("#layer").insertAdjacentHTML("beforeend", modalBorrar(k, rec)); return; }
@@ -1004,6 +1054,7 @@ document.addEventListener("click", async ev => {
     const txt = !t.dataset.pid && $("#msg") ? $("#msg").value : (MSG[q.etapa] || MSG["Contactado"])(q);
     try{ navigator.clipboard.writeText(txt).catch(() => {}); }catch(_){}
     window.open(liUrl(q), "_blank", "noopener");
+    if (!t.dataset.pid && enSecuencia(q)){ await autoSent(q); return; }
     toast(q.li ? "Copié el mensaje. En su perfil tocá “Enviar mensaje” y pegalo" : "Copié el mensaje. Elegí a la persona en la búsqueda, tocá “Enviar mensaje” y pegalo");
     return;
   }
@@ -1051,6 +1102,15 @@ document.addEventListener("submit", async ev => {
     if (ev.submitter && ev.submitter.dataset.cal) window.open(outlookEvent(`Reunión PotenciaIA – ${p.empresa}`, day, hora, fichaTxt(p, "")), "_blank", "noopener");
     await saveFields("c", p, { etapa: "Reunión", prox: d, ult: today, veces: (p.veces || 0) + 1, notas: logLine(p, `Agendamos reunión para el ${fd(d)} a las ${hora}. Próximo paso: Reunión el ${fd(d)} ${hora}`) });
     closeModal(); refresh(`Reunión guardada para el ${fd(d)}`);
+  }
+  if (f.id === "fpegar"){
+    const nombres = $("#pg-txt").value.split(/[,;\n]+/).map(x => x.trim()).filter(Boolean), lista = S.P.filter(enSecuencia), todos = S.P;
+    const sel = S.potSel = new Set(), no = [], otra = [];
+    nombres.forEach(n => { const m = matchNombre(n, lista); if (m) sel.add(m.id); else { const o = matchNombre(n, todos); o ? otra.push(`${n} (está en ${o.etapa})`) : no.push(n); } });
+    closeModal(); S.view = "potenciales"; S.qpot = ""; render();
+    if (no.length || otra.length) $("#layer").insertAdjacentHTML("beforeend", `<div class="scrim" data-act="closemodal" style="z-index:30"></div><div class="modal" role="dialog" aria-label="Resultado"><h2>Tildé ${sel.size} de ${nombres.length}</h2>${otra.length ? `<p class="hint" style="margin:0"><b>Ya están más avanzados</b> (no los toqué): ${esc(otra.join(", "))}</p>` : ""}${no.length ? `<p class="hint" style="margin:0"><b>No los encontré en el tablero:</b> ${esc(no.join(", "))}. Agregalos en Outbound (o revisá cómo está escrito el nombre) y volvé a pegarlos.</p>` : ""}<p class="hint" style="margin:0">Revisá los tildados y tocá <b>“Marcar como escritos hoy”</b>.</p><div class="btns" style="justify-content:flex-end"><button class="btn primary" data-act="closemodal">Entendido</button></div></div>`);
+    else toast(`Tildé a los ${sel.size}. Revisá y tocá “Marcar como escritos hoy”`);
+    return;
   }
   if (f.id === "fotro"){
     const p = get(+f.dataset.id), txt = $("#o-txt").value.trim(), c = $("#o-cuando").value, et = $("#o-etapa").value;

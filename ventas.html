@@ -355,6 +355,7 @@ async function loadLive(silent){
     S.P.forEach(p => { if (p.id == null) p.id = 100000 + p._row; });
     S.V.forEach(x => { if (x.id == null) x.id = 100000 + x._row; });
     showApp(); render(); if (S.openId && get(S.openId)) openP(S.openId);
+    if (!S.reparado){ S.reparado = true; repararSecuencia(); }
   }catch(e){ handleErr(e); }
 }
 function handleErr(e){
@@ -593,7 +594,7 @@ function vAgenda(){
   <div class="cal">${["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].map(x => `<div class="h">${x}</div>`).join("")}${cells}</div>
   <div class="callist">${list || `<p class="empty">No hay nada agendado este mes.</p>`}</div>`;
 }
-function ultEnvio(p){ const l = String(p.notas || "").split(/\n+/).find(x => /Mensaje [123] enviado/.test(x)); return l ? l.slice(0, l.indexOf(":")) : ""; }
+function ultEnvio(p){ const l = sentLines(p)[0]; return l ? l.slice(0, l.indexOf(":")) : ""; }
 function vPotenciales(){
   const q = norm(S.qpot || ""), all = S.P.filter(enSecuencia), sel = S.potSel || (S.potSel = new Set());
   const L = all.filter(p => !q || norm([p.empresa, p.contacto, p.cargo, p.origen, p.notas].join(" ")).includes(q))
@@ -617,7 +618,7 @@ function vPotenciales(){
     <button class="btn" data-act="pegar-nombres">Pegar lista de nombres</button>
     <button class="btn primary" data-act="bulk-sent" ${nSel ? "" : 'aria-disabled="true"'}>Marcar como escritos hoy${nSel ? ` (${nSel})` : ""}</button></div>
   <div class="panel tablewrap"><table><thead><tr><th><input type="checkbox" id="pot-all" aria-label="Elegir todos" ${L.length && nSel === L.length ? "checked" : ""}></th><th>Persona</th><th>Empresa</th><th>Mensajes</th><th>Próximo</th><th>Origen</th><th>Nota</th><th>Etapa</th><th></th></tr></thead><tbody>
-  ${L.map(p => { const e = estado(p), n = seqEnviados(p), u = ultEnvio(p); return `<tr><td><input type="checkbox" class="pot-sel" data-pid="${p.id}" ${sel.has(p.id) ? "checked" : ""} aria-label="Elegir a ${esc(p.contacto || p.empresa)}"></td><td><button class="btn ghost sm" style="padding:0;font-weight:600;color:var(--fg)" data-open="${p.id}">${esc(p.contacto || "—")}</button><div class="rs" style="white-space:normal">${esc(p.cargo)}</div></td><td>${esc(p.empresa)}</td><td>${n ? `<span class="chip ${n >= 3 ? "" : "ok"}">${n} de 3</span><div class="rs">último ${u}</div>` : `<span class="chip today">Sin escribir</span>`}</td><td>${p.prox ? `<span class="chip ${e ? e.c : "acc"}">${e && /Atrasado|Hoy|Mañana/.test(e.t) ? e.t : fd(p.prox)}</span>${n && n < 3 ? `<div class="rs">Mensaje ${n + 1}</div>` : ""}` : `<button class="btn sm" data-act="pot-hoy" data-pid="${p.id}">Escribirle hoy</button>`}</td><td>${p.origen ? `<span class="chip">${esc(p.origen)}</span>` : "—"}</td><td style="white-space:normal;min-width:160px;color:var(--muted)">${esc(ultNota(p))}</td><td><select class="pot-et" data-pid="${p.id}" aria-label="Etapa de ${esc(p.contacto || p.empresa)}" style="width:auto;padding:5px 8px;font-size:13px">${ETAPAS.map(x => `<option value="${x}" ${x === (p.etapa || POT) ? "selected" : ""}>${x === POT ? "Outbound" : x}</option>`).join("")}</select></td><td style="text-align:right;white-space:nowrap"><button class="btn sm" data-act="li-chat" data-pid="${p.id}" title="Copia el mensaje y abre LinkedIn">LinkedIn</button> <button class="btn sm" data-act="pot-edit" data-pid="${p.id}">Editar</button> <button class="btn sm ghost" data-open="${p.id}">Abrir</button></td></tr>`; }).join("") || `<tr><td colspan="9" class="empty">${all.length ? "Nadie coincide con la búsqueda." : "Todavía no hay nadie en outbound. Agregalos arriba o desde una captura de LinkedIn."}</td></tr>`}
+  ${L.map(p => { const e = estado(p), n = seqEnviados(p), u = ultEnvio(p); return `<tr><td><input type="checkbox" class="pot-sel" data-pid="${p.id}" ${sel.has(p.id) ? "checked" : ""} aria-label="Elegir a ${esc(p.contacto || p.empresa)}"></td><td><button class="btn ghost sm" style="padding:0;font-weight:600;color:var(--fg)" data-open="${p.id}">${esc(p.contacto || "—")}</button><div class="rs" style="white-space:normal">${esc(p.cargo)}</div></td><td>${esc(p.empresa)}</td><td>${n ? `<span class="chip ${n >= 3 ? "" : "ok"}">${n} de 3</span><div class="rs">último ${u}</div>` : (p.etapa === "Contactado" ? `<span class="chip">Sin registrar</span><div class="rs">tildalo y marcá “escritos”</div>` : `<span class="chip today">Sin escribir</span>`)}</td><td>${p.prox ? `<span class="chip ${e ? e.c : "acc"}">${e && /Atrasado|Hoy|Mañana/.test(e.t) ? e.t : fd(p.prox)}</span>${n && n < 3 ? `<div class="rs">Mensaje ${n + 1}</div>` : ""}` : `<button class="btn sm" data-act="pot-hoy" data-pid="${p.id}">Escribirle hoy</button>`}</td><td>${p.origen ? `<span class="chip">${esc(p.origen)}</span>` : "—"}</td><td style="white-space:normal;min-width:160px;color:var(--muted)">${esc(ultNota(p))}</td><td><select class="pot-et" data-pid="${p.id}" aria-label="Etapa de ${esc(p.contacto || p.empresa)}" style="width:auto;padding:5px 8px;font-size:13px">${ETAPAS.map(x => `<option value="${x}" ${x === (p.etapa || POT) ? "selected" : ""}>${x === POT ? "Outbound" : x}</option>`).join("")}</select></td><td style="text-align:right;white-space:nowrap"><button class="btn sm" data-act="li-chat" data-pid="${p.id}" title="Copia el mensaje y abre LinkedIn">LinkedIn</button> <button class="btn sm" data-act="pot-edit" data-pid="${p.id}">Editar</button> <button class="btn sm ghost" data-open="${p.id}">Abrir</button></td></tr>`; }).join("") || `<tr><td colspan="9" class="empty">${all.length ? "Nadie coincide con la búsqueda." : "Todavía no hay nadie en outbound. Agregalos arriba o desde una captura de LinkedIn."}</td></tr>`}
   </tbody></table></div>`;
 }
 function modalPegar(){
@@ -779,7 +780,32 @@ const habil = d => { let x = new Date(d); while (x.getDay() === 0 || x.getDay() 
 const seqProx = i => i === 0 ? habil(addDays(4)) : i === 1 ? habil(addDays(7)) : null;
 const SEQ_INFO = ["Mensaje 1 · primer contacto", "Mensaje 2 · día 4 o 5, en el mismo hilo", "Mensaje 3 · día 10 a 12, en el mismo hilo"];
 const enSecuencia = p => esPotencial(p) || p.etapa === "Contactado";
-const seqEnviados = p => (String(p.notas || "").match(/Mensaje [123] enviado/g) || []).length;
+const SENT_RE = /(?:mensaje\s*([123])\s*enviado|(?:mand[eé]|envi[eé])\s+(?:el\s+)?(?:mensaje|msj|mje)\s*([123]))/i;
+const sentLines = p => String(p.notas || "").split(/\n+/).filter(x => SENT_RE.test(x));
+const seqEnviados = p => Math.max(0, ...sentLines(p).map(x => { const m = x.match(SENT_RE); return +(m[1] || m[2]); }));
+function fechaNota(l){ const m = String(l).match(/^(\d{1,2})\/(\d{1,2})/); if (!m) return null; let d = new Date(today.getFullYear(), +m[2] - 1, +m[1]); if (d > addDays(31)) d = new Date(today.getFullYear() - 1, +m[2] - 1, +m[1]); return d; }
+/* Si hay un mensaje anotado a mano ("Mandé mensaje 1") pero sin fecha de seguimiento, la completa */
+async function repararSecuencia(){
+  const proxAuto = p => { if (!p.prox) return true; if (/Próximo paso: Mandar el mensaje/i.test(p.notas || "")) return false; return String(p.notas || "").split(/\n+/).some(x => /Pasó a /i.test(x) && fechaNota(x) && iso(nextBiz(fechaNota(x))) === iso(p.prox)); };
+  const items = S.P.filter(p => enSecuencia(p) && seqEnviados(p) > 0 && seqEnviados(p) < 3 && proxAuto(p)).map(p => {
+    const n = seqEnviados(p), base = fechaNota(sentLines(p)[0]) || today;
+    const d = habil(new Date(base.getTime() + (n === 1 ? 4 : 7) * DAY));
+    const ch = { prox: d, notas: `${fd(today)}: Próximo paso: Mandar el mensaje ${n + 1} (en el mismo hilo)` + (p.notas ? "\n" + p.notas : "") };
+    if (esPotencial(p)) ch.etapa = "Contactado";
+    if (!p.ult) ch.ult = base;
+    return [p, ch];
+  });
+  /* Pasados a "Contactado" a mano, sin mensaje anotado: cuenta como mensaje 1 enviado ese día */
+  S.P.filter(p => p.etapa === "Contactado" && !seqEnviados(p)).forEach(p => {
+    const l = String(p.notas || "").split(/\n+/).find(x => /Pasó a Contactado/i.test(x)), base = l && fechaNota(l);
+    if (!base || (p.prox && iso(p.prox) !== iso(nextBiz(base)))) return;
+    const d = habil(new Date(base.getTime() + 4 * DAY));
+    items.push([p, { prox: d, ult: p.ult || base, veces: Math.max(1, p.veces || 0), notas: `${fd(today)}: Próximo paso: Mandar el mensaje 2 (en el mismo hilo)\n${fd(base)}: Mensaje 1 enviado` + (p.notas ? "\n" + p.notas : "") }]);
+  });
+  if (!items.length) return;
+  await saveMany("c", items); render();
+  toast(`Completé la fecha del próximo mensaje para ${items.length} contacto${items.length === 1 ? "" : "s"} con mensajes anotados a mano`);
+}
 const seqIdx = p => (S.seqSel && S.seqSel[p.id] != null) ? S.seqSel[p.id] : Math.min(seqEnviados(p), 2);
 const MSG = {
   "Por contactar": p => SEQ[seqIdx(p)](p),
@@ -941,6 +967,7 @@ function render(){
     const q = get(+sel.dataset.pid), et = sel.value; if (!q) return;
     if (et === "Reunión"){ $("#layer").insertAdjacentHTML("beforeend", modalReunion(q)); return; }
     if (et === "Compró" || et === "Prueba gratis"){ await saveFields("c", q, { etapa: et, ult: today, notas: logLine(q, `Pasó a ${et}`) }); refresh(`${q.empresa} pasó a ${et}`); $("#layer").insertAdjacentHTML("beforeend", modalVenta({ empresa: q.empresa, fecha: today, creditos: "", vendido: et === "Compró" ? "" : null, cobro: false, tipo: et === "Compró" ? "Venta" : "Prueba" })); bindVenta(); return; }
+    if (et === "Contactado" && !seqEnviados(q)){ const { d } = sentChanges(q), undo = await markSent([q]); refresh(); toastAct(`Marqué a ${q.contacto || q.empresa} con el mensaje 1 enviado · el 2 te lo recuerdo el ${fd(d)}`, "Deshacer", undo); return; }
     const ch = { etapa: et, notas: logLine(q, `Pasó a ${et}`) };
     if (et !== POT && !q.prox && et !== "Perdido"){ ch.prox = nextBiz(today); ch.notas = logLine(q, `Pasó a ${et}. Próximo paso: ${ACCION[et] || "Hacer seguimiento"}`); }
     await saveFields("c", q, ch); refresh(et === POT ? "Guardado" : `${q.contacto || q.empresa} pasó a ${et}${ch.prox ? ` · seguimiento el ${fd(ch.prox)}` : ""}`);
@@ -1018,7 +1045,7 @@ document.addEventListener("click", async ev => {
   if (a === "guardar" && p){
     const et = $("#etapa").value, d = fromIso($("#prox").value), hora = $("#hora").value, nota = $("#nota").value.trim();
     const ch = {}, logs = [];
-    if (et !== (p.etapa || "")){ ch.etapa = et; logs.push(`Pasó a ${et}`); }
+    if (et !== (p.etapa || "")){ ch.etapa = et; logs.push(`Pasó a ${et}`); if (et === "Contactado" && !seqEnviados(p)){ logs.push("Mensaje 1 enviado"); ch.ult = today; ch.veces = (p.veces || 0) + 1; if (!$("#prox").value || iso(fromIso($("#prox").value)) === iso(p.prox)){ ch.prox = seqProx(0); logs.push("Próximo paso: Mandar el mensaje 2 (en el mismo hilo)"); } } }
     if (iso(d) !== iso(p.prox)){ ch.prox = d; if (d) logs.push(`Próximo paso: ${et === "Reunión" && hora ? `Reunión el ${fd(d)} ${hora}` : (ACCION[et] || "Hacer seguimiento") + (hora ? ` (${hora})` : "")}`); }
     else if (hora && d){ logs.push(`Próximo paso: ${et === "Reunión" ? `Reunión el ${fd(d)} ${hora}` : (ACCION[et] || "Hacer seguimiento") + ` (${hora})`}`); }
     if (nota){ logs.push(nota); ch.ult = today; }
@@ -1133,7 +1160,7 @@ document.addEventListener("submit", async ev => {
   if (f.id === "fcontacto"){
     const data = { empresa: $("#n-emp").value.trim(), contacto: $("#n-con").value.trim(), cargo: $("#n-car").value.trim(), tel: toTel($("#n-tel").value), email: $("#n-mail").value.trim(), li: $("#n-li").value.trim(), origen: $("#n-ori").value, canal: $("#n-can").value };
     if (f.dataset.id){ const ok = $("#n-ok"); if (ok && ok.checked) data.revisar = "";
-      const q0 = get(+f.dataset.id), et = $("#n-et").value; if (et !== (q0.etapa || POT)){ data.etapa = et; data.notas = logLine(q0, `Pasó a ${et}`); if (et !== POT && !q0.prox && et !== "Perdido") data.prox = nextBiz(today); } await saveFields("c", get(+f.dataset.id), data); closeModal(); refresh("Datos guardados"); }
+      const q0 = get(+f.dataset.id), et = $("#n-et").value; if (et !== (q0.etapa || POT)){ data.etapa = et; data.notas = logLine(q0, `Pasó a ${et}`); if (et === "Contactado" && !seqEnviados(q0)){ data.notas = [`${fd(today)}: Próximo paso: Mandar el mensaje 2 (en el mismo hilo)`, `${fd(today)}: Mensaje 1 enviado`, data.notas].join("\n"); data.ult = today; data.veces = (q0.veces || 0) + 1; data.prox = seqProx(0); } else if (et !== POT && !q0.prox && et !== "Perdido") data.prox = nextBiz(today); } await saveFields("c", get(+f.dataset.id), data); closeModal(); refresh("Datos guardados"); }
     else {
       const nota = $("#n-not").value.trim();
       const px = fromIso($("#n-prox").value);
